@@ -168,7 +168,7 @@
                                 <p>For any queries, contact us at <b style="color:#0275d8;">contact@vivacecollections.com</b>.</p>
                             </div>`,
                         icon: "success",
-                        confirmButtonText: "O",
+                        confirmButtonText: "OK",
                         allowOutsideClick: false
                     });
                 } else {
