@@ -165,7 +165,7 @@
                                 <p>✅ Your order has been placed successfully!</p>
                                  <p><b>Order ID:</b> <span style="color:#d9534f;">${response.order_id}</span></p>
                                 <p>We have received your details and will process your order soon.</p>
-                                <p>For any queries, contact us at <b style="color:#0275d8;">manual@vivacecollections.com</b>.</p>
+                                <p>For any queries, contact us at <b style="color:#0275d8;">contact@vivacecollections.com</b>.</p>
                             </div>`,
                         icon: "success",
                         confirmButtonText: "OK",
