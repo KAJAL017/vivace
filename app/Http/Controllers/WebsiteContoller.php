@@ -370,7 +370,7 @@ class WebsiteContoller extends Controller
         ->limit(4)
         ->get();
 
-        $result['collections'] = DB::table('collections')->where(['is_deleted'=>0])->limit(3)->get();
+        $result['collections'] = DB::table('collections')->where(['is_deleted'=>0])->orderBy('id','DESC')->limit(3)->get();
 
 
 
