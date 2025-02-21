@@ -75,7 +75,7 @@
                                                         <button class="btn btn-success btn-sm">Push To Shiprocket</button>
                                                     </a>
                                                     <a href="#" class="" data-id="{{ $order->id }}">
-                                                        <button class="btn btn-success btn-sm">Push To Manual</button>
+                                                        <button class="btn btn-primary btn-sm">Push To Manual</button>
                                                     </a>
                                                     <a href="javascript:void(0)" class="btn btn-soft-danger btn-sm delete-btn mx-2">
                                                         <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
