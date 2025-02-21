@@ -20,6 +20,7 @@
                                 <thead class="theadColor">
                                     <tr class="text-uppercase text-center">
                                         <th>#</th>
+                                        <th>Order ID</th>
                                         <th>User Name</th>
                                         <th>Mobile</th>
                                         <th>Alternate Mobile</th>
@@ -37,7 +38,8 @@
                                 <tbody>
                                     @foreach ($orders as $key => $order)
                                         <tr data-id="{{ $order->id }}" class="text-center" id="order-{{ $order->id }}">
-                                            <td>{{ $key + 1 }}</td>
+                                            <td>{{ $key+1 }}</td>
+                                            <td>{{ $order->order_id ?? '' }}</td>
                                             <td>{{ $order->name ?? '' }}</td>
                                             <td><span class="badge bg-success text-light px-2 py-1 fs-13">{{ $order->mobile }}</span></td>
                                             <td><span class="badge bg-secondary text-light px-2 py-1 fs-13">{{ $order->alternate_mobile }}</span></td>
@@ -68,9 +70,15 @@
                                             </td>
                                             <td>{{ $order->date }}</td>
                                             <td>
-                                                <a href="#" class="cancel-order" data-id="{{ $order->id }}">
-                                                    <button class="btn btn-success btn-sm">Push To Shiprocket</button>
-                                                </a>
+                                                <div class="d-flex justify-content-center align-items-center ">
+                                                    <a href="#" class="cancel-order" data-id="{{ $order->id }}">
+                                                        <button class="btn btn-success btn-sm">Push To Shiprocket</button>
+                                                    </a>
+                                                    <a href="javascript:void(0)" class="btn btn-soft-danger btn-sm delete-btn mx-2">
+                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                    </a>
+                                                </div>
+                                            </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -277,6 +285,57 @@
                     }
                 });
             }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        // Set CSRF token in AJAX headers
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // Pass the route URL for deletion
+        var deleteUrl = "{{ route('manual.order.destroy', ['id' => ':id']) }}";
+
+        // Handle delete button click
+        $('.delete-btn').on('click', function() {
+            var row = $(this).closest('tr');
+            var id = row.data('id');
+            var url = deleteUrl.replace(':id', id); // Correctly replace placeholder
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to recover this record!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        method: 'DELETE',
+                        success: function(response) {
+                            Swal.fire("Deleted!", response.success, "success").then(
+                                () => {
+                                    row
+                                .remove(); // Remove the row from the table
+                                });
+                        },
+                        error: function(response) {
+                            Swal.fire("Error",
+                                "An error occurred while deleting the record.",
+                                "error");
+                        }
+                    });
+                } else {
+                    Swal.fire("Your record is safe!");
+                }
+            });
         });
     });
 </script>

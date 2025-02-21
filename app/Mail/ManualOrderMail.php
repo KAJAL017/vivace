@@ -29,4 +29,6 @@ class ManualOrderMail extends Mailable
                     ->view('emails.manual_order')
                     ->with('orderDetails', $this->orderDetails);
     }
+
+
 }

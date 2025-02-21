@@ -70,6 +70,7 @@ Route::delete('admin/collections/delete/{id}', action: [CollectionController::cl
 
 Route::resource('admin/banner', BannerController::class);
 Route::delete('admin/banner/delete/{id}', action: [BannerController::class, 'destroy'])->name('banner.destroy');
+Route::delete('admin/manual/order/delete/{id}', action: [OrderController::class, 'manualdestroy'])->name('manual.order.destroy');
 
 Route::resource('admin/invoice', InvoiceController::class);
 // Route::delete('banner/delete/{id}', action: [BannerController::class, 'destroy'])->name('banner.destroy');

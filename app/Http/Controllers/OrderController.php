@@ -43,7 +43,7 @@ class OrderController extends Controller
         $result['orders'] = DB::table('manual_orders')
         ->where(['is_deleted'=>0])
         ->where('is_confirm','!=',1)
-        ->orderBy('id','DESC')
+        ->orderBy('order_id','DESC')
         ->get();
 
         return view('admin.pages.orders.manualorder',$result);
@@ -128,7 +128,16 @@ public function updateOrderCancelStatus($orderId, Request $request)
         return response()->json(['success' => false, 'error' => $e->getMessage()]);
     }
 }
+public function manualdestroy($id)
+{
+    $category = DB::table('manual_orders')->where('id',$id)->first();
+    if ($category) {
+        DB::table('manual_orders')->where('id',$id)->update(['is_deleted'=>1]);
+        return response()->json(['success' => true, 'message' => 'Order deleted successfully.']);
+    }
 
+    return response()->json(['success' => false, 'message' => 'Order not found.']);
+}
 
 
 

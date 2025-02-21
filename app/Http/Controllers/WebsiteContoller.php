@@ -2389,6 +2389,7 @@ public function StoreManualOrder(Request $request)
             'productScreenshots.*' => 'required|image|mimes:jpg,jpeg,png',
             'paymentScreenshots.*' => 'required|image|mimes:jpg,jpeg,png',
             'name' => 'required|string|max:255',
+            'email' => 'required|string|max:255',
             'mobile' => 'required|digits:10',
             'alternateMobile' => 'nullable|digits:10',
             'streetAddress' => 'required|string|max:255',
@@ -2421,8 +2422,19 @@ public function StoreManualOrder(Request $request)
             }
         }
 
+        $lastOrder = DB::table('manual_orders')->latest('id')->first();
+        if ($lastOrder) {
+            $lastOrderId = $lastOrder->id;
+            $lastNumber = (int) str_replace('VC-DO-', '', $lastOrderId);
+            $newOrderId = 'VC-DO-' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            $newOrderId = 'VC-DO-001';
+        }
+
         $orderData = [
+            'order_id' => $newOrderId,
             'name' => $request->input('name'),
+            'email' => $request->input('email'),
             'mobile' => $request->input('mobile'),
             'alternate_mobile' => $request->input('alternateMobile'),
             'street_address' => $request->input('streetAddress'),
@@ -2436,8 +2448,14 @@ public function StoreManualOrder(Request $request)
         ];
 
         DB::table('manual_orders')->insert($orderData);
+
         try {
             Mail::to('manual@vivacecollections.com')->send(new ManualOrderMail($orderData));
+
+            // Email to User
+            Mail::to($request->input('email'))->send(new ManualOrderMail($orderData));
+
+
         } catch (\Exception $e) {
             Log::error('Email could not be sent: ' . $e->getMessage());
             DB::rollBack();
@@ -2447,8 +2465,14 @@ public function StoreManualOrder(Request $request)
                 'error' => $e->getMessage(),
             ]);
         }
+
         DB::commit();
-        return response()->json(['success' => true, 'message' => 'Order placed successfully and email sent!']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Order placed successfully and email sent!',
+            'order_id' => $newOrderId
+        ]);
+
     } catch (\Exception $e) {
         DB::rollBack();
         return response()->json([
@@ -2459,6 +2483,8 @@ public function StoreManualOrder(Request $request)
         ]);
     }
 }
+
+
 
 
 
