@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TrackingDetailsMail;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Http;
@@ -89,6 +92,8 @@ class OrderController extends Controller
         ]);
     }
 
+
+
     public function storeTrackingDetails(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -113,7 +118,7 @@ class OrderController extends Controller
             $file = $request->file('tracking_slip');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/manualorders/slip'), $filename);
-            $trackingSlipPath = 'public/uploads/manualorders/slip/' . $filename;
+            $trackingSlipPath = url('public/uploads/manualorders/slip/' . $filename);
         }
 
         DB::table('manual_orders')->where('id', $request->order_id)->update([
@@ -122,8 +127,34 @@ class OrderController extends Controller
             'tracking_slip' => $trackingSlipPath,
         ]);
 
-        return response()->json(['success' => 'Tracking details updated successfully!']);
+        $customerEmail = $order->email;
+
+        if ($customerEmail) {
+            Mail::to($customerEmail)->send(new TrackingDetailsMail($order, $request->tracking_id, $request->tracking_link, $trackingSlipPath));
+        }
+
+        return response()->json(['success' => 'Tracking details updated and email sent successfully!']);
     }
+
+
+    public function viewTrackingDetails(Request $request)
+{
+    $order = DB::table('manual_orders')->where('id', $request->order_id)->first();
+
+    if (!$order) {
+        return response()->json(['success' => false, 'message' => 'Order not found'], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'tracking_id' => $order->tracking_id ?? 'Not Available',
+            'tracking_link' => $order->tracking_link ?? '#',
+            'tracking_slip' => $order->tracking_slip ? asset($order->tracking_slip) : null,
+        ]
+    ]);
+}
+
 
 
 

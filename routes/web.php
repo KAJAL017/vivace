@@ -92,6 +92,7 @@ Route::get('admin/contacts',[AdminController::class,'contacts'])->name('admin.co
 Route::get('admin/manual/orders',[OrderController::class,'ManualOrder'])->name('ManualOrder');
 Route::get('admin/shipped/orders',[OrderController::class,'ShippedOrder'])->name('ShippedOrder');
 Route::post('/order/tracking-details', [OrderController::class, 'storeTrackingDetails'])->name('order.tracking.store');
+Route::get('/order/tracking/view', [OrderController::class, 'viewTrackingDetails'])->name('order.tracking.view');
 
 
 

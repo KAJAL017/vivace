@@ -83,6 +83,15 @@
                                                         data-id="{{ $order->id }}">
                                                         Shipped
                                                     </a>
+                                                    @if (!empty($order->tracking_id))
+                                                    <a href="javascript:void(0)"
+                                                        class="btn btn-primary mx-2 btn-sm view-tracking-btn"
+                                                        data-id="{{ $order->id }}">
+                                                        View
+                                                    </a>
+                                                @endif
+
+
 
                                                     <a href="javascript:void(0)"
                                                         class="btn btn-soft-danger btn-sm delete-btn mx-2">
@@ -170,6 +179,89 @@
     </div>
 </div>
 
+<div class="modal fade" id="trackingDetailsModal" tabindex="-1" aria-labelledby="trackingDetailsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trackingDetailsModalLabel">Tracking Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <style>
+                /* Modal Content */
+                #trackingModal .modal-content {
+                    border-radius: 12px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                    border: none;
+                }
+
+                /* Table Styling */
+                #trackingModal .table {
+                    border-radius: 8px;
+                    overflow: hidden;
+                    background: #fff;
+                }
+
+                /* Table Headers */
+                #trackingModal .table th {
+                    background: linear-gradient(to right, #4CAF50, #388E3C);
+                    color: #000;
+                    font-size: 14px;
+                    padding: 12px;
+                    text-align: left;
+                    font-weight: bold;
+                }
+
+                /* Table Data */
+                #trackingModal .table td {
+                    padding: 12px;
+                    font-size: 14px;
+                    color: #333;
+                    border: 1px solid #ddd;
+                }
+
+                /* Tracking Link */
+                #modal_tracking_link {
+                    color: #007bff;
+                    font-weight: bold;
+                    text-decoration: none;
+                    transition: 0.3s;
+                }
+
+                #modal_tracking_link:hover {
+                    color: #0056b3;
+                    text-decoration: underline;
+                }
+
+                /* Tracking Slip Styling */
+                #modal_tracking_slip img {
+                    width: 100px;
+                    height: auto;
+                    border-radius: 8px;
+                    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+                }
+            </style>
+
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="color: black">Tracking ID</th>
+                        <td id="modal_tracking_id"></td>
+                    </tr>
+                    <tr>
+                        <th style="color: black">Tracking Link</th>
+                        <td><a href="#" id="modal_tracking_link" target="_blank"></a></td>
+                    </tr>
+                    <tr>
+                        <th style="color: black">Tracking Slip</th>
+                        <td id="modal_tracking_slip"></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('admin-js')
@@ -196,52 +288,89 @@
 
 
 <script>
-$(document).ready(function() {
-    $(".shipped-btn").on("click", function() {
-        let orderId = $(this).data("id");
-        $("#order_id").val(orderId);
-        $("#trackingModal").modal("show");
-    });
+    $(document).ready(function() {
+        $(".shipped-btn").on("click", function() {
+            let orderId = $(this).data("id");
+            $("#order_id").val(orderId);
+            $("#trackingModal").modal("show");
+        });
 
-    $("#trackingForm").on("submit", function(e) {
-        e.preventDefault();
-        $(".error-message").remove(); // पुरानी errors remove करें
+        $("#trackingForm").on("submit", function(e) {
+            e.preventDefault();
+            $(".error-message").remove(); // पुरानी errors remove करें
 
-        let formData = new FormData();
-        formData.append("order_id", $("#order_id").val());
-        formData.append("tracking_id", $("#tracking_id").val());
-        formData.append("tracking_link", $("#tracking_link").val());
-        formData.append("tracking_slip", $("#tracking_slip")[0].files[0]);
+            let formData = new FormData();
+            formData.append("order_id", $("#order_id").val());
+            formData.append("tracking_id", $("#tracking_id").val());
+            formData.append("tracking_link", $("#tracking_link").val());
+            formData.append("tracking_slip", $("#tracking_slip")[0].files[0]);
 
-        $.ajax({
-            url: "{{ route('order.tracking.store') }}",
-            type: "POST",
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
-            },
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                $("#trackingModal").modal("hide");
-                toastr.success(response.success);
-                $("#trackingForm")[0].reset();
-            },
-            error: function(xhr) {
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    $.each(errors, function(field, messages) {
-                        $("#" + field).after('<span class="text-danger error-message">' + messages[0] + '</span>');
-                    });
-                } else {
-                    toastr.error("Something went wrong!");
+            $.ajax({
+                url: "{{ route('order.tracking.store') }}",
+                type: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+                },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $("#trackingModal").modal("hide");
+                    toastr.success(response.success);
+                    $("#trackingForm")[0].reset();
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        $.each(errors, function(field, messages) {
+                            $("#" + field).after(
+                                '<span class="text-danger error-message">' +
+                                messages[0] + '</span>');
+                        });
+                    } else {
+                        toastr.error("Something went wrong!");
+                    }
                 }
-            }
+            });
         });
     });
-});
+</script>
+<script>
+    $(document).ready(function() {
+        $(".view-tracking-btn").on("click", function() {
+            let orderId = $(this).data("id");
 
+            $.ajax({
+                url: "{{ route('order.tracking.view') }}",
+                type: "GET",
+                data: {
+                    order_id: orderId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $("#modal_tracking_id").text(response.data.tracking_id);
+                        $("#modal_tracking_link").attr("href", response.data.tracking_link)
+                            .text(response.data.tracking_link);
 
+                        if (response.data.tracking_slip) {
+                            $("#modal_tracking_slip").html(
+                                `<a href="${response.data.tracking_slip}" target="_blank" class="btn btn-success btn-sm">View Slip</a>`
+                            );
+                        } else {
+                            $("#modal_tracking_slip").text("Not Available");
+                        }
+
+                        $("#trackingDetailsModal").modal("show");
+                    } else {
+                        toastr.error("Tracking details not found!");
+                    }
+                },
+                error: function() {
+                    toastr.error("Something went wrong!");
+                }
+            });
+        });
+    });
 </script>
 <script>
     $(document).on('click', '.view-images', function() {
@@ -362,7 +491,7 @@ $(document).ready(function() {
                                 confirmButtonText: 'OK'
                             }).then(() => {
                                 location
-                            .reload(); // Reload the page after confirmation
+                                    .reload(); // Reload the page after confirmation
                             });
                         } else {
                             Swal.fire({
