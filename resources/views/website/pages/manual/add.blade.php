@@ -220,12 +220,12 @@
                     <p>🛍️ Happy Shopping! 🛍️</p>
                 </div>`,
             icon: "success",
-            confirmButtonText: "Please Submit Details",
+            confirmButtonText: "Submit Details",
             allowOutsideClick: false,
             width: 600,
         }).then((result) => {
             if (result.isConfirmed) {
-                $('#orderForm').fadeIn(); // पॉपअप बंद होने के बाद फॉर्म दिखाएँ
+                $('#orderForm').fadeIn();
             }
         });
     }
