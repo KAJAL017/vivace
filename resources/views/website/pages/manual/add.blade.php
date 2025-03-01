@@ -200,61 +200,29 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        showBookingPolicy();
+        showWelcomeMessage();
     });
 
-    function showBookingPolicy() {
+
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        showWelcomeMessage();
+    });
+
+    function showWelcomeMessage() {
         Swal.fire({
-            title: "<h2 style='color:#d9534f; font-weight:bold;'>📢 Booking Policy</h2>",
+            title: "<h2 style='color:#d9534f; font-weight:bold;'>✨ Welcome to Vivacea Collection ✨</h2>",
             html: `
-                <div style="text-align:left; font-size:16px; line-height:1.6;">
-                    <p><strong>⚠️ Important Notice:</strong> We accept only <b style="color:#000;">paid bookings</b>. No verbal bookings will be entertained.</p>
-                    <hr>
-                    <p><strong>💳 Payment Options:</strong></p>
-                    <p><b>GPay / Mpay Number:</b> <span style="color:#000;">6005883809</span></p>
-                    <p><b>Bank Account Details:</b></p>
-                    <p><b>Account Number:</b> 0148010100004202</p>
-                    <p><b>IFSC Code:</b> JAKA0KARRAN</p>
-                    <hr>
-                    <p><strong>📸 Payment Confirmation:</strong> Please <b>share the payment screenshot</b> once the transaction is completed.</p>
-                    <hr>
-                    <p style="color:#000; font-weight:bold; text-align:center;">
-                        🚨 Booking is valid for <b>10 minutes</b> only. <br> After that, please reconfirm availability before making the payment. 🚨
-                    </p>
+                <div style="text-align:center; font-size:18px; line-height:1.6;">
+                    <p>🌟 Your one-stop destination for elegant and trendy collections! 🌟</p>
+                    <p>Explore the best designs and shop with confidence.</p>
+                    <p>🛍️ Happy Shopping! 🛍️</p>
                 </div>`,
-            icon: "info",
-            showCancelButton: true,
-            cancelButtonText: "Close",
-            confirmButtonText: "Next",
+            icon: "success",
+            confirmButtonText: "Let's Explore",
             allowOutsideClick: false,
             width: 600,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                showShippingDetails();
-            }
-        });
-    }
-
-    function showShippingDetails() {
-        Swal.fire({
-            title: "<h2 style='color:#0275d8; font-weight:bold;'>🚚 Shipping Charge</h2>",
-            html: `
-                <div style="text-align:left; font-size:16px; line-height:1.6;">
-                    <p><b>Srinagar:</b> ₹70/kg</p>
-                    <p><b>Srinagar outskirts and Metro Cities:</b> ₹100/kg</p>
-                    <p><b>Other Districts within JK:</b> ₹120/kg</p>
-                    <p><b>For the rest of India:</b> ₹140/kg</p>
-                    <hr>
-                    <p><strong>📌 Note:</strong> For other locations, please confirm shipping before making the payment.</p>
-                </div>`,
-            icon: "info",
-            confirmButtonText: "OK",
-            allowOutsideClick: false,
-            width: 500,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $('#orderForm').fadeIn();
-            }
         });
     }
 </script>
