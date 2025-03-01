@@ -212,7 +212,7 @@
 
     function showWelcomeMessage() {
         Swal.fire({
-            title: "<h2 style='color:#d9534f; font-weight:bold;'>✨ Welcome to Vivacea Collection ✨</h2>",
+            title: "<h2 style='color:#000; font-weight:bold;'>✨ Welcome to Vivace Collection ✨</h2>",
             html: `
                 <div style="text-align:center; font-size:18px; line-height:1.6;">
                     <p>🌟 Your one-stop destination for elegant and trendy collections! 🌟</p>
