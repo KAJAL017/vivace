@@ -217,10 +217,10 @@
                 <div style="text-align:center; font-size:18px; line-height:1.6;">
                     <p>🌟 Your one-stop destination for elegant and trendy collections! 🌟</p>
                     <p>Explore the best designs and shop with confidence.</p>
-                    <p>🛍️ Please Submit Details! 🛍️</p>
+                    <p>🛍️ Happy Shopping! 🛍️</p>
                 </div>`,
             icon: "success",
-            confirmButtonText: "Let's Explore",
+            confirmButtonText: "Please Submit Details",
             allowOutsideClick: false,
             width: 600,
         });
