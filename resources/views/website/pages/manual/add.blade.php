@@ -237,12 +237,13 @@
 
     function showShippingDetails() {
         Swal.fire({
-            title: "<h2 style='color:#0275d8; font-weight:bold;'>🚚 Shipping Details</h2>",
+            title: "<h2 style='color:#0275d8; font-weight:bold;'>🚚 Shipping Charge</h2>",
             html: `
                 <div style="text-align:left; font-size:16px; line-height:1.6;">
                     <p><b>Srinagar:</b> ₹70/kg</p>
-                    <p><b>Srinagar Outskirts:</b> ₹100/kg</p>
-                    <p><b>Other Districts:</b> ₹120/kg</p>
+                    <p><b>Srinagar outskirts and Metro Cities:</b> ₹100/kg</p>
+                    <p><b>Other Districts within JK:</b> ₹120/kg</p>
+                    <p><b>For the rest of India:</b> ₹140/kg</p>
                     <hr>
                     <p><strong>📌 Note:</strong> For other locations, please confirm shipping before making the payment.</p>
                 </div>`,
