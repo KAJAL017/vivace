@@ -106,43 +106,26 @@
                 <div class="collapse" id="OrdersSection">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('latestOrder') }}">Latest Order</a>
+                            <a class="sub-nav-link" href="{{ route('latestOrder') }}">Latest Orders</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('OngoingOrder') }}">Ongoing Order</a>
+                            <a class="sub-nav-link" href="{{ route('OngoingOrder') }}">Ongoing Orders</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('CancelOrder') }}">Cancelled Order</a>
+                            <a class="sub-nav-link" href="{{ route('CancelOrder') }}">Cancelled Orders</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('DeliveredOrder') }}">Delivered Order</a>
+                            <a class="sub-nav-link" href="{{ route('DeliveredOrder') }}">Delivered Orders</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('ManualOrder') }}">Manual Order</a>
+                            <a class="sub-nav-link" href="{{ route('ManualOrder') }}">Manual Orders</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('ShippedOrder') }}">Shipped Orders</a>
                         </li>
                     </ul>
                 </div>
             </li>
-
-            {{-- <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#InvoiceSection" data-bs-toggle="collapse" role="button"
-                    aria-expanded="false" aria-controls="InvoiceSection">
-                    <span class="nav-icon">
-                        <iconify-icon icon="solar:clipboard-text-bold-duotone"></iconify-icon>
-                    </span>
-                    <span class="nav-text">Invoice Section</span>
-                </a>
-                <div class="collapse" id="InvoiceSection">
-                    <ul class="nav sub-navbar-nav">
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('invoice.create') }}">Create</a>
-                        </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="#">List</a>
-                        </li>
-                    </ul>
-                </div>
-            </li> --}}
 
             <li class="menu-title mt-2">Customer Base</li>
 
@@ -176,14 +159,6 @@
             </li>
 
 
-            {{-- <li class="nav-item">
-                <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                    <span class="nav-icon">
-                        <iconify-icon icon="solar:chat-square-like-bold-duotone"></iconify-icon>
-                    </span>
-                    <span class="nav-text">My Profile</span>
-                </a>
-            </li> --}}
 
             <li class="menu-title mt-2">Website Section</li>
 
