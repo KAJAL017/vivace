@@ -208,17 +208,17 @@
             title: "<h2 style='color:#d9534f; font-weight:bold;'>📢 Booking Policy</h2>",
             html: `
                 <div style="text-align:left; font-size:16px; line-height:1.6;">
-                    <p><strong>⚠️ Important Notice:</strong> We accept only <b style="color:#d9534f;">paid bookings</b>. No verbal bookings will be entertained.</p>
+                    <p><strong>⚠️ Important Notice:</strong> We accept only <b style="color:#000;">paid bookings</b>. No verbal bookings will be entertained.</p>
                     <hr>
                     <p><strong>💳 Payment Options:</strong></p>
-                    <p><b>GPay / Mpay Number:</b> <span style="color:#d9534f;">6005883809</span></p>
+                    <p><b>GPay / Mpay Number:</b> <span style="color:#000;">6005883809</span></p>
                     <p><b>Bank Account Details:</b></p>
                     <p><b>Account Number:</b> 0148010100004202</p>
                     <p><b>IFSC Code:</b> JAKA0KARRAN</p>
                     <hr>
                     <p><strong>📸 Payment Confirmation:</strong> Please <b>share the payment screenshot</b> once the transaction is completed.</p>
                     <hr>
-                    <p style="color:#d9534f; font-weight:bold; text-align:center;">
+                    <p style="color:#000; font-weight:bold; text-align:center;">
                         🚨 Booking is valid for <b>10 minutes</b> only. <br> After that, please reconfirm availability before making the payment. 🚨
                     </p>
                 </div>`,
