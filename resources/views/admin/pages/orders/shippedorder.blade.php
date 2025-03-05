@@ -81,7 +81,7 @@
                                                     <a href="javascript:void(0)"
                                                         class="btn btn-success btn-sm shipped-btn"
                                                         data-id="{{ $order->id }}">
-                                                        Shipped
+                                                        Update Tracking Details
                                                     </a>
                                                     @if (!empty($order->tracking_id))
                                                     <a href="javascript:void(0)"
