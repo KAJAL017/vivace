@@ -24,11 +24,6 @@
                                         <th>User Name</th>
                                         <th>Mobile</th>
                                         <th>Alternate Mobile</th>
-                                        <th>Street Address</th>
-                                        <th>Colony</th>
-                                        <th>Pincode</th>
-                                        <th>City</th>
-                                        <th>State</th>
                                         <th>Product Screenshot</th>
                                         <th>Payment Screenshot</th>
                                         <th>Date</th>
@@ -37,51 +32,58 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($orders as $key => $order)
-                                        <tr data-id="{{ $order->id }}" class="text-center" id="order-{{ $order->id }}">
-                                            <td>{{ $key+1 }}</td>
-                                            <td>{{ $order->order_id ?? '' }}</td>
-                                            <td>{{ $order->name ?? '' }}</td>
-                                            <td><span class="badge bg-success text-light px-2 py-1 fs-13">{{ $order->mobile }}</span></td>
-                                            <td><span class="badge bg-secondary text-light px-2 py-1 fs-13">{{ $order->alternate_mobile }}</span></td>
-                                            <td>{{ $order->street_address }}</td>
-                                            <td>{{ $order->colony }}</td>
-                                            <td>{{ $order->pincode }}</td>
-                                            <td>{{ $order->city }}</td>
-                                            <td>{{ $order->state }}</td>
-                                            <td>
-                                                @php
-                                                    $productScreenshots = json_decode($order->product_screenshot, true);
-                                                @endphp
-                                                @if ($productScreenshots && is_array($productScreenshots))
-                                                    <button class="btn btn-info btn-sm view-images"
-                                                        data-images="{{ implode(',', array_map('url', $productScreenshots)) }}"
-                                                        data-title="Product Images">View Product Images</button>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @php
-                                                    $paymentScreenshots = json_decode($order->payment_screenshot, true);
-                                                @endphp
-                                                @if ($paymentScreenshots && is_array($paymentScreenshots))
-                                                    <button class="btn btn-info btn-sm view-images"
-                                                        data-images="{{ implode(',', array_map('url', $paymentScreenshots)) }}"
-                                                        data-title="Payment Images">View Payment Images</button>
-                                                @endif
-                                            </td>
-                                            <td>{{ $order->date }}</td>
-                                            <td>
-                                                <div class="d-flex justify-content-center align-items-center ">
-
-                                                        <button class="btn btn-success proceed-btn btn-sm">Proceed</button>
-                                                    </a>
-                                                    <a href="javascript:void(0)" class="btn btn-soft-danger btn-sm delete-btn mx-2">
-                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
-                                                    </a>
-                                                </div>
-                                            </a>
-                                            </td>
-                                        </tr>
+                                    <tr data-id="{{ $order->id }}" class="text-center" id="order-{{ $order->id }}">
+                                        <td>{{ $key+1 }}</td>
+                                        <td>{{ $order->order_id ?? '' }}</td>
+                                        <td>{{ $order->name ?? '' }}</td>
+                                        <td><span class="badge bg-success text-light px-2 py-1 fs-13">{{ $order->mobile }}</span></td>
+                                        <td><span class="badge bg-secondary text-light px-2 py-1 fs-13">{{ $order->alternate_mobile }}</span></td>
+                                        <td>
+                                            @php
+                                                $productScreenshots = json_decode($order->product_screenshot, true);
+                                            @endphp
+                                            @if ($productScreenshots && is_array($productScreenshots))
+                                                <button class="btn btn-info btn-sm view-images"
+                                                    data-images="{{ implode(',', array_map('url', $productScreenshots)) }}"
+                                                    data-title="Product Images">View Product Images</button>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $paymentScreenshots = json_decode($order->payment_screenshot, true);
+                                            @endphp
+                                            @if ($paymentScreenshots && is_array($paymentScreenshots))
+                                                <button class="btn btn-info btn-sm view-images"
+                                                    data-images="{{ implode(',', array_map('url', $paymentScreenshots)) }}"
+                                                    data-title="Payment Images">View Payment Images</button>
+                                            @endif
+                                        </td>
+                                        <td>{{ $order->date }}</td>
+                                        <td>
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                <button class="btn btn-success proceed-btn btn-sm">Proceed</button>
+                                                <a href="javascript:void(0)" class="btn btn-soft-danger btn-sm delete-btn mx-2">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <!-- View Address Button -->
+                                                <button class="btn btn-primary btn-sm view-address-btn"
+                                                    data-name="{{ $order->name }}"
+                                                    data-mobile="{{ $order->mobile }}"
+                                                    data-alt-mobile="{{ $order->alternate_mobile }}"
+                                                    data-street="{{ $order->street_address }}"
+                                                    data-colony="{{ $order->colony }}"
+                                                    data-pincode="{{ $order->pincode }}"
+                                                    data-city="{{ $order->city }}"
+                                                    data-state="{{ $order->state }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#addressModal">
+                                                    View Address
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
                                     @endforeach
+
                                 </tbody>
 
 
@@ -95,6 +97,28 @@
     </div> <!-- end row -->
 </div>
 <!-- End Container Fluid -->
+<!-- Address Modal -->
+<div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addressModalLabel">Order Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Name:</strong> <span id="modalName"></span></p>
+                <p><strong>Mobile:</strong> <span id="modalMobile"></span></p>
+                <p><strong>Alternate Mobile:</strong> <span id="modalAltMobile"></span></p>
+                <p><strong>Street Address:</strong> <span id="modalStreet"></span></p>
+                <p><strong>Colony:</strong> <span id="modalColony"></span></p>
+                <p><strong>Pincode:</strong> <span id="modalPincode"></span></p>
+                <p><strong>City:</strong> <span id="modalCity"></span></p>
+                <p><strong>State:</strong> <span id="modalState"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -170,7 +194,23 @@
         $('#imageModal').modal('show');
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".view-address-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+            document.getElementById("modalName").innerText = this.getAttribute("data-name");
+            document.getElementById("modalMobile").innerText = this.getAttribute("data-mobile");
+            document.getElementById("modalAltMobile").innerText = this.getAttribute("data-alt-mobile");
+            document.getElementById("modalStreet").innerText = this.getAttribute("data-street");
+            document.getElementById("modalColony").innerText = this.getAttribute("data-colony");
+            document.getElementById("modalPincode").innerText = this.getAttribute("data-pincode");
+            document.getElementById("modalCity").innerText = this.getAttribute("data-city");
+            document.getElementById("modalState").innerText = this.getAttribute("data-state");
+        });
+    });
+});
 
+</script>
 {{--
 <script>
     $(document).on('click', '.cancel-order', function(e) {
