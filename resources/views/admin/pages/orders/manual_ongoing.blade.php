@@ -384,7 +384,7 @@
 
         Swal.fire({
             title: "Are you sure?",
-            text: "Do you want to mark this order as Manual To Manual?",
+            text: "Do you want to mark this order as  Shipped",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#28a745",
