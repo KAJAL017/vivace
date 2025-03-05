@@ -156,12 +156,12 @@
 
                     <div class="mb-3">
                         <label for="tracking_id" class="form-label">Tracking ID</label>
-                        <input type="text" class="form-control" id="tracking_id" required>
+                        <input type="text" class="form-control" id="tracking_id" placeholder="Enter Tracking ID" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="tracking_link" class="form-label">Paste Tracking Link</label>
-                        <input type="text" class="form-control" id="tracking_link" required>
+                        <input type="text" class="form-control" id="tracking_link"  placeholder="Enter Tracking Link" required>
                     </div>
 
                     <div class="mb-3">
