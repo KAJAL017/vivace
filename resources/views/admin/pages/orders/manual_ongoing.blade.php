@@ -377,7 +377,6 @@
         });
     });
 </script>
-
 <script>
     $(document).on('click', '.confirm-manual', function (e) {
         e.preventDefault();
@@ -413,6 +412,11 @@
                         } else {
                             Swal.fire("Error!", response.message, "error");
                         }
+                    },
+                    error: function (xhr, status, error) {
+                        // Display the actual error message
+                        let errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "An error occurred. Please try again.";
+                        Swal.fire("Error!", errorMessage, "error");
                     }
                 });
             }

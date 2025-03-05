@@ -244,7 +244,7 @@ public function updateConfirmStatus(Request $request)
 {
     $orderId = $request->order_id;
 
-    $update = DB::table('orders')->where('id', $orderId)->update(['is_confirm' => 1]);
+    $update = DB::table('manual_orders')->where('id', $orderId)->update(['is_confirm' => 1]);
 
     if ($update) {
         return response()->json(['status' => 'success', 'message' => 'Order marked as Shipped!']);
