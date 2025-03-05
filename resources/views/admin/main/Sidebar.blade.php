@@ -101,7 +101,7 @@
                     <span class="nav-icon">
                         <iconify-icon icon="solar:bag-smile-bold-duotone"></iconify-icon>
                     </span>
-                    <span class="nav-text">Orders Section</span>
+                    <span class="nav-text">Website Orders Section</span>
                 </a>
                 <div class="collapse" id="OrdersSection">
                     <ul class="nav sub-navbar-nav">
@@ -117,12 +117,30 @@
                         <li class="sub-nav-item">
                             <a class="sub-nav-link" href="{{ route('DeliveredOrder') }}">Delivered Orders</a>
                         </li>
+
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#ManualOrdersSection" data-bs-toggle="collapse" role="button"
+                    aria-expanded="false" aria-controls="ManualOrdersSection">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:bag-smile-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text">Manual Orders Section</span>
+                </a>
+                <div class="collapse" id="ManualOrdersSection">
+                    <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
                             <a class="sub-nav-link" href="{{ route('ManualOrder') }}">Manual Orders</a>
                         </li>
                         <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('ManualOrder.OngoingOrder') }}">Ongoing Orders</a>
+                        </li>
+                        <li class="sub-nav-item">
                             <a class="sub-nav-link" href="{{ route('ShippedOrder') }}">Shipped Orders</a>
                         </li>
+
                     </ul>
                 </div>
             </li>

@@ -49,12 +49,23 @@ class OrderController extends Controller
 
         return view('admin.pages.orders.manualorder',$result);
     }
+    public function ManualOngoingOrder(){
+
+        $result['orders'] = DB::table('manual_orders')
+        ->where(['is_deleted'=>0])
+        ->where('is_confirm','!=',1)
+        ->where('is_proceed','=',1)
+        ->orderBy('order_id','DESC')
+        ->get();
+
+        return view('admin.pages.orders.manual_ongoing',$result);
+    }
     public function ShippedOrder(){
 
         $result['orders'] = DB::table('manual_orders')
         ->where(['is_deleted'=>0])
         ->where('is_confirm',1)
-        ->orderBy('order_id','DESC')
+        ->orderBy('id','DESC')
         ->get();
 
         return view('admin.pages.orders.shippedorder',$result);
@@ -206,6 +217,19 @@ public function updateOrderCancelStatus($orderId, Request $request)
         return response()->json(['success' => false, 'error' => $e->getMessage()]);
     }
 }
+public function updateProceedStatus(Request $request)
+{
+    $orderId = $request->order_id;
+
+
+    $update = DB::table('manual_orders')->where('id', $orderId)->update(['is_proceed' => 1]);
+
+    if ($update) {
+        return response()->json(['status' => 'success', 'message' => 'Order marked as Proceeded!']);
+    } else {
+        return response()->json(['status' => 'error', 'message' => 'Failed to update order!']);
+    }
+}
 public function manualdestroy($id)
 {
     $category = DB::table('manual_orders')->where('id',$id)->first();
@@ -215,6 +239,18 @@ public function manualdestroy($id)
     }
 
     return response()->json(['success' => false, 'message' => 'Order not found.']);
+}
+public function updateConfirmStatus(Request $request)
+{
+    $orderId = $request->order_id;
+
+    $update = DB::table('orders')->where('id', $orderId)->update(['is_confirm' => 1]);
+
+    if ($update) {
+        return response()->json(['status' => 'success', 'message' => 'Order marked as Shipped!']);
+    } else {
+        return response()->json(['status' => 'error', 'message' => 'Failed to update order!']);
+    }
 }
 
 

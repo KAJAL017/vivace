@@ -98,6 +98,7 @@
                                 placeholder="Enter your state" required>
                             <div class="text-danger small" id="stateError"></div>
                         </div>
+
                     </div>
                     <div class="d-grid gap-2 mt-3">
                         <button type="submit" id="submitButton" class="btn btn-dark w-100"> Submit </button>

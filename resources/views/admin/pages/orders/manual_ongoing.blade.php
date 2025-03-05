@@ -23,10 +23,6 @@
                                         <th>Order ID</th>
                                         <th>User Name</th>
                                         <th>Mobile</th>
-                                        <th>Alternate Mobile</th>
-                                        <th>Street Address</th>
-                                        <th>Colony</th>
-                                        <th>Pincode</th>
                                         <th>City</th>
                                         <th>State</th>
                                         <th>Product Screenshot</th>
@@ -42,10 +38,6 @@
                                             <td>{{ $order->order_id ?? '' }}</td>
                                             <td>{{ $order->name ?? '' }}</td>
                                             <td><span class="badge bg-success text-light px-2 py-1 fs-13">{{ $order->mobile }}</span></td>
-                                            <td><span class="badge bg-secondary text-light px-2 py-1 fs-13">{{ $order->alternate_mobile }}</span></td>
-                                            <td>{{ $order->street_address }}</td>
-                                            <td>{{ $order->colony }}</td>
-                                            <td>{{ $order->pincode }}</td>
                                             <td>{{ $order->city }}</td>
                                             <td>{{ $order->state }}</td>
                                             <td>
@@ -71,9 +63,10 @@
                                             <td>{{ $order->date }}</td>
                                             <td>
                                                 <div class="d-flex justify-content-center align-items-center ">
-
-                                                        <button class="btn btn-success proceed-btn btn-sm">Proceed</button>
+                                                    <a href="#" class="push-order" data-id="{{ $order->id }}">
+                                                        <button class="btn btn-success btn-sm">Push To Shiprocket</button>
                                                     </a>
+                                                    <button class="btn btn-primary btn-sm confirm-manual mx-2" data-id="{{ $order->id }}">Push To Manual</button>
                                                     <a href="javascript:void(0)" class="btn btn-soft-danger btn-sm delete-btn mx-2">
                                                         <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                                     </a>
@@ -171,7 +164,7 @@
     });
 </script>
 
-{{--
+
 <script>
     $(document).on('click', '.cancel-order', function(e) {
         e.preventDefault();
@@ -221,8 +214,73 @@
             }
         });
     });
-</script> --}}
+</script>
+<script>
+    $(document).on('click', '.push-order', function (e) {
+        e.preventDefault();
 
+        let orderId = $(this).data('id'); // Get the order ID
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to push this order to Shiprocket?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, push it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Perform AJAX request to push data to Shiprocket
+                $.ajax({
+                    url: '{{ route('maual-order-push-to-shiprocket') }}', // Define your Laravel route
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        order_id: orderId
+                    },
+                    beforeSend: function () {
+                        Swal.fire({
+                            title: 'Pushing...',
+                            text: 'Please wait while we process the order.',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            showConfirmButton: false
+                        });
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = "{{ route('ShippedOrder') }}";
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Failed!',
+                                text: response.message,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again later.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>
 
 <script>
     $(document).ready(function() {
@@ -276,22 +334,22 @@
 </script>
 
 <script>
-    $(document).on('click', '.proceed-btn', function (e) {
+    $(document).on('click', '.confirm-manual', function (e) {
         e.preventDefault();
-        let orderId = $(this).closest('tr').data('id'); // Get order ID
+        let orderId = $(this).data('id'); // Get Order ID
 
         Swal.fire({
             title: "Are you sure?",
-            text: "You want to proceed with this order!",
+            text: "Do you want to mark this order as Manual To Manual?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#28a745",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Proceed!"
+            confirmButtonText: "Yes, Confirm!"
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('manual.update.proceed.status') }}", // Route for AJAX
+                    url: "{{ route('manual.update.confirm.status') }}", // Route for AJAX
                     type: "POST",
                     data: {
                         order_id: orderId,
@@ -299,8 +357,13 @@
                     },
                     success: function (response) {
                         if (response.status === "success") {
-                            Swal.fire("Updated!", response.message, "success").then(() => {
-                                window.location.href = "{{ route('ManualOrder.OngoingOrder') }}"; // Change route accordingly
+                            Swal.fire({
+                                title: "Updated!",
+                                text: response.message,
+                                icon: "success",
+                                confirmButtonText: "OK"
+                            }).then(() => {
+                                window.location.href = "{{ route('ShippedOrder') }}"; // Redirect to success page
                             });
                         } else {
                             Swal.fire("Error!", response.message, "error");
@@ -311,4 +374,8 @@
         });
     });
 </script>
+
+
+
+
 @endsection

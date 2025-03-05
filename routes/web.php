@@ -90,6 +90,12 @@ Route::get('admin/orders/cancel',[OrderController::class,'CancelOrder'])->name('
 Route::get('admin/orders/{custom_order_id}', [OrderController::class, 'latestOrderView'])->name('order.view');
 Route::get('admin/contacts',[AdminController::class,'contacts'])->name('admin.contact');
 Route::get('admin/manual/orders',[OrderController::class,'ManualOrder'])->name('ManualOrder');
+Route::get('admin/manual/ongoing/orders',[OrderController::class,'ManualOngoingOrder'])->name('ManualOrder.OngoingOrder');
+
+Route::post('/update-proceed-status', [OrderController::class, 'updateProceedStatus'])->name('manual.update.proceed.status');
+Route::post('/update-confirm-status', [OrderController::class, 'updateConfirmStatus'])->name('manual.update.confirm.status');
+
+
 Route::get('admin/shipped/orders',[OrderController::class,'ShippedOrder'])->name('ShippedOrder');
 Route::post('/order/tracking-details', [OrderController::class, 'storeTrackingDetails'])->name('order.tracking.store');
 Route::get('/order/tracking/view', [OrderController::class, 'viewTrackingDetails'])->name('order.tracking.view');
