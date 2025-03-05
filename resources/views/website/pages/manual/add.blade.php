@@ -99,9 +99,18 @@
                             <div class="text-danger small" id="stateError"></div>
                         </div>
 
+                        <div class="col-md-12 mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" id="termsCheckbox" class="form-check-input" >
+                                <label for="termsCheckbox" class="form-check-label">
+                                    I agree to the <a href="javascript:void(0)" id="showTerms">Terms & Conditions</a>
+                                </label>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="d-grid gap-2 mt-3">
-                        <button type="submit" id="submitButton" class="btn btn-dark w-100"> Submit </button>
+                        <button type="submit" id="submitButton" class="btn btn-dark w-100" disabled> Submit </button>
                         <div id="successMessage" class="alert alert-success mt-3 d-none"></div>
                     </div>
 
@@ -114,6 +123,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div id="termsModal" class="modal fade" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Terms & Conditions</h5>
+                    <button type="button" class="btn-close close-modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>⚠️ Please read the terms and conditions carefully before submitting your order.</p>
+                    <ul>
+                        <li>✔ Delivery takes 1-3 working days for Srinagar, 3-5 working days for districts and within 7 days for rest of India</li>
+                        <li>✔ Orders recieved during the day are dispatched on the next working day</li>
+                        <li>✔ Vivace declares no Warranty or Guarantee on any of the purchases unless otherwise mentioned.</li>
+                        <li>✔ We have no return policy</li>
+                        <li>✔ We entertain 3days In-Store Exchange on fresh items only.</li>
+                        <li>✔ No exchange is entertained on Sale Items and ready to wear.</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="acceptTerms" class="btn btn-success">I Accept</button>
+                    <button type="button" class="btn btn-danger close-modal">Decline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+$(document).ready(function () {
+    // Terms & Conditions modal show hone par checkbox prevent ho
+    $("#termsCheckbox").click(function (e) {
+        e.preventDefault(); // Prevent checkbox from being checked manually
+        $("#termsModal").modal("show");
+    });
+
+    // Accept Terms & Conditions
+    $("#acceptTerms").click(function () {
+        $("#termsCheckbox").prop("checked", true); // Checkbox check hoga
+        $("#submitButton").prop("disabled", false); // Submit button enable hoga
+        $("#termsModal").modal("hide"); // Modal band hoga
+    });
+
+    // Decline button click kare toh checkbox unchecked ho
+    $("#declineTerms").click(function () {
+        $("#termsCheckbox").prop("checked", false); // Checkbox unchecked hoga
+        $("#submitButton").prop("disabled", true); // Submit button disable hoga
+        $("#termsModal").modal("hide"); // Modal band hoga
+    });
+
+    // Checkbox manually uncheck kare toh submit button disable ho
+    $("#termsCheckbox").change(function () {
+        if (!this.checked) {
+            $("#submitButton").prop("disabled", true);
+        }
+    });
+});
+
+    </script>
+
+
     <script>
         function validateForm() {
             const form = document.getElementById('orderForm');
@@ -136,101 +203,110 @@
             input.addEventListener('input', validateForm);
         });
     </script>
-<script>
-    $('#orderForm').on('submit', function(e) {
-        e.preventDefault();
+    <script>
+       $('#orderForm').on('submit', function(e) {
+    e.preventDefault();
 
-        var formData = new FormData(this);
-        resetErrorMessages();
-
-        $('#submitButton').html('<i class="fas fa-spinner fa-spin"></i> Please wait...').prop('disabled', true);
-        $('#thankYouMessage').fadeOut(); // पहले का थैंक यू मैसेज छुपाएँ
-
-        $.ajax({
-            url: '{{ route('store.manual.order') }}',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                $('#submitButton').html('Submit').prop('disabled', false);
-                if (response.success) {
-                    $('#orderForm')[0].reset();
-                    Swal.fire({
-                        title: "🎉 Thank You!",
-                        html: `
-                            <div style="font-size:18px; line-height:1.6; text-align:center;">
-                                <p>✅ Your order has been placed successfully!</p>
-                                 <p><b>Order ID:</b> <span style="color:#d9534f;">${response.order_id}</span></p>
-                                <p>We have received your details and will process your order soon.</p>
-                                <p>For any queries, contact us at <b style="color:#0275d8;">contact@vivacecollections.com</b>.</p>
-                            </div>`,
-                        icon: "success",
-                        confirmButtonText: "OK",
-                        allowOutsideClick: false
-                    });
-                } else {
-                    toastr.error(response.message || 'Something went wrong.');
-                }
-            },
-            error: function(xhr) {
-                $('#submitButton').html('Submit').prop('disabled', false);
-                if (xhr.status === 422) {
-                    var errors = xhr.responseJSON.errors;
-                    if (errors) {
-                        for (const field in errors) {
-                            if (errors[field].length > 0) {
-                                $('#' + field + 'Error').text(errors[field].join(', '));
-                            }
-                        }
-                    } else {
-                        toastr.error('Validation error occurred.');
-                    }
-                } else {
-                    toastr.error('An unexpected error occurred.');
-                }
-            }
+    // Terms & Conditions checkbox check kare
+    if (!$('#termsCheckbox').prop('checked')) {
+        Swal.fire({
+            title: "⚠️ Terms & Conditions Required",
+            text: "You must accept the Terms & Conditions before submitting the form.",
+            icon: "warning",
+            confirmButtonText: "OK"
         });
-    });
-
-    function resetErrorMessages() {
-        $('small[id$="Error"]').text('');
+        return; // Form submit nahi hoga
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        showWelcomeMessage();
+    var formData = new FormData(this);
+    resetErrorMessages();
+
+    $('#submitButton').html('<i class="fas fa-spinner fa-spin"></i> Please wait...').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ route('store.manual.order') }}',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            $('#submitButton').html('Submit').prop('disabled', false);
+            if (response.success) {
+                $('#orderForm')[0].reset();
+                Swal.fire({
+                    title: "🎉 Thank You!",
+                    html: `
+                    <div style="font-size:18px; line-height:1.6; text-align:center;">
+                        <p>✅ Your order has been placed successfully!</p>
+                         <p><b>Order ID:</b> <span style="color:#d9534f;">${response.order_id}</span></p>
+                        <p>We have received your details and will process your order soon.</p>
+                        <p>For any queries, contact us at <b style="color:#0275d8;">contact@vivacecollections.com</b>.</p>
+                    </div>`,
+                    icon: "success",
+                    confirmButtonText: "OK",
+                    allowOutsideClick: false
+                });
+            } else {
+                toastr.error(response.message || 'Something went wrong.');
+            }
+        },
+        error: function(xhr) {
+            $('#submitButton').html('Submit').prop('disabled', false);
+            if (xhr.status === 422) {
+                var errors = xhr.responseJSON.errors;
+                if (errors) {
+                    for (const field in errors) {
+                        if (errors[field].length > 0) {
+                            $('#' + field + 'Error').text(errors[field].join(', '));
+                        }
+                    }
+                } else {
+                    toastr.error('Validation error occurred.');
+                }
+            } else {
+                toastr.error('An unexpected error occurred.');
+            }
+        }
     });
+});
 
 
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        showWelcomeMessage();
-    });
+        function resetErrorMessages() {
+            $('small[id$="Error"]').text('');
+        }
 
-    function showWelcomeMessage() {
-        Swal.fire({
-            title: "<h2 style='color:grey; font-weight:bold;'> Welcome to Vivace Collection </h2>",
-            html: `
+        document.addEventListener("DOMContentLoaded", function() {
+            showWelcomeMessage();
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            showWelcomeMessage();
+        });
+
+        function showWelcomeMessage() {
+            Swal.fire({
+                title: "<h2 style='color:grey; font-weight:bold;'> Welcome to Vivace Collection </h2>",
+                html: `
                 <div style="text-align:center; font-size:18px; line-height:1.6;">
                     <p> Your one-stop destination for elegant and trendy collections! </p>
                     <p>Explore the best designs and shop with confidence.</p>
                     <p>🛍️ Happy Shopping! 🛍️</p>
                 </div>`,
-            icon: "success",
-            confirmButtonText: "Submit Details",
-            allowOutsideClick: false,
-            width: 600,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $('#orderForm').fadeIn();
-            }
-        });
-    }
-</script>
+                icon: "success",
+                confirmButtonText: "Submit Details",
+                allowOutsideClick: false,
+                width: 600,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#orderForm').fadeIn();
+                }
+            });
+        }
+    </script>
 
 
 </body>
