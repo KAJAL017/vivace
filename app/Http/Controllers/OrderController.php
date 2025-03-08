@@ -44,6 +44,7 @@ class OrderController extends Controller
         $result['orders'] = DB::table('manual_orders')
         ->where(['is_deleted'=>0])
         ->where('is_confirm','!=',1)
+        ->where('is_proceed','!=',1)
         ->orderBy('order_id','DESC')
         ->get();
 
