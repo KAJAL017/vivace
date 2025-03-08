@@ -112,7 +112,7 @@ class OrderController extends Controller
             'order_id' => 'required|exists:manual_orders,id',
             'tracking_id' => 'required|string|max:255',
             'tracking_link' => 'required|url',
-            // 'tracking_slip' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'tracking_slip' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -125,7 +125,7 @@ class OrderController extends Controller
             return response()->json(['error' => 'Order not found'], 404);
         }
 
-        $trackingSlipPath = null;
+        $trackingSlipPath = $order->tracking_slip;
         if ($request->hasFile('tracking_slip')) {
             $file = $request->file('tracking_slip');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -147,6 +147,7 @@ class OrderController extends Controller
 
         return response()->json(['success' => 'Tracking details updated and email sent successfully!']);
     }
+
 
 
     public function viewTrackingDetails(Request $request)

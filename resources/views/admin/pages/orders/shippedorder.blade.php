@@ -323,12 +323,6 @@
 $(document).ready(function() {
     $(document).on("click", ".shipped-btn", function() {
         let orderId = $(this).data("id");
-        $("#order_id").val(orderId);
-        $("#trackingModal").modal("show");
-    });
-
-    $(document).on("click", ".view-tracking-btn", function() {
-        let orderId = $(this).data("id");
 
         $.ajax({
             url: "{{ route('order.tracking.view') }}",
@@ -336,19 +330,20 @@ $(document).ready(function() {
             data: { order_id: orderId },
             success: function(response) {
                 if (response.success) {
-                    $("#modal_tracking_id").text(response.data.tracking_id);
-                    $("#modal_tracking_link").attr("href", response.data.tracking_link)
-                        .text(response.data.tracking_link);
+                    $("#order_id").val(orderId);
+
+                    $("#tracking_id").val(response.data.tracking_id || "");
+                    $("#tracking_link").val(response.data.tracking_link || "");
 
                     if (response.data.tracking_slip) {
-                        $("#modal_tracking_slip").html(
-                            `<a href="${response.data.tracking_slip}" target="_blank" class="btn btn-success btn-sm">View Slip</a>`
+                        $("#tracking_slip_preview").html(
+                            `<a href="${response.data.tracking_slip}" target="_blank" class="btn btn-success btn-sm">View Old Slip</a>`
                         );
                     } else {
-                        $("#modal_tracking_slip").text("Not Available");
+                        $("#tracking_slip_preview").html("No slip uploaded");
                     }
 
-                    $("#trackingDetailsModal").modal("show");
+                    $("#trackingModal").modal("show");
                 } else {
                     toastr.error("Tracking details not found!");
                 }
@@ -359,6 +354,7 @@ $(document).ready(function() {
         });
     });
 });
+
 
 </script>
 <script>
