@@ -68,16 +68,6 @@
                                                         class="btn btn-success btn-sm shipped-btn"
                                                         data-id="{{ $order->id }}">
                                                         Update Tracking Details
-                                                    </a>
-                                                    @if (!empty($order->tracking_id))
-                                                    <a href="javascript:void(0)"
-                                                        class="btn btn-primary mx-2 btn-sm view-tracking-btn"
-                                                        data-id="{{ $order->id }}">
-                                                        View
-                                                    </a>
-                                                @endif
-
-
 
                                                     <a href="javascript:void(0)"
                                                         class="btn btn-soft-danger btn-sm delete-btn mx-2">
@@ -372,7 +362,35 @@ $(document).ready(function() {
     $(document).on("click", ".shipped-btn", function() {
         let orderId = $(this).data("id");
         $("#order_id").val(orderId);
-        $("#trackingModal").modal("show");
+
+        $.ajax({
+            url: "{{ route('order.tracking.view') }}",
+            type: "GET",
+            data: { order_id: orderId },
+            success: function(response) {
+                if (response.success) {
+                    $("#tracking_id").val(response.data.tracking_id || '');
+                    $("#tracking_link").val(response.data.tracking_link || '');
+
+                    if (response.data.tracking_slip) {
+                        $("#tracking_slip_preview").html(
+                            `<a href="${response.data.tracking_slip}" target="_blank" class="btn btn-success btn-sm mt-2">View Existing Slip</a>`
+                        );
+                    } else {
+                        $("#tracking_slip_preview").html('');
+                    }
+                } else {
+                    $("#tracking_id").val('');
+                    $("#tracking_link").val('');
+                    $("#tracking_slip_preview").html('');
+                }
+
+                $("#trackingModal").modal("show");
+            },
+            error: function() {
+                toastr.error("Something went wrong while fetching data!");
+            }
+        });
     });
 
     $(document).on("click", ".view-tracking-btn", function() {
