@@ -320,8 +320,62 @@
 </script>
 
 <script>
+    $(document).ready(function() {
+        $(".shipped-btn").on("click", function() {
+            let orderId = $(this).data("id");
+            $("#order_id").val(orderId);
+            $("#trackingModal").modal("show");
+        });
+
+        $("#trackingForm").on("submit", function(e) {
+            e.preventDefault();
+            $(".error-message").remove(); // पुरानी errors remove करें
+
+            let formData = new FormData();
+            formData.append("order_id", $("#order_id").val());
+            formData.append("tracking_id", $("#tracking_id").val());
+            formData.append("tracking_link", $("#tracking_link").val());
+            formData.append("tracking_slip", $("#tracking_slip")[0].files[0]);
+
+            $.ajax({
+                url: "{{ route('order.tracking.store') }}",
+                type: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+                },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $("#trackingModal").modal("hide");
+                    toastr.success(response.success);
+                    $("#trackingForm")[0].reset();
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        $.each(errors, function(field, messages) {
+                            $("#" + field).after(
+                                '<span class="text-danger error-message">' +
+                                messages[0] + '</span>');
+                        });
+                    } else {
+                        toastr.error("Something went wrong!");
+                    }
+                }
+            });
+        });
+    });
+</script>
+<script>
 $(document).ready(function() {
     $(document).on("click", ".shipped-btn", function() {
+        let orderId = $(this).data("id");
+        $("#order_id").val(orderId);
+        $("#trackingModal").modal("show");
+    });
+
+    $(document).on("click", ".view-tracking-btn", function() {
         let orderId = $(this).data("id");
 
         $.ajax({
@@ -330,20 +384,19 @@ $(document).ready(function() {
             data: { order_id: orderId },
             success: function(response) {
                 if (response.success) {
-                    $("#order_id").val(orderId);
-
-                    $("#tracking_id").val(response.data.tracking_id || "");
-                    $("#tracking_link").val(response.data.tracking_link || "");
+                    $("#modal_tracking_id").text(response.data.tracking_id);
+                    $("#modal_tracking_link").attr("href", response.data.tracking_link)
+                        .text(response.data.tracking_link);
 
                     if (response.data.tracking_slip) {
-                        $("#tracking_slip_preview").html(
-                            `<a href="${response.data.tracking_slip}" target="_blank" class="btn btn-success btn-sm">View Old Slip</a>`
+                        $("#modal_tracking_slip").html(
+                            `<a href="${response.data.tracking_slip}" target="_blank" class="btn btn-success btn-sm">View Slip</a>`
                         );
                     } else {
-                        $("#tracking_slip_preview").html("No slip uploaded");
+                        $("#modal_tracking_slip").text("Not Available");
                     }
 
-                    $("#trackingModal").modal("show");
+                    $("#trackingDetailsModal").modal("show");
                 } else {
                     toastr.error("Tracking details not found!");
                 }
@@ -355,45 +408,8 @@ $(document).ready(function() {
     });
 });
 
-
 </script>
-<script>
-    $(document).ready(function() {
-        $(".view-tracking-btn").on("click", function() {
-            let orderId = $(this).data("id");
 
-            $.ajax({
-                url: "{{ route('order.tracking.view') }}",
-                type: "GET",
-                data: {
-                    order_id: orderId
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $("#modal_tracking_id").text(response.data.tracking_id);
-                        $("#modal_tracking_link").attr("href", response.data.tracking_link)
-                            .text(response.data.tracking_link);
-
-                        if (response.data.tracking_slip) {
-                            $("#modal_tracking_slip").html(
-                                `<a href="${response.data.tracking_slip}" target="_blank" class="btn btn-success btn-sm">View Slip</a>`
-                            );
-                        } else {
-                            $("#modal_tracking_slip").text("Not Available");
-                        }
-
-                        $("#trackingDetailsModal").modal("show");
-                    } else {
-                        toastr.error("Tracking details not found!");
-                    }
-                },
-                error: function() {
-                    toastr.error("Something went wrong!");
-                }
-            });
-        });
-    });
-</script>
 <script>
     $(document).on('click', '.view-images', function() {
         const images = $(this).data('images').split(',');
