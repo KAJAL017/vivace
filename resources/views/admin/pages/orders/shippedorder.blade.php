@@ -81,8 +81,7 @@
 
                                                     <a href="javascript:void(0)"
                                                         class="btn btn-soft-danger btn-sm delete-btn mx-2">
-                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                            class="align-middle fs-18"></iconify-icon>
+                                                        Delete
                                                     </a>
                                                     <button class="btn btn-primary btn-sm view-address-btn"
                                                     data-name="{{ $order->name }}"
