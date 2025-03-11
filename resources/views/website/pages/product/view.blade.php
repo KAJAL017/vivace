@@ -184,23 +184,31 @@
                         document.querySelector('.btn.btn_black.sm').addEventListener('click', function(e) {
                             e.preventDefault();
 
+                            // Fetch product details
                             let productName = `{{ $productData['name'] }}`;
                             let productPrice = `₹{{ number_format($price, 2) }}`;
                             let productMRP = `₹{{ number_format($mrp, 2) }}`;
                             let discount = `{{ $discountPercentage }}% off`;
 
+                            // Fetch selected size and color
                             let selectedSize = document.querySelector('.size-item.active .size-option')?.innerText || 'N/A';
                             let selectedColor = document.querySelector('.color-option.active')?.getAttribute('data-color-id') || 'N/A';
 
+                            // Construct the message
                             let message = `*New Order Details* \n\n` +
-                                          ` *Product:* ${productName}\n` +
-                                          ` *Price:* ${productPrice} (MRP: ${productMRP})\n` +
-                                          ` *Discount:* ${discount}\n` +
-                                          ` *Size:* ${selectedSize}\n` +
-                                          ` *Color:* ${selectedColor}`;
+                                           `*Product:* ${productName}\n` +
+                                           `*Price:* ${productPrice} (MRP: ${productMRP})\n` +
+                                           `*Discount:* ${discount}\n` +
+                                           `*Size:* ${selectedSize}\n` +
+                                           `*Color:* ${selectedColor}`;
 
-                            let whatsappUrl = `https://wa.me/917889538626?text=${encodeURIComponent(message)}`;
+                            // Encode the message for the URL
+                            let encodedMessage = encodeURIComponent(message);
 
+                            // Construct the WhatsApp URL
+                            let whatsappUrl = `https://wa.me/917889538626?text=${encodedMessage}`;
+
+                            // Open the WhatsApp URL in a new tab
                             window.open(whatsappUrl, '_blank');
                         });
                     </script>
