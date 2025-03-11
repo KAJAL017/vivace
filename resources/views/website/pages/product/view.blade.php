@@ -192,18 +192,19 @@
                             let selectedSize = document.querySelector('.size-item.active .size-option')?.innerText || 'N/A';
                             let selectedColor = document.querySelector('.color-option.active')?.getAttribute('data-color-id') || 'N/A';
 
-                            let message = `🛒 *New Order Details* 🛒\n\n` +
-                                          `🟢 *Product:* ${productName}\n` +
-                                          `💰 *Price:* ${productPrice} (MRP: ${productMRP})\n` +
-                                          `🎯 *Discount:* ${discount}\n` +
-                                          `📏 *Size:* ${selectedSize}\n` +
-                                          `🎨 *Color:* ${selectedColor}`;
+                            let message = `*New Order Details* \n\n` +
+                                          ` *Product:* ${productName}\n` +
+                                          ` *Price:* ${productPrice} (MRP: ${productMRP})\n` +
+                                          ` *Discount:* ${discount}\n` +
+                                          ` *Size:* ${selectedSize}\n` +
+                                          ` *Color:* ${selectedColor}`;
 
-                            let whatsappUrl = `https://wa.me/7889538626?text=${encodeURIComponent(message)}`;
+                            let whatsappUrl = `https://wa.me/917889538626?text=${encodeURIComponent(message)}`;
 
                             window.open(whatsappUrl, '_blank');
                         });
                     </script>
+
 
                 </div>
             </div>
