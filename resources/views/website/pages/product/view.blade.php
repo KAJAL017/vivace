@@ -124,10 +124,15 @@
                                         max="20">
                                     <button class="plus" type="button"><i class="fa-solid fa-plus"></i></button>
                                 </div>
-                                <div class="d-flex align-items-center gap-3 w-100">
+                                {{-- <div class="d-flex align-items-center gap-3 w-100">
                                     <a class="btn btn_black sm add-to-cart-btn" href="#" data-bs-toggle="offcanvas"
                                         data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"
                                         data-product-id="{{ $productData['id'] }}">Add To Cart</a>
+                                </div> --}}
+                                <div class="d-flex align-items-center gap-3 w-100">
+                                    <a class="btn btn_black sm " href="#" data-bs-toggle="offcanvas"
+                                        data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"
+                                        >Add To Cart</a>
                                 </div>
                             </div>
 
@@ -175,6 +180,31 @@
                             </div> --}}
                         </div>
                     </div>
+                    <script>
+                        document.querySelector('.btn.btn_black.sm').addEventListener('click', function(e) {
+                            e.preventDefault();
+
+                            let productName = `{{ $productData['name'] }}`;
+                            let productPrice = `₹{{ number_format($price, 2) }}`;
+                            let productMRP = `₹{{ number_format($mrp, 2) }}`;
+                            let discount = `{{ $discountPercentage }}% off`;
+
+                            let selectedSize = document.querySelector('.size-item.active .size-option')?.innerText || 'N/A';
+                            let selectedColor = document.querySelector('.color-option.active')?.getAttribute('data-color-id') || 'N/A';
+
+                            let message = `🛒 *New Order Details* 🛒\n\n` +
+                                          `🟢 *Product:* ${productName}\n` +
+                                          `💰 *Price:* ${productPrice} (MRP: ${productMRP})\n` +
+                                          `🎯 *Discount:* ${discount}\n` +
+                                          `📏 *Size:* ${selectedSize}\n` +
+                                          `🎨 *Color:* ${selectedColor}`;
+
+                            let whatsappUrl = `https://wa.me/7889538626?text=${encodeURIComponent(message)}`;
+
+                            window.open(whatsappUrl, '_blank');
+                        });
+                    </script>
+
                 </div>
             </div>
         </div>
@@ -321,7 +351,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="Reviews-tab-pane" role="tabpanel"
+                            {{-- <div class="tab-pane fade" id="Reviews-tab-pane" role="tabpanel"
                                 aria-labelledby="Reviews-tab" tabindex="0">
                                 <div class="row gy-4">
                                     <div class="col-lg-4">
@@ -504,7 +534,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
