@@ -180,29 +180,37 @@
                         </div>
                     </div>
 <script>
-    document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
-        e.preventDefault();
+document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
+    e.preventDefault();
 
-        let productName = `{{ $productData['name'] }}`;
-        let productPrice = `₹{{ number_format($price, 2) }}`;
-        let productMRP = `₹{{ number_format($mrp, 2) }}`;
-        let discount = `{{ $discountPercentage }}% off`;
+    let productName = `{{ $productData['name'] }}`;
+    let productPrice = `₹{{ number_format($price, 2) }}`;
+    let productMRP = `₹{{ number_format($mrp, 2) }}`;
+    let discount = `{{ $discountPercentage }}% off`;
 
-        let selectedSize = document.querySelector('.size-item.active .size-option')?.innerText || 'N/A';
-        let selectedColor = document.querySelector('.color-option.active')?.getAttribute('data-color-id') || 'N/A';
+    let selectedSize = document.querySelector('.size-item.active .size-option')?.innerText || 'N/A';
+    let selectedColor = document.querySelector('.color-option.active')?.getAttribute('data-color-id') || 'N/A';
 
-        let message = `*New Order Details* \n\n` +
-                       `*Product:* ${productName}\n` +
-                       `*Price:* ${productPrice} (MRP: ${productMRP})\n` +
-                       `*Discount:* ${discount}\n` +
-                       `*Size:* ${selectedSize}\n` +
-                       `*Color:* ${selectedColor}`;
+    // Collect product images
+    let imageLinks = `{{ url('public/' . $product_images->first()->file_path) }}`; // Display first image
+    let allImages = @json($product_images->pluck('file_path')->map(fn($path) => url('public/' . $path)));
 
-        let encodedMessage = encodeURIComponent(message);
-        let whatsappUrl = `https://wa.me/917889538626?text=${encodedMessage}`;
+    let imageText = allImages.map((img, index) => `Image ${index + 1}: ${img}`).join('\n');
 
-        window.open(whatsappUrl, '_blank');
-    });
+    let message = `*New Order Details* \n\n` +
+                   `*Product:* ${productName}\n` +
+                   `*Price:* ${productPrice} (MRP: ${productMRP})\n` +
+                   `*Discount:* ${discount}\n` +
+                   `*Size:* ${selectedSize}\n` +
+                   `*Color:* ${selectedColor}\n\n` +
+                   `*Images:*\n${imageText}`;
+
+    let encodedMessage = encodeURIComponent(message);
+    let whatsappUrl = `https://wa.me/917889538626?text=${encodedMessage}`;
+
+    window.open(whatsappUrl, '_blank');
+});
+
 </script>
 
 
