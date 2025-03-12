@@ -206,7 +206,8 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
                    `*Images:*\n${imageText}`;
 
     let encodedMessage = encodeURIComponent(message);
-    let whatsappUrl = `https://wa.me/917889538626?text=${encodedMessage}`;
+    let whatsappUrl = `https://api.whatsapp.com/send/?phone=917889538626&text=${encodedMessage}`;
+
 
     window.open(whatsappUrl, '_blank');
 });
