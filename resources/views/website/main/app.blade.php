@@ -130,10 +130,7 @@
     </div>
 
     <header>
-        <div class="top_header">
-            <p>Free Coupe Code: Summer Sale On Selected items Use:<span>NEW 26</span><a href="#"> SHOP NOW</a>
-            </p>
-        </div>
+
         <div class="custom-container container header-1">
             <div class="row">
                 <div class="col-12 p-0">
