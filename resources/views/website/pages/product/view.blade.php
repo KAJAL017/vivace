@@ -129,12 +129,12 @@
                                         data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"
                                         data-product-id="{{ $productData['id'] }}">Add To Cart</a>
                                 </div>
-{{-- <div class="d-flex align-items-center gap-3 w-100">
-    <a class="btn btn-success sm d-flex align-items-center gap-2 whatsapp-btn" href="#">
-        <i class="fab fa-whatsapp"></i> Buy On WhatsApp
-    </a>
-</div>                            </div> --}}
-
+                          </div>
+                          {{-- <div class="d-flex align-items-center gap-3 w-100">
+                            <a class="btn btn-success sm d-flex align-items-center gap-2 whatsapp-btn" href="#">
+                                <i class="fab fa-whatsapp"></i> Buy On WhatsApp
+                            </a>
+                        </div>   --}}
                             <div class="buy-box">
                                 <ul>
                                     <li><a href="#" class="btn btn_black sm add-to-wishlist-btn"
