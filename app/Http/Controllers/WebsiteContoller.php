@@ -422,7 +422,7 @@ class WebsiteContoller extends Controller
         }
         $result['collections'] =  DB::table('collections')
         ->where(['is_deleted'=>0])
-        ->where('id','desc')
+        ->orderBy('id','desc')
         ->where('sub_category_id',$subcategory->id)
         ->paginate(9);
 
