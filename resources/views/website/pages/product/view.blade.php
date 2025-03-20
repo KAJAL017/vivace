@@ -124,16 +124,16 @@
                                         max="20">
                                     <button class="plus" type="button"><i class="fa-solid fa-plus"></i></button>
                                 </div>
-                                {{-- <div class="d-flex align-items-center gap-3 w-100">
+                                <div class="d-flex align-items-center gap-3 w-100">
                                     <a class="btn btn_black sm add-to-cart-btn" href="#" data-bs-toggle="offcanvas"
                                         data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"
                                         data-product-id="{{ $productData['id'] }}">Add To Cart</a>
-                                </div> --}}
-<div class="d-flex align-items-center gap-3 w-100">
+                                </div>
+{{-- <div class="d-flex align-items-center gap-3 w-100">
     <a class="btn btn-success sm d-flex align-items-center gap-2 whatsapp-btn" href="#">
         <i class="fab fa-whatsapp"></i> Buy On WhatsApp
     </a>
-</div>                            </div>
+</div>                            </div> --}}
 
                             <div class="buy-box">
                                 <ul>
@@ -179,7 +179,7 @@
                             </div> --}}
                         </div>
                     </div>
-<script>
+{{-- <script>
 document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
     e.preventDefault();
 
@@ -212,7 +212,7 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
     window.open(whatsappUrl, '_blank');
 });
 
-</script>
+</script> --}}
 
 
                 </div>
