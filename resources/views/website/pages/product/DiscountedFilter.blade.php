@@ -163,7 +163,10 @@
                         </div>
 
                         <div id="load-more-container" class="text-center mt-4">
-                            <button id="load-more" class="btn btn-primary" data-next-page="{{ $products->nextPageUrl() }}">Load More</button>
+                            <button id="load-more" class="btn btn-primary" data-next-page="{{ $products->nextPageUrl() }}">
+                                Load More
+                            </button>
+
                             <div id="loading-spinner" style="display: none;">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Loading...</span>
@@ -249,38 +252,40 @@
         });
     </script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const loadMoreBtn = document.getElementById('load-more');
-            const productResults = document.getElementById('product-results');
-            const loadingSpinner = document.getElementById('loading-spinner');
+  document.addEventListener('DOMContentLoaded', function () {
+    const loadMoreBtn = document.getElementById('load-more');
+    const productResults = document.getElementById('product-results');
+    const loadingSpinner = document.getElementById('loading-spinner');
 
-            loadMoreBtn.addEventListener('click', function () {
-                const nextPageUrl = loadMoreBtn.getAttribute('data-next-page');
-                if (!nextPageUrl) return;
+    loadMoreBtn.addEventListener('click', function () {
+        const nextPageUrl = loadMoreBtn.getAttribute('data-next-page');
+        if (!nextPageUrl) return;
 
-                loadMoreBtn.style.display = 'none';
-                loadingSpinner.style.display = 'block';
+        loadMoreBtn.style.display = 'none';
+        loadingSpinner.style.display = 'block';
 
-                fetch(nextPageUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.html) {
-                            productResults.insertAdjacentHTML('beforeend', data.html);
-                        }
+        fetch(nextPageUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response Data:', data);  // ✅ Ye line debugging ke liye important hai
+                if (data.html) {
+                    productResults.insertAdjacentHTML('beforeend', data.html);
+                }
 
-                        if (data.next_page_url) {
-                            loadMoreBtn.setAttribute('data-next-page', data.next_page_url);
-                            loadMoreBtn.style.display = 'inline-block';
-                        } else {
-                            loadMoreBtn.style.display = 'none';
-                        }
-                    })
-                    .catch(error => console.error('Error:', error))
-                    .finally(() => {
-                        loadingSpinner.style.display = 'none';
-                    });
+                if (data.next_page_url) {
+                    loadMoreBtn.setAttribute('data-next-page', data.next_page_url);
+                    loadMoreBtn.style.display = 'inline-block';
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                loadingSpinner.style.display = 'none';
             });
-        });
+    });
+});
+
     </script>
 
 @endsection

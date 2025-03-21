@@ -1503,11 +1503,13 @@ public function addToCart(Request $request)
                 foreach ($products as $product) {
                     $html .= view('website.pages.product.partials.product', compact('product'))->render();
                 }
+
                 return response()->json([
                     'html' => $html,
-                    'next_page_url' => $products->nextPageUrl() // Next page URL for infinite scroll
+                    'next_page_url' => $products->nextPageUrl()
                 ]);
             }
+
 
             $categories = DB::table('categories')->get();
 
