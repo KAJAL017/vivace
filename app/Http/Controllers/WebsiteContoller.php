@@ -1468,8 +1468,6 @@ public function addToCart(Request $request)
     public function DiscountedProduct(Request $request)
     {
         try {
-
-            // Fetch products related to the selected collection
             $query = DB::table('products')
                 ->join('product_attributes', 'products.id', '=', 'product_attributes.product_id')
                 ->where('products.discounted', 1)
@@ -1483,7 +1481,6 @@ public function addToCart(Request $request)
                 )
                 ->groupBy('products.id', 'products.name', 'products.slug');
 
-            // Apply filters if any
             if ($request->has('search') && !empty($request->search)) {
                 $query->where('products.name', 'like', '%' . $request->search . '%');
             }
@@ -1499,30 +1496,28 @@ public function addToCart(Request $request)
                 $query->where('product_attributes.price', '<=', $maxPrice);
             }
 
-            // Get the filtered products
-            $products = $query->get();
+            $products = $query->paginate(12);
 
-            // Check if the request is an AJAX request
             if ($request->ajax()) {
                 $html = '';
                 foreach ($products as $product) {
                     $html .= view('website.pages.product.partials.product', compact('product'))->render();
                 }
-                return response()->json(['html' => $html]);
+                return response()->json([
+                    'html' => $html,
+                    'next_page_url' => $products->nextPageUrl() // Next page URL for infinite scroll
+                ]);
             }
 
-            // Fetch all categories to pass to the view
-            $categories = DB::table('categories')->get(); // Fetch all categories
+            $categories = DB::table('categories')->get();
 
-
-
-            // Return the filtered products along with the categories
             return view('website.pages.product.DiscountedFilter', compact('products', 'categories'));
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return response()->json(['error' => 'Something went wrong!'], 500);
         }
     }
+
 
 
 
