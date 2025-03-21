@@ -570,8 +570,8 @@ $(document).ready(function() {
         formData.append('_token', '{{ csrf_token() }}');
 
         $.ajax({
-            url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}"
-                .replace('__PRODUCT_ID__', productId),
+            url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}".replace('__PRODUCT_ID__', productId)
+z
             type: 'POST',
             data: formData,
             contentType: false,
