@@ -567,59 +567,61 @@ $(document).ready(function() {
         let productId = $('input[name="ProductID"]').val();
         let formData = new FormData(this);
 
-        formData.append('_token', '{{ csrf_token() }}');
 
         $.ajax({
-            url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}".replace('__PRODUCT_ID__', productId),
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            beforeSend: function() {
-                Swal.fire({
-                    title: 'Please wait...',
-                    text: 'Processing your request...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-            },
-            success: function(response) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: response.message,
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('product.index') }}";
-                    }
-                });
-            },
-            error: function(xhr) {
-                Swal.close();
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorMessage = '<ul>';
-                    $.each(errors, function(key, value) {
-                        errorMessage += '<li>' + value[0] + '</li>';
-                    });
-                    errorMessage += '</ul>';
-                    Swal.fire({
-                        title: 'Validation Error',
-                        html: errorMessage,
-                        icon: 'error'
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'An error occurred. Please try again.',
-                        icon: 'error'
-                    });
-                }
+    url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}".replace('__PRODUCT_ID__', productId),
+    type: 'POST',
+    data: formData,
+    contentType: false,
+    processData: false,
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Add CSRF token to headers
+    },
+    beforeSend: function() {
+        Swal.fire({
+            title: 'Please wait...',
+            text: 'Processing your request...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
             }
         });
+    },
+    success: function(response) {
+        Swal.fire({
+            title: 'Success!',
+            text: response.message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ route('product.index') }}";
+            }
+        });
+    },
+    error: function(xhr) {
+        Swal.close();
+        if (xhr.status === 422) {
+            let errors = xhr.responseJSON.errors;
+            let errorMessage = '<ul>';
+            $.each(errors, function(key, value) {
+                errorMessage += '<li>' + value[0] + '</li>';
+            });
+            errorMessage += '</ul>';
+            Swal.fire({
+                title: 'Validation Error',
+                html: errorMessage,
+                icon: 'error'
+            });
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: 'An error occurred. Please try again.',
+                icon: 'error'
+            });
+        }
+    }
+});
     });
 });
 
