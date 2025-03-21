@@ -223,7 +223,8 @@
                     @foreach ($brands as $brand)
                         <div class="swiper-slide">
                             <a href="{{ route('filter.product.brand', [$brand->id]) }}">
-                                <img loading="lazy"  src="{{ url('public/uploads') }}/{{ $brand->image }}" alt="logo"
+                                <div class="imagespinner"></div>
+                                <img loading="lazy"  onload="imageLoaded(this)"  src="{{ url('public/uploads') }}/{{ $brand->image }}" alt="logo"
                                     width="150px"></a>
                         </div>
                     @endforeach
