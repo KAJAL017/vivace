@@ -560,11 +560,12 @@ $(document).ready(function() {
     //         ['view', ['fullscreen', 'codeview', 'help']]
     //     ]
     // });
+    let shortDescription = $('#short_description').summernote('code');
+        let description = $('#description').summernote('code');
 
     $('#productForm').on('submit', function(e) {
         e.preventDefault();
-        let shortDescription = $('#short_description').summernote('code');
-        let description = $('#description').summernote('code');
+
         let productId = $('input[name="ProductID"]').val();
         let formData = new FormData(this);
 formData.append('short_description', $('<div>').text(shortDescription).html());
