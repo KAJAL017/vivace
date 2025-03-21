@@ -120,10 +120,10 @@
         <div><i class="fa-solid fa-angle-up"></i></div>
     </div><span class="cursor"><span class="cursor-move-inner"><span class="cursor-inner"></span></span><span
             class="cursor-move-outer"><span class="cursor-outer"></span></span></span>
-    <div id="loading-overlay">
+    {{-- <div id="loading-overlay">
         <!-- Spinner element -->
         <div class="spinner"></div>
-    </div>
+    </div> --}}
 
     <div id="spinner">
         <div class="spinner"></div>
