@@ -1,8 +1,8 @@
 <div class="col-xxl-3 col-md-4 col-6">
     <div class="product-box-3 mb-3">
         <div class="img-wrapper">
+
             <div class="product-image">
-                <div class="spinner"></div>
                 <a class="pro-first bg-size" href="{{ route('view.product', [$product->slug]) }}"
                     style="
                 background-image: url('{{ path() }}/{{ Product_first_image($product->id) }}');
@@ -11,7 +11,7 @@
                 background-repeat: no-repeat;
                 display: block;">
                     <img loading="lazy"  class="bg-img" src="{{ path() }}/{{ Product_first_image($product->id) }}" alt="product"
-                        style="display: none;" onload="hideSpinner(this)">
+                        style="display: none;">
                 </a>
                 <a class="pro-sec bg-size" href="{{ route('view.product', [$product->slug]) }}"
                     style="
@@ -21,7 +21,7 @@
                 background-repeat: no-repeat;
                 display: block;">
                     <img loading="lazy"  class="bg-img" src="{{ path() }}/{{ get_second_image($product->id) }}" alt="product"
-                        style="display: none;" onload="hideSpinner(this)">
+                        style="display: none;">
                 </a>
             </div>
         </div>
