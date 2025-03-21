@@ -2,7 +2,7 @@
     <div class="product-box-3 mb-3">
         <div class="img-wrapper">
             <div class="product-image">
-                <div class="spinner"></div>
+                {{-- <div class="spinner"></div> --}}
 
                 <a class="pro-first bg-size" href="{{ route('view.product', [$product->slug]) }}"
                     style="
