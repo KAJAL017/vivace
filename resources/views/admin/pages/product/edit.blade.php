@@ -563,7 +563,6 @@
 
 </script>
     <script>
-     <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('productForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -635,7 +634,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-</script>
 
     </script>
 
