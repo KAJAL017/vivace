@@ -543,95 +543,99 @@
             });
         });
     </script>
+<script>
+            $(document).ready(function() {
+                $('#short_description, #description').summernote({
+                    placeholder: 'Enter your content here...',
+                    tabsize: 2,
+                    height: 300,
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['font', ['strikethrough', 'superscript', 'subscript']],
+                        ['fontsize', ['fontsize']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ]
+                });
+            });
 
+</script>
     <script>
-    $(document).ready(function() {
-        $(document).ready(function() {
-    $('#short_description, #description').summernote({
-        placeholder: 'Enter your content here...',
-        tabsize: 2,
-        height: 300,
-        toolbar: [
-            ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['font', ['strikethrough', 'superscript', 'subscript']],
-            ['fontsize', ['fontsize']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['insert', ['link', 'picture', 'video']],
-            ['view', ['fullscreen', 'codeview', 'help']]
-        ]
-    });
-});
-
-    $('#productForm').on('submit', function(e) {
+     <script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('productForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const shortDescription = document.getElementById('short_description').innerHTML;
+        const description = document.getElementById('description').innerHTML;
 
-        let shortDescription = $('#short_description').summernote('code');
-        let description = $('#description').summernote('code');
+        const productId = document.querySelector('input[name="ProductID"]').value;
+        const formData = new FormData(this);
 
-        let productId = $('input[name="ProductID"]').val();
-        let formData = new FormData(this);
+        formData.append('short_description', shortDescription);
+        formData.append('description', description);
 
-        formData.append('short_description', $('<div>').text(shortDescription).html());
-        formData.append('description', $('<div>').text(description).html());
+        Swal.fire({
+            title: 'Please wait...',
+            text: 'Processing your request...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
 
-        $.ajax({
-            url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}".replace('__PRODUCT_ID__', productId),
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
+        fetch(`{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}`.replace('__PRODUCT_ID__', productId), {
+            method: 'POST',
+            body: formData,
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            beforeSend: function() {
-                Swal.fire({
-                    title: 'Please wait...',
-                    text: 'Processing your request...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-            },
-            success: function(response) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: response.message,
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('product.index') }}";
-                    }
-                });
-            },
-            error: function(xhr) {
-                Swal.close();
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw response;
+            }
+            return response.json();
+        })
+        .then(response => {
+            Swal.fire({
+                title: 'Success!',
+                text: response.message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('product.index') }}";
+                }
+            });
+        })
+        .catch(error => {
+            Swal.close();
+            if (error.status === 422) {
+                error.json().then(err => {
+                    let errors = err.errors;
                     let errorMessage = '<ul>';
-                    $.each(errors, function(key, value) {
-                        errorMessage += '<li>' + value[0] + '</li>';
-                    });
+                    for (let key in errors) {
+                        errorMessage += `<li>${errors[key][0]}</li>`;
+                    }
                     errorMessage += '</ul>';
                     Swal.fire({
                         title: 'Validation Error',
                         html: errorMessage,
                         icon: 'error'
                     });
-                } else {
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'An error occurred. Please try again.',
-                        icon: 'error'
-                    });
-                }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred. Please try again.',
+                    icon: 'error'
+                });
             }
         });
     });
 });
+</script>
 
     </script>
 
