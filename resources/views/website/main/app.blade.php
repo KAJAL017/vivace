@@ -1058,7 +1058,13 @@ window.addEventListener('load', () => {
 });
 }
 </script>
-
+<script>
+    function imageLoaded(img) {
+        const spinner = img.previousElementSibling;
+        spinner.classList.add('hidden');
+        img.style.display = 'block';
+    }
+</script>
 </body>
 
 </html>

@@ -96,7 +96,7 @@
                                         <div class="img-wrapper">
                                             <div class="product-image ratio_apos"><a class="pro-first"
                                                     href="{{ route('view.product', [$product->slug]) }}">
-                                                    <img loading="lazy"  class="bg-img"
+                                                    <img  loading="lazy"  class="bg-img"
                                                         src="{{ path() }}/{{ Product_first_image($product->id) }}"
                                                         alt="product" /></a><a class="pro-sec"
                                                     href="{{ route('view.product', [$product->slug]) }}">
@@ -223,7 +223,7 @@
                     @foreach ($brands as $brand)
                         <div class="swiper-slide">
                             <a href="{{ route('filter.product.brand', [$brand->id]) }}">
-                                <img src="{{ url('public/uploads') }}/{{ $brand->image }}" alt="logo"
+                                <img loading="lazy"  src="{{ url('public/uploads') }}/{{ $brand->image }}" alt="logo"
                                     width="150px"></a>
                         </div>
                     @endforeach
