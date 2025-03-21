@@ -109,29 +109,6 @@
             /* Initially hidden */
         }
     </style>
-    <style>
-         .imagespinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
     @yield('website-css')
 
 </head>
@@ -1082,12 +1059,13 @@ window.addEventListener('load', () => {
 }
 </script>
 <script>
-    function imageLoaded(img) {
-        const spinner = img.previousElementSibling;
-        spinner.classList.add('hidden');
+    function hideSpinner(img) {
+        const spinner = img.closest('.product-image').querySelector('.spinner');
+        spinner.style.display = 'none';
         img.style.display = 'block';
     }
 </script>
+
 </body>
 
 </html>
