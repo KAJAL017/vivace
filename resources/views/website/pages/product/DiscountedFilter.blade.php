@@ -252,39 +252,41 @@
         });
     </script>
     <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const loadMoreBtn = document.getElementById('load-more');
-    const productResults = document.getElementById('product-results');
-    const loadingSpinner = document.getElementById('loading-spinner');
-
-    loadMoreBtn.addEventListener('click', function () {
-        const nextPageUrl = loadMoreBtn.getAttribute('data-next-page');
+$(document).ready(function () {
+    $('#load-more').on('click', function () {
+        let nextPageUrl = $(this).data('next-page');
         if (!nextPageUrl) return;
 
-        loadMoreBtn.style.display = 'none';
-        loadingSpinner.style.display = 'block';
+        $('#load-more').hide();
+        $('#loading-spinner').show();
 
-        fetch(nextPageUrl)
-            .then(response => response.json())
-            .then(data => {
-                console.log('Response Data:', data);  // ✅ Ye line debugging ke liye important hai
+        $.ajax({
+            url: nextPageUrl,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                console.log('Response Data:', data); // ✅ Debugging ke liye
+
                 if (data.html) {
-                    productResults.insertAdjacentHTML('beforeend', data.html);
+                    $('#product-results').append(data.html);
                 }
 
                 if (data.next_page_url) {
-                    loadMoreBtn.setAttribute('data-next-page', data.next_page_url);
-                    loadMoreBtn.style.display = 'inline-block';
+                    $('#load-more').data('next-page', data.next_page_url).show();
                 } else {
-                    loadMoreBtn.style.display = 'none';
+                    $('#load-more').hide();
                 }
-            })
-            .catch(error => console.error('Error:', error))
-            .finally(() => {
-                loadingSpinner.style.display = 'none';
-            });
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            },
+            complete: function () {
+                $('#loading-spinner').hide();
+            }
+        });
     });
 });
+
 
     </script>
 
