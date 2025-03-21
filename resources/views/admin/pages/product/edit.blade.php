@@ -206,13 +206,13 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="mt-3">
-                                        <label for="" class="form-label">Short Description</label>
-                                        <textarea id="" name="short_description" class="form-control">{!! $product_short_description ?? '' !!}</textarea>
+                                        <label for="short_description" class="form-label">Short Description</label>
+                                        <textarea id="short_description" name="short_description">{!! $product_short_description ?? '' !!}</textarea>
                                     </div>
                                 </div>
                                 <div class="mt-3">
                                     <label for="description" class="form-label">Description</label>
-                                    <textarea id="" class="form-control" name="description">{!! $description ?? '' !!}</textarea>
+                                    <textarea id="description" name="description">{!! $description ?? '' !!}</textarea>
                                 </div>
                             </div>
 
@@ -568,7 +568,7 @@ $(document).ready(function() {
         let formData = new FormData(this);
 
 
-        $.ajax({
+   $.ajax({
     url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}".replace('__PRODUCT_ID__', productId),
     type: 'POST',
     data: formData,
