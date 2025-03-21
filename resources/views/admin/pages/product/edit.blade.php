@@ -566,6 +566,8 @@ $(document).ready(function() {
 
         let productId = $('input[name="ProductID"]').val();
         let formData = new FormData(this);
+formData.append('short_description', $('<div>').text(shortDescription).html());
+formData.append('description', $('<div>').text(description).html());
 
 
    $.ajax({
