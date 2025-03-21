@@ -416,7 +416,11 @@
                         delta.ops = delta.ops.map(op => {
                             if (op.insert && typeof op.insert === 'string') {
                                 // Unsafe tags remove karne ke liye regex
-                                op.insert = op.insert.replace(/<[^>]*>?/gm, '');
+                                op.insert = op.insert
+                                    .replace(/<script[^>]*?>.*?<\/script>/gi, '') // <script> remove
+                                    .replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '') // <iframe> remove
+                                    .replace(/<style[^>]*?>.*?<\/style>/gi, '')   // <style> remove
+                                    .replace(/on\w+="[^"]*"/g, '');               // Event handlers remove
                             }
                             return op;
                         });
@@ -448,7 +452,11 @@
                     ['*', function(node, delta) {
                         delta.ops = delta.ops.map(op => {
                             if (op.insert && typeof op.insert === 'string') {
-                                op.insert = op.insert.replace(/<[^>]*>?/gm, '');
+                                op.insert = op.insert
+                                    .replace(/<script[^>]*?>.*?<\/script>/gi, '') // <script> remove
+                                    .replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '') // <iframe> remove
+                                    .replace(/<style[^>]*?>.*?<\/style>/gi, '')   // <style> remove
+                                    .replace(/on\w+="[^"]*"/g, '');               // Event handlers remove
                             }
                             return op;
                         });
