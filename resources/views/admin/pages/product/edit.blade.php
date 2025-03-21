@@ -207,16 +207,15 @@
                                 <div class="col-lg-12">
                                     <div class="mt-3">
                                         <label for="short_description" class="form-label">Short Description</label>
-                                        <div id="short_description" style="height: 300px">{!! $product_short_description  ?? '' !!}</div>
+                                        <textarea id="short_description" name="short_description">{!! $product_short_description ?? '' !!}</textarea>
                                     </div>
-
                                 </div>
                                 <div class="mt-3">
                                     <label for="description" class="form-label">Description</label>
-                                    <div id="description" style="height: 300px">{!! $description  ?? '' !!}</div>
+                                    <textarea id="description" name="description">{!! $description ?? '' !!}</textarea>
                                 </div>
-
                             </div>
+
                         </div>
                     </div>
                     <div class="card">
@@ -404,81 +403,7 @@
     </div>
 @endsection
 @section('admin-js')
-
-<script>
-    var quillShortDescription = new Quill('#short_description', {
-        theme: 'snow',
-        modules: {
-            clipboard: {
-                matchVisual: false,
-                matchers: [
-                    ['*', function(node, delta) {
-                        delta.ops = delta.ops.map(op => {
-                            if (op.insert && typeof op.insert === 'string') {
-                                // Unsafe tags remove karne ke liye regex
-                                op.insert = op.insert
-                                    .replace(/<script[^>]*?>.*?<\/script>/gi, '') // <script> remove
-                                    .replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '') // <iframe> remove
-                                    .replace(/<style[^>]*?>.*?<\/style>/gi, '')   // <style> remove
-                                    .replace(/on\w+="[^"]*"/g, '');               // Event handlers remove
-                            }
-                            return op;
-                        });
-                        return delta;
-                    }]
-                ]
-            },
-            toolbar: [
-                [{ 'font': [] }, { 'size': [] }],
-                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'color': [] }, { 'background': [] }],
-                [{ 'script': 'sub' }, { 'script': 'super' }],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                [{ 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
-                ['blockquote', 'code-block'],
-                ['link', 'image', 'video'],
-                ['clean']
-            ]
-        }
-    });
-
-    var quillDescription = new Quill('#description', {
-        theme: 'snow',
-        modules: {
-            clipboard: {
-                matchVisual: false,
-                matchers: [
-                    ['*', function(node, delta) {
-                        delta.ops = delta.ops.map(op => {
-                            if (op.insert && typeof op.insert === 'string') {
-                                op.insert = op.insert
-                                    .replace(/<script[^>]*?>.*?<\/script>/gi, '') // <script> remove
-                                    .replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '') // <iframe> remove
-                                    .replace(/<style[^>]*?>.*?<\/style>/gi, '')   // <style> remove
-                                    .replace(/on\w+="[^"]*"/g, '');               // Event handlers remove
-                            }
-                            return op;
-                        });
-                        return delta;
-                    }]
-                ]
-            },
-            toolbar: [
-                [{ 'font': [] }, { 'size': [] }],
-                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'color': [] }, { 'background': [] }],
-                [{ 'script': 'sub' }, { 'script': 'super' }],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                [{ 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
-                ['blockquote', 'code-block'],
-                ['link', 'image', 'video'],
-                ['clean']
-            ]
-        }
-    });
-</script>
+>
 
 
 
@@ -620,75 +545,85 @@
     </script>
 
 <script>
-    $(document).ready(function() {
-        $('#productForm').on('submit', function(e) {
-            e.preventDefault();
+$(document).ready(function() {
+    $('#short_description, #description').summernote({
+        placeholder: 'Enter your content here...',
+        tabsize: 2,
+        height: 300,
+        toolbar: [
+            ['style', ['bold', 'italic', 'underline', 'clear']],
+            ['font', ['strikethrough', 'superscript', 'subscript']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ]
+    });
 
-            let productId = $('input[name="ProductID"]').val();
-            let formData = new FormData(this);
+    $('#productForm').on('submit', function(e) {
+        e.preventDefault();
 
-            var short_description = quillShortDescription.root.innerHTML;
-            formData.append('short_description', short_description);
+        let productId = $('input[name="ProductID"]').val();
+        let formData = new FormData(this);
 
-            var description = quillDescription.root.innerHTML;
-            formData.append('description', description);
+        formData.append('_token', '{{ csrf_token() }}');
 
-            formData.append('_token', '{{ csrf_token() }}');
-
-            $.ajax({
-                url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}"
-                    .replace('__PRODUCT_ID__', productId),
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                beforeSend: function() {
-                    Swal.fire({
-                        title: 'Please wait...',
-                        text: 'Processing your request...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                },
-                success: function(response) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: response.message,
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "{{ route('product.index') }}";
-                        }
-                    });
-                },
-                error: function(xhr) {
-                    Swal.close();
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessage = '<ul>';
-                        $.each(errors, function(key, value) {
-                            errorMessage += '<li>' + value[0] + '</li>';
-                        });
-                        errorMessage += '</ul>';
-                        Swal.fire({
-                            title: 'Validation Error',
-                            html: errorMessage,
-                            icon: 'error'
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'An error occurred. Please try again.',
-                            icon: 'error'
-                        });
+        $.ajax({
+            url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}"
+                .replace('__PRODUCT_ID__', productId),
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforeSend: function() {
+                Swal.fire({
+                    title: 'Please wait...',
+                    text: 'Processing your request...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
                     }
+                });
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: response.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('product.index') }}";
+                    }
+                });
+            },
+            error: function(xhr) {
+                Swal.close();
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorMessage = '<ul>';
+                    $.each(errors, function(key, value) {
+                        errorMessage += '<li>' + value[0] + '</li>';
+                    });
+                    errorMessage += '</ul>';
+                    Swal.fire({
+                        title: 'Validation Error',
+                        html: errorMessage,
+                        icon: 'error'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error'
+                    });
                 }
-            });
+            }
         });
     });
+});
+
 </script>
 
     <script>
