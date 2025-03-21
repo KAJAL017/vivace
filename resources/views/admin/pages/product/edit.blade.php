@@ -144,7 +144,7 @@
                             $tags = DB::table('tags')
                                 ->where(['is_deleted' => 0])
                                 ->get();
-                                $productTags = DB::table('product_tags')
+                            $productTags = DB::table('product_tags')
                                 ->where('product_id', $product->id)
                                 ->pluck('tag_id')
                                 ->toArray();
@@ -255,8 +255,8 @@
                                 </div>
                                 <div class="col-lg-2">
                                     <div class="form-check form-checkbox-success mb-2">
-                                        <input type="checkbox" class="form-check-input" id="special"
-                                            name="special" value="1"    {{ $special_product == 1 ? 'checked' : '' }}>
+                                        <input type="checkbox" class="form-check-input" id="special" name="special"
+                                            value="1" {{ $special_product == 1 ? 'checked' : '' }}>
                                         <label class="form-check-label" for="special">Special Product</label>
                                     </div>
                                 </div>
@@ -403,7 +403,7 @@
     </div>
 @endsection
 @section('admin-js')
->
+    >
 
 
 
@@ -544,92 +544,78 @@
         });
     </script>
 
-<script>
-$(document).ready(function() {
-    // $('#short_description, #description').summernote({
-    //     placeholder: 'Enter your content here...',
-    //     tabsize: 2,
-    //     height: 300,
-    //     toolbar: [
-    //         ['style', ['bold', 'italic', 'underline', 'clear']],
-    //         ['font', ['strikethrough', 'superscript', 'subscript']],
-    //         ['fontsize', ['fontsize']],
-    //         ['color', ['color']],
-    //         ['para', ['ul', 'ol', 'paragraph']],
-    //         ['insert', ['link', 'picture', 'video']],
-    //         ['view', ['fullscreen', 'codeview', 'help']]
-    //     ]
-    // });
-    let shortDescription = $('#short_description').summernote('code');
-        let description = $('#description').summernote('code');
-
+    <script>
+    $(document).ready(function() {
     $('#productForm').on('submit', function(e) {
         e.preventDefault();
 
+        let shortDescription = $('#short_description').summernote('code');
+        let description = $('#description').summernote('code');
+
         let productId = $('input[name="ProductID"]').val();
         let formData = new FormData(this);
-formData.append('short_description', $('<div>').text(shortDescription).html());
-formData.append('description', $('<div>').text(description).html());
 
+        formData.append('short_description', $('<div>').text(shortDescription).html());
+        formData.append('description', $('<div>').text(description).html());
 
-   $.ajax({
-    url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}".replace('__PRODUCT_ID__', productId),
-    type: 'POST',
-    data: formData,
-    contentType: false,
-    processData: false,
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Add CSRF token to headers
-    },
-    beforeSend: function() {
-        Swal.fire({
-            title: 'Please wait...',
-            text: 'Processing your request...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
+        $.ajax({
+            url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}".replace('__PRODUCT_ID__', productId),
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                Swal.fire({
+                    title: 'Please wait...',
+                    text: 'Processing your request...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function(response) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: response.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('product.index') }}";
+                    }
+                });
+            },
+            error: function(xhr) {
+                Swal.close();
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorMessage = '<ul>';
+                    $.each(errors, function(key, value) {
+                        errorMessage += '<li>' + value[0] + '</li>';
+                    });
+                    errorMessage += '</ul>';
+                    Swal.fire({
+                        title: 'Validation Error',
+                        html: errorMessage,
+                        icon: 'error'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error'
+                    });
+                }
             }
         });
-    },
-    success: function(response) {
-        Swal.fire({
-            title: 'Success!',
-            text: response.message,
-            icon: 'success',
-            confirmButtonText: 'OK'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "{{ route('product.index') }}";
-            }
-        });
-    },
-    error: function(xhr) {
-        Swal.close();
-        if (xhr.status === 422) {
-            let errors = xhr.responseJSON.errors;
-            let errorMessage = '<ul>';
-            $.each(errors, function(key, value) {
-                errorMessage += '<li>' + value[0] + '</li>';
-            });
-            errorMessage += '</ul>';
-            Swal.fire({
-                title: 'Validation Error',
-                html: errorMessage,
-                icon: 'error'
-            });
-        } else {
-            Swal.fire({
-                title: 'Error',
-                text: 'An error occurred. Please try again.',
-                icon: 'error'
-            });
-        }
-    }
-});
     });
 });
 
-</script>
+    </script>
 
     <script>
         $(document).ready(function() {
