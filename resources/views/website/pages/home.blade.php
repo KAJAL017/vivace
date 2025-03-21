@@ -17,7 +17,7 @@
                             @foreach ($banners as $key => $banner)
                                 <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
                                    <a href="{{ $banner->url }}">
-                                    <img class="img-fluid w-100" src="{{ url('public/uploads/' . $banner->banner) }}"
+                                    <img loading="lazy"  class="img-fluid w-100" src="{{ url('public/uploads/' . $banner->banner) }}"
                                     alt="Banner {{ $key + 1 }}" style="object-fit: cover;">
                                    </a>
                                 </div>
@@ -59,7 +59,7 @@
                             <div class="collection-banner p-left">
                                 @if ($banner_table_1 && $banner_table_1->banner)
                                     <a href="{{ $banner_table_1->link }}">
-                                        <img class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_1->banner }}"
+                                        <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_1->banner }}"
                                             alt="Banner Image" />
                                     </a>
                                 @else
@@ -75,7 +75,7 @@
                             <div class="collection-banner p-right">
                                 @if ($banner_table_2 && $banner_table_2->banner)
                                     <a href="{{ $banner_table_2->link }}">
-                                        <img class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_2->banner }}"
+                                        <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_2->banner }}"
                                             alt="Banner Image" />
                                     </a>
                                 @else
@@ -96,11 +96,11 @@
                                         <div class="img-wrapper">
                                             <div class="product-image ratio_apos"><a class="pro-first"
                                                     href="{{ route('view.product', [$product->slug]) }}">
-                                                    <img class="bg-img"
+                                                    <img loading="lazy"  class="bg-img"
                                                         src="{{ path() }}/{{ Product_first_image($product->id) }}"
                                                         alt="product" /></a><a class="pro-sec"
                                                     href="{{ route('view.product', [$product->slug]) }}">
-                                                    <img class="bg-img"
+                                                    <img loading="lazy"  class="bg-img"
                                                         src="{{ path() }}/{{ get_second_image($product->id) }}"
                                                         alt="product" /></a></div>
                                         </div>
@@ -130,7 +130,7 @@
 
                             @if ($banner_table_3 && $banner_table_3->banner)
                                 <a href="{{ $banner_table_3->link }}">
-                                    <img class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_3->banner }}"
+                                    <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_3->banner }}"
                                         alt="Banner Image" />
                                 </a>
                             @else
@@ -200,7 +200,7 @@
                         @foreach ($collections as $collection)
                             <div class="col-md-4 col-sm-6 col-12"><a class="banner mb-0 p-left"
                                     href="{{ route('collction.filter', [$collection->id]) }}">
-                                    <img class="bg-img" src="{{ url('public/uploads') }}/{{ $collection->image_path }}"
+                                    <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $collection->image_path }}"
                                         alt="banner-img">
                                     <div class="banner-contain w-auto">
                                         <h4>{{ $collection->name }}</h4>

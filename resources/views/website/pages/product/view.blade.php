@@ -32,7 +32,7 @@
                             <div class="swiper product-slider-thumb-1 product-thumbnail">
                                 <div class="swiper-wrapper ratio3_5">
                                     @foreach ($product_images as $image)
-                                        <div class="swiper-slide"> <img class="bg-img"
+                                        <div class="swiper-slide"> <img loading="lazy"  class="bg-img"
                                                 src="{{ url('public/' . $image->file_path) }}" alt="">
                                         </div>
                                     @endforeach
@@ -43,7 +43,7 @@
                             <div class="swiper product-slider-1">
                                 <div class="swiper-wrapper">
                                     @foreach ($product_images as $image)
-                                        <div class="swiper-slide"> <img class="img-fluid"
+                                        <div class="swiper-slide"> <img loading="lazy"  class="img-fluid"
                                                 src="{{ url('public/' . $image->file_path) }}" alt="">
                                         </div>
                                     @endforeach
@@ -604,10 +604,10 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
                                                 class="iconsax" data-icon="heart" aria-hidden="true"
                                                 data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i></a></div> --}}
                                     <div class="product-image"><a class="pro-first"
-                                            href="{{ route('view.product', [$product->slug]) }}"> <img class="bg-img"
+                                            href="{{ route('view.product', [$product->slug]) }}"> <img loading="lazy"  class="bg-img"
                                                 src="{{ path() }}/{{ Product_first_image($product->id) }}"
                                                 alt="product"></a><a class="pro-sec"
-                                            href="{{ route('view.product', [$product->slug]) }}"> <img class="bg-img"
+                                            href="{{ route('view.product', [$product->slug]) }}"> <img loading="lazy"  class="bg-img"
                                                 src="{{ path() }}/{{ get_second_image($product->id) }}"
                                                 alt="product"></a></div>
                                     {{-- <div class="cart-info-icon"> <a href="#" data-bs-toggle="modal"

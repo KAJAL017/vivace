@@ -49,7 +49,7 @@
                     @foreach ($collections as $collection)
                         <div class="col-md-4 col-sm-6 col-12 collection-item">
                             <a class="banner mb-0 p-left bg-size" href="{{ route('collction.filter', [$collection->id]) }}" style="background-image: url('{{ url('public/uploads') }}/{{ $collection->image_path }}'); background-size: cover; background-position: center; background-repeat: no-repeat; display: block;">
-                                <img class="bg-img" src="{{ url('public/uploads') }}/{{ $collection->image_path }}" alt="banner-img" style="display: none;">
+                                <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $collection->image_path }}" alt="banner-img" style="display: none;">
                                 <div class="banner-contain w-auto">
                                     <h4>{{ $collection->name }}</h4>
                                 </div>
@@ -81,7 +81,7 @@
                     data.collections.forEach(function(collection) {
                         var collectionItem = `<div class="col-md-4 col-sm-6 col-12 collection-item">
                                                 <a class="banner mb-0 p-left bg-size" href="${collection.url}" style="background-image: url('${collection.image_path}'); background-size: cover; background-position: center; background-repeat: no-repeat; display: block;">
-                                                    <img class="bg-img" src="${collection.image_path}" alt="banner-img" style="display: none;">
+                                                    <img loading="lazy"  class="bg-img" src="${collection.image_path}" alt="banner-img" style="display: none;">
                                                     <div class="banner-contain w-auto">
                                                         <h4>${collection.name}</h4>
                                                     </div>
