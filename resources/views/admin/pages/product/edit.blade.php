@@ -404,55 +404,31 @@
     </div>
 @endsection
 @section('admin-js')
+
 <script>
-    var quill = new Quill('#short_description', {
+    var quillShortDescription = new Quill('#short_description', {
         theme: 'snow',
         modules: {
             clipboard: {
                 matchVisual: false
             },
             toolbar: {
-
                 container: [
-                    [{
-                        'font': []
-                    }, {
-                        'size': []
-                    }],
-                    [{
-                        'header': [1, 2, 3, 4, 5, 6, false]
-                    }],
+                    [{ 'font': [] }, { 'size': [] }],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                     ['bold', 'italic', 'underline', 'strike'],
-                    [{
-                        'color': []
-                    }, {
-                        'background': []
-                    }],
-                    [{
-                        'script': 'sub'
-                    }, {
-                        'script': 'super'
-                    }],
-                    [{
-                        'list': 'ordered'
-                    }, {
-                        'list': 'bullet'
-                    }],
-                    [{
-                        'indent': '-1'
-                    }, {
-                        'indent': '+1'
-                    }, {
-                        'align': []
-                    }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'script': 'sub' }, { 'script': 'super' }],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
                     ['blockquote', 'code-block'],
                     ['link', 'image', 'video'],
-                    ['clean'] // remove formatting button
+                    ['clean']
                 ],
                 handlers: {
                     'image': function() {
                         var fileInput = this.container.querySelector('input.ql-image[type=file]');
-                        if (fileInput === null) {
+                        if (!fileInput) {
                             fileInput = document.createElement('input');
                             fileInput.setAttribute('type', 'file');
                             fileInput.setAttribute('accept', 'image/*');
@@ -462,9 +438,8 @@
                                 if (file) {
                                     var reader = new FileReader();
                                     reader.onload = function(e) {
-                                        var range = quill.getSelection();
-                                        quill.insertEmbed(range.index, 'image', e.target
-                                            .result);
+                                        var range = quillShortDescription.getSelection();
+                                        quillShortDescription.insertEmbed(range.index, 'image', e.target.result);
                                     };
                                     reader.readAsDataURL(file);
                                 }
@@ -477,9 +452,8 @@
             }
         }
     });
-</script>
-<script>
-    var quill = new Quill('#description', {
+
+    var quillDescription = new Quill('#description', {
         theme: 'snow',
         modules: {
             clipboard: {
@@ -487,45 +461,21 @@
             },
             toolbar: {
                 container: [
-                    [{
-                        'font': []
-                    }, {
-                        'size': []
-                    }],
-                    [{
-                        'header': [1, 2, 3, 4, 5, 6, false]
-                    }],
+                    [{ 'font': [] }, { 'size': [] }],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                     ['bold', 'italic', 'underline', 'strike'],
-                    [{
-                        'color': []
-                    }, {
-                        'background': []
-                    }],
-                    [{
-                        'script': 'sub'
-                    }, {
-                        'script': 'super'
-                    }],
-                    [{
-                        'list': 'ordered'
-                    }, {
-                        'list': 'bullet'
-                    }],
-                    [{
-                        'indent': '-1'
-                    }, {
-                        'indent': '+1'
-                    }, {
-                        'align': []
-                    }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'script': 'sub' }, { 'script': 'super' }],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
                     ['blockquote', 'code-block'],
                     ['link', 'image', 'video'],
-                    ['clean'] // remove formatting button
+                    ['clean']
                 ],
                 handlers: {
                     'image': function() {
                         var fileInput = this.container.querySelector('input.ql-image[type=file]');
-                        if (fileInput === null) {
+                        if (!fileInput) {
                             fileInput = document.createElement('input');
                             fileInput.setAttribute('type', 'file');
                             fileInput.setAttribute('accept', 'image/*');
@@ -535,9 +485,8 @@
                                 if (file) {
                                     var reader = new FileReader();
                                     reader.onload = function(e) {
-                                        var range = quill.getSelection();
-                                        quill.insertEmbed(range.index, 'image', e.target
-                                            .result);
+                                        var range = quillDescription.getSelection();
+                                        quillDescription.insertEmbed(range.index, 'image', e.target.result);
                                     };
                                     reader.readAsDataURL(file);
                                 }
