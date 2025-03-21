@@ -404,10 +404,6 @@
     </div>
 @endsection
 @section('admin-js')
-<!-- Quill CSS -->
-<link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css">
-<!-- Quill JS -->
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <script>
     var quillShortDescription = new Quill('#short_description', {
@@ -643,63 +639,78 @@
         });
     </script>
 
-    <script>
-        $(document).ready(function() {
-            $('#productForm').on('submit', function(e) {
-                e.preventDefault();
-                let productId = $('input[name="ProductID"]').val();
-                let formData = new FormData(this);
-                var short_description = quill.root.innerHTML;
-                formData.append('short_description', short_description);
-                var description = quill.root.innerHTML;
-                formData.append('description', description);
-                formData.append('_token', '{{ csrf_token() }}');
+<script>
+    $(document).ready(function() {
+        $('#productForm').on('submit', function(e) {
+            e.preventDefault();
 
-                $.ajax({
-                    url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}"
-                        .replace('__PRODUCT_ID__',
-                            productId),
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: response.message,
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "{{ route('product.index') }}";
-                            }
-                        });
-                    },
-                    error: function(xhr) {
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            let errorMessage = '<ul>';
-                            $.each(errors, function(key, value) {
-                                errorMessage += '<li>' + value[0] + '</li>';
-                            });
-                            errorMessage += '</ul>';
-                            Swal.fire({
-                                title: 'Validation Error',
-                                html: errorMessage,
-                                icon: 'error'
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'An error occurred. Please try again.',
-                                icon: 'error'
-                            });
+            let productId = $('input[name="ProductID"]').val();
+            let formData = new FormData(this);
+
+            var short_description = quillShortDescription.root.innerHTML;
+            formData.append('short_description', short_description);
+
+            var description = quillDescription.root.innerHTML;
+            formData.append('description', description);
+
+            formData.append('_token', '{{ csrf_token() }}');
+
+            $.ajax({
+                url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}"
+                    .replace('__PRODUCT_ID__', productId),
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Please wait...',
+                        text: 'Processing your request...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
                         }
+                    });
+                },
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{{ route('product.index') }}";
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    Swal.close();
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorMessage = '<ul>';
+                        $.each(errors, function(key, value) {
+                            errorMessage += '<li>' + value[0] + '</li>';
+                        });
+                        errorMessage += '</ul>';
+                        Swal.fire({
+                            title: 'Validation Error',
+                            html: errorMessage,
+                            icon: 'error'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred. Please try again.',
+                            icon: 'error'
+                        });
                     }
-                });
+                }
             });
         });
-    </script>
+    });
+</script>
+
     <script>
         $(document).ready(function() {
             // Initialize select2 for both categories and subcategories
