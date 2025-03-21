@@ -9,7 +9,7 @@
                     background-position: center;
                     background-repeat: no-repeat;
                     display: block;">
-                    <img loading="lazy"  class="bg-img" src="{{ path() }}/{{ Product_first_image($product->id) }}" alt="product" style="display: none;">
+                    <img loading="lazy" onload="imageLoaded(this)"  class="bg-img" src="{{ path() }}/{{ Product_first_image($product->id) }}" alt="product" style="display: none;">
                 </a>
                 <a class="pro-sec bg-size" href="{{ route('view.product', [$product->slug]) }}" style="
                     background-image: url('{{ path() }}/{{ get_second_image($product->id) }}');
@@ -17,7 +17,7 @@
                     background-position: center;
                     background-repeat: no-repeat;
                     display: block;">
-                    <img loading="lazy"  class="bg-img" src="{{ path() }}/{{ get_second_image($product->id) }}" alt="product" style="display: none;">
+                    <img loading="lazy" onload="imageLoaded(this)"  class="bg-img" src="{{ path() }}/{{ get_second_image($product->id) }}" alt="product" style="display: none;">
                 </a>
             </div>
         </div>
