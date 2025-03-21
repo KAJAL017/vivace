@@ -404,6 +404,10 @@
     </div>
 @endsection
 @section('admin-js')
+<!-- Quill CSS -->
+<link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css">
+<!-- Quill JS -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <script>
     var quillShortDescription = new Quill('#short_description', {
