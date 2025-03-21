@@ -404,12 +404,14 @@
     </div>
 @endsection
 @section('admin-js')
-
 <script>
     var quill = new Quill('#short_description', {
         theme: 'snow',
         modules: {
             toolbar: {
+                clipboard: {
+                matchVisual: false
+            },
                 container: [
                     [{
                         'font': []
@@ -479,6 +481,9 @@
     var quill = new Quill('#description', {
         theme: 'snow',
         modules: {
+            clipboard: {
+                matchVisual: false
+            },
             toolbar: {
                 container: [
                     [{
@@ -545,7 +550,6 @@
         }
     });
 </script>
-
 
 
 

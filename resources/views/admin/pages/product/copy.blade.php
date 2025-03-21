@@ -375,6 +375,9 @@
         theme: 'snow',
         modules: {
             toolbar: {
+                clipboard: {
+                matchVisual: false
+            },
                 container: [
                     [{
                         'font': []
@@ -444,6 +447,9 @@
     var quill = new Quill('#description', {
         theme: 'snow',
         modules: {
+            clipboard: {
+                matchVisual: false
+            },
             toolbar: {
                 container: [
                     [{
