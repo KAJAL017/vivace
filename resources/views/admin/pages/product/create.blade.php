@@ -339,11 +339,16 @@
     </div>
 @endsection
 @section('admin-js')
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
 <script>
     var quill = new Quill('#short_description', {
         theme: 'snow',
         modules: {
             toolbar: {
+                clipboard: {
+                matchVisual: false
+            },
                 container: [
                     [{
                         'font': []
@@ -413,6 +418,9 @@
     var quill = new Quill('#description', {
         theme: 'snow',
         modules: {
+            clipboard: {
+                matchVisual: false
+            },
             toolbar: {
                 container: [
                     [{

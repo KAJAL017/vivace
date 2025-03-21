@@ -149,6 +149,7 @@
         $sub_categories = DB::table('sub_categories')
             ->where(['is_deleted' => 0])
             ->get();
+
     @endphp
 
     <section class="section-t-space">
