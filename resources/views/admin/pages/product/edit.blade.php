@@ -408,10 +408,11 @@
     var quill = new Quill('#short_description', {
         theme: 'snow',
         modules: {
-            toolbar: {
-                clipboard: {
+            clipboard: {
                 matchVisual: false
             },
+            toolbar: {
+
                 container: [
                     [{
                         'font': []
