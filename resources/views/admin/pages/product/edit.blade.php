@@ -410,46 +410,32 @@
         theme: 'snow',
         modules: {
             clipboard: {
-                matchVisual: false
+                matchVisual: false,
+                matchers: [
+                    ['*', function(node, delta) {
+                        delta.ops = delta.ops.map(op => {
+                            if (op.insert && typeof op.insert === 'string') {
+                                // Unsafe tags remove karne ke liye regex
+                                op.insert = op.insert.replace(/<[^>]*>?/gm, '');
+                            }
+                            return op;
+                        });
+                        return delta;
+                    }]
+                ]
             },
-            toolbar: {
-                container: [
-                    [{ 'font': [] }, { 'size': [] }],
-                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'script': 'sub' }, { 'script': 'super' }],
-                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                    [{ 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
-                    ['blockquote', 'code-block'],
-                    ['link', 'image', 'video'],
-                    ['clean']
-                ],
-                handlers: {
-                    'image': function() {
-                        var fileInput = this.container.querySelector('input.ql-image[type=file]');
-                        if (!fileInput) {
-                            fileInput = document.createElement('input');
-                            fileInput.setAttribute('type', 'file');
-                            fileInput.setAttribute('accept', 'image/*');
-                            fileInput.classList.add('ql-image');
-                            fileInput.addEventListener('change', function() {
-                                var file = fileInput.files[0];
-                                if (file) {
-                                    var reader = new FileReader();
-                                    reader.onload = function(e) {
-                                        var range = quillShortDescription.getSelection();
-                                        quillShortDescription.insertEmbed(range.index, 'image', e.target.result);
-                                    };
-                                    reader.readAsDataURL(file);
-                                }
-                            });
-                            this.container.appendChild(fileInput);
-                        }
-                        fileInput.click();
-                    }
-                }
-            }
+            toolbar: [
+                [{ 'font': [] }, { 'size': [] }],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'script': 'sub' }, { 'script': 'super' }],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                [{ 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
+                ['blockquote', 'code-block'],
+                ['link', 'image', 'video'],
+                ['clean']
+            ]
         }
     });
 
@@ -457,49 +443,35 @@
         theme: 'snow',
         modules: {
             clipboard: {
-                matchVisual: false
+                matchVisual: false,
+                matchers: [
+                    ['*', function(node, delta) {
+                        delta.ops = delta.ops.map(op => {
+                            if (op.insert && typeof op.insert === 'string') {
+                                op.insert = op.insert.replace(/<[^>]*>?/gm, '');
+                            }
+                            return op;
+                        });
+                        return delta;
+                    }]
+                ]
             },
-            toolbar: {
-                container: [
-                    [{ 'font': [] }, { 'size': [] }],
-                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'script': 'sub' }, { 'script': 'super' }],
-                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                    [{ 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
-                    ['blockquote', 'code-block'],
-                    ['link', 'image', 'video'],
-                    ['clean']
-                ],
-                handlers: {
-                    'image': function() {
-                        var fileInput = this.container.querySelector('input.ql-image[type=file]');
-                        if (!fileInput) {
-                            fileInput = document.createElement('input');
-                            fileInput.setAttribute('type', 'file');
-                            fileInput.setAttribute('accept', 'image/*');
-                            fileInput.classList.add('ql-image');
-                            fileInput.addEventListener('change', function() {
-                                var file = fileInput.files[0];
-                                if (file) {
-                                    var reader = new FileReader();
-                                    reader.onload = function(e) {
-                                        var range = quillDescription.getSelection();
-                                        quillDescription.insertEmbed(range.index, 'image', e.target.result);
-                                    };
-                                    reader.readAsDataURL(file);
-                                }
-                            });
-                            this.container.appendChild(fileInput);
-                        }
-                        fileInput.click();
-                    }
-                }
-            }
+            toolbar: [
+                [{ 'font': [] }, { 'size': [] }],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'script': 'sub' }, { 'script': 'super' }],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                [{ 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
+                ['blockquote', 'code-block'],
+                ['link', 'image', 'video'],
+                ['clean']
+            ]
         }
     });
 </script>
+
 
 
 
