@@ -144,7 +144,7 @@
                             $tags = DB::table('tags')
                                 ->where(['is_deleted' => 0])
                                 ->get();
-                            $productTags = DB::table('product_tags')
+                                $productTags = DB::table('product_tags')
                                 ->where('product_id', $product->id)
                                 ->pluck('tag_id')
                                 ->toArray();
@@ -207,15 +207,16 @@
                                 <div class="col-lg-12">
                                     <div class="mt-3">
                                         <label for="short_description" class="form-label">Short Description</label>
-                                        <textarea id="short_description" name="short_description">{!! $product_short_description ?? '' !!}</textarea>
+                                        <div id="short_description" style="height: 300px">{!! $product_short_description  ?? '' !!}</div>
                                     </div>
+
                                 </div>
                                 <div class="mt-3">
                                     <label for="description" class="form-label">Description</label>
-                                    <textarea id="description" name="description">{!! $description ?? '' !!}</textarea>
+                                    <div id="description" style="height: 300px">{!! $description  ?? '' !!}</div>
                                 </div>
-                            </div>
 
+                            </div>
                         </div>
                     </div>
                     <div class="card">
@@ -255,8 +256,8 @@
                                 </div>
                                 <div class="col-lg-2">
                                     <div class="form-check form-checkbox-success mb-2">
-                                        <input type="checkbox" class="form-check-input" id="special" name="special"
-                                            value="1" {{ $special_product == 1 ? 'checked' : '' }}>
+                                        <input type="checkbox" class="form-check-input" id="special"
+                                            name="special" value="1"    {{ $special_product == 1 ? 'checked' : '' }}>
                                         <label class="form-check-label" for="special">Special Product</label>
                                     </div>
                                 </div>
@@ -403,8 +404,78 @@
     </div>
 @endsection
 @section('admin-js')
-    >
 
+<script>
+var quillShortDescription = new Quill('#short_description', {
+    theme: 'snow',
+    modules: {
+        clipboard: {
+            matchVisual: false,
+            matchers: [
+                ['*', function(node, delta) {
+                    delta.ops = delta.ops.map(op => {
+                        if (op.insert && typeof op.insert === 'string') {
+                            // Remove unsafe tags and attributes
+                            op.insert = op.insert
+                                .replace(/<script[^>]*?>.*?<\/script>/gi, '') // Remove <script> tags
+                                .replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '') // Remove <iframe> tags
+                                .replace(/<style[^>]*?>.*?<\/style>/gi, '')   // Remove <style> tags
+                                .replace(/on\w+="[^"]*"/g, '');               // Remove event handlers
+                        }
+                        return op;
+                    });
+                    return delta;
+                }]
+            ]
+        },
+        toolbar: {
+            container: [
+                // Toolbar configuration
+            ],
+            handlers: {
+                'image': function() {
+                    // Image handler logic
+                }
+            }
+        }
+    }
+});
+
+var quillDescription = new Quill('#description', {
+    theme: 'snow',
+    modules: {
+        clipboard: {
+            matchVisual: false,
+            matchers: [
+                ['*', function(node, delta) {
+                    delta.ops = delta.ops.map(op => {
+                        if (op.insert && typeof op.insert === 'string') {
+                            // Remove unsafe tags and attributes
+                            op.insert = op.insert
+                                .replace(/<script[^>]*?>.*?<\/script>/gi, '') // Remove <script> tags
+                                .replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '') // Remove <iframe> tags
+                                .replace(/<style[^>]*?>.*?<\/style>/gi, '')   // Remove <style> tags
+                                .replace(/on\w+="[^"]*"/g, '');               // Remove event handlers
+                        }
+                        return op;
+                    });
+                    return delta;
+                }]
+            ]
+        },
+        toolbar: {
+            container: [
+                // Toolbar configuration
+            ],
+            handlers: {
+                'image': function() {
+                    // Image handler logic
+                }
+            }
+        }
+    }
+});
+</script>
 
 
 
@@ -543,100 +614,67 @@
             });
         });
     </script>
-<script>
-            $(document).ready(function() {
-                $('#short_description, #description').summernote({
-                    placeholder: 'Enter your content here...',
-                    tabsize: 2,
-                    height: 300,
-                    toolbar: [
-                        ['style', ['bold', 'italic', 'underline', 'clear']],
-                        ['font', ['strikethrough', 'superscript', 'subscript']],
-                        ['fontsize', ['fontsize']],
-                        ['color', ['color']],
-                        ['para', ['ul', 'ol', 'paragraph']],
-                        ['insert', ['link', 'picture', 'video']],
-                        ['view', ['fullscreen', 'codeview', 'help']]
-                    ]
-                });
-            });
 
-</script>
     <script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('productForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+        $(document).ready(function() {
+            $('#productForm').on('submit', function(e) {
+                e.preventDefault();
+                let productId = $('input[name="ProductID"]').val();
+                let formData = new FormData(this);
+                var short_description = quill.root.innerHTML;
+                formData.append('short_description', short_description);
+                var description = quill.root.innerHTML;
+                formData.append('description', description);
+                formData.append('_token', '{{ csrf_token() }}');
 
-        const shortDescription = document.getElementById('short_description').innerHTML;
-        const description = document.getElementById('description').innerHTML;
-
-        const productId = document.querySelector('input[name="ProductID"]').value;
-        const formData = new FormData(this);
-
-        formData.append('short_description', shortDescription);
-        formData.append('description', description);
-
-        Swal.fire({
-            title: 'Please wait...',
-            text: 'Processing your request...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        fetch(`{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}`.replace('__PRODUCT_ID__', productId), {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw response;
-            }
-            return response.json();
-        })
-        .then(response => {
-            Swal.fire({
-                title: 'Success!',
-                text: response.message,
-                icon: 'success',
-                confirmButtonText: 'OK'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "{{ route('product.index') }}";
-                }
-            });
-        })
-        .catch(error => {
-            Swal.close();
-            if (error.status === 422) {
-                error.json().then(err => {
-                    let errors = err.errors;
-                    let errorMessage = '<ul>';
-                    for (let key in errors) {
-                        errorMessage += `<li>${errors[key][0]}</li>`;
+                $.ajax({
+                    url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}"
+                        .replace('__PRODUCT_ID__',
+                            productId),
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Add CSRF token to headers
+        },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "{{ route('product.index') }}";
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let errorMessage = '<ul>';
+                            $.each(errors, function(key, value) {
+                                errorMessage += '<li>' + value[0] + '</li>';
+                            });
+                            errorMessage += '</ul>';
+                            Swal.fire({
+                                title: 'Validation Error',
+                                html: errorMessage,
+                                icon: 'error'
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred. Please try again.',
+                                icon: 'error'
+                            });
+                        }
                     }
-                    errorMessage += '</ul>';
-                    Swal.fire({
-                        title: 'Validation Error',
-                        html: errorMessage,
-                        icon: 'error'
-                    });
                 });
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'An error occurred. Please try again.',
-                    icon: 'error'
-                });
-            }
+            });
         });
-    });
-});
-
     </script>
-
     <script>
         $(document).ready(function() {
             // Initialize select2 for both categories and subcategories
