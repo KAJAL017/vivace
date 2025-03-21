@@ -546,24 +546,25 @@
 
 <script>
 $(document).ready(function() {
-    $('#short_description, #description').summernote({
-        placeholder: 'Enter your content here...',
-        tabsize: 2,
-        height: 300,
-        toolbar: [
-            ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['font', ['strikethrough', 'superscript', 'subscript']],
-            ['fontsize', ['fontsize']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['insert', ['link', 'picture', 'video']],
-            ['view', ['fullscreen', 'codeview', 'help']]
-        ]
-    });
+    // $('#short_description, #description').summernote({
+    //     placeholder: 'Enter your content here...',
+    //     tabsize: 2,
+    //     height: 300,
+    //     toolbar: [
+    //         ['style', ['bold', 'italic', 'underline', 'clear']],
+    //         ['font', ['strikethrough', 'superscript', 'subscript']],
+    //         ['fontsize', ['fontsize']],
+    //         ['color', ['color']],
+    //         ['para', ['ul', 'ol', 'paragraph']],
+    //         ['insert', ['link', 'picture', 'video']],
+    //         ['view', ['fullscreen', 'codeview', 'help']]
+    //     ]
+    // });
 
     $('#productForm').on('submit', function(e) {
         e.preventDefault();
-
+        let shortDescription = $('#short_description').summernote('code');
+        let description = $('#description').summernote('code');
         let productId = $('input[name="ProductID"]').val();
         let formData = new FormData(this);
 formData.append('short_description', $('<div>').text(shortDescription).html());
