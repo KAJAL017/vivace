@@ -2447,24 +2447,20 @@ public function StoreManualOrder(Request $request)
 
         DB::table('manual_orders')->insert($orderData);
 
+        DB::commit();
+
         try {
             Mail::to('manual@vivacecollections.com')->send(new ManualOrderMail($orderData));
-
-            // Email to User
             Mail::to($request->input('email'))->send(new ManualOrderMail($orderData));
-
-
         } catch (\Exception $e) {
             Log::error('Email could not be sent: ' . $e->getMessage());
-            DB::rollBack();
             return response()->json([
-                'success' => false,
+                'success' => true,
                 'message' => 'Order placed successfully, but email could not be sent.',
-                'error' => $e->getMessage(),
+                'order_id' => $newOrderId
             ]);
         }
 
-        DB::commit();
         return response()->json([
             'success' => true,
             'message' => 'Order placed successfully and email sent!',
@@ -2481,6 +2477,7 @@ public function StoreManualOrder(Request $request)
         ]);
     }
 }
+
 
 
 
