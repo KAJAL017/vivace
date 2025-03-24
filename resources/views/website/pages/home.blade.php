@@ -160,7 +160,7 @@
                     <div class="swiper-slide">
                         <div class="fashion-box">
                             <a href="{{ route('view.subcategories.collection', [$category->slug]) }}">
-                                <img
+                                <img  loading="lazy"
                                     class="img-fluid"
                                     src="{{ url($category->image ?? 'public/5.png') }}"
                                     alt="{{ $category->name }}">
