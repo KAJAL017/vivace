@@ -64,6 +64,10 @@
                                                             class="mx-2">
                                                             <button class="btn btn-success btn-sm">Edit</button>
                                                         </a>
+                                                        <a href="javascript:void(0)" class="mx-2 seo-btn">
+                                                            <button class="btn btn-secondary btn-sm">Seo</button>
+                                                        </a>
+
                                                         <a href="{{ route('product.copy', [$product->id]) }}"
                                                             class="mx-2">
                                                             <button class="btn btn-secondary btn-sm">Copy</button>
@@ -85,6 +89,38 @@
 @endsection
 <!-- End Container Fluid -->
 
+<div class="modal fade" id="seoModal" tabindex="-1" aria-labelledby="seoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="seoModalLabel">SEO Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="seoForm">
+                    <input type="hidden" name="product_id" id="product_id">
+                    <div class="mb-3">
+                        <label for="meta_title" class="form-label">Meta Title</label>
+                        <input type="text" class="form-control" id="meta_title" name="meta_title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="meta_keywords" class="form-label">Meta Keywords</label>
+                        <input type="text" class="form-control" id="meta_keywords" name="meta_keywords">
+                    </div>
+                    <div class="mb-3">
+                        <label for="meta_description" class="form-label">Meta Description</label>
+                        <textarea class="form-control" id="meta_description" name="meta_description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="meta_content" class="form-label">Meta Content</label>
+                        <textarea class="form-control" id="meta_content" name="meta_content"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="saveSeoBtn">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section('admin-js')
     <script src="{{ admin_assets() }}/table/js/datatable/datatables/jquery.dataTables.min.js"></script>
@@ -147,5 +183,43 @@
                     }
                 });
             });
+    </script>
+    <script>
+        $(document).on('click', '.seo-btn', function () {
+    let productId = $(this).closest('tr').data('id');
+    $('#product_id').val(productId);
+
+    $.ajax({
+        url: "{{ route('get.seo.data') }}",
+        method: 'GET',
+        data: { id: productId },
+        success: function (response) {
+            $('#meta_title').val(response.meta_title);
+            $('#meta_keywords').val(response.meta_keywords);
+            $('#meta_description').val(response.meta_description);
+            $('#meta_content').val(response.meta_content);
+            $('#seoModal').modal('show');
+        }
+    });
+});
+
+$('#saveSeoBtn').on('click', function () {
+    let formData = $('#seoForm').serialize();
+
+    $.ajax({
+        url: "{{ route('save.seo.data') }}",
+        method: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.success) {
+                toastr.success(response.message);
+                $('#seoModal').modal('hide');
+            } else {
+                toastr.error(response.message);
+            }
+        }
+    });
+});
+
     </script>
 @endsection

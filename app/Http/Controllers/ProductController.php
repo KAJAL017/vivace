@@ -591,4 +591,40 @@ public function getSubcategories($categoryId)
 
     return response()->json(['status' => 'error', 'message' => 'Attribute not found']);
 }
+
+public function getSeoData(Request $request)
+{
+    $seoData = DB::table('products')->where('id', $request->id)->select('meta_title', 'meta_keywords', 'meta_description', 'meta_content')->first();
+    return response()->json($seoData);
+}
+
+public function saveSeoData(Request $request)
+{
+    $request->validate([
+        'product_id' => 'required|integer|exists:products,id',
+        'meta_title' => 'nullable|string|max:255',
+        'meta_keywords' => 'nullable|string|max:255',
+        'meta_description' => 'nullable|string|max:1000',
+        'meta_content' => 'nullable|string|max:2000',
+    ]);
+
+    try {
+        $updated = DB::table('products')->where('id', $request->product_id)->update([
+            'meta_title' => $request->meta_title,
+            'meta_keywords' => $request->meta_keywords,
+            'meta_description' => $request->meta_description,
+            'meta_content' => $request->meta_content,
+        ]);
+
+        if ($updated) {
+            return response()->json(['success' => true, 'message' => 'SEO data updated successfully']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'No changes detected']);
+        }
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'Failed to update SEO data. Please try again.']);
+    }
+}
+
+
 }

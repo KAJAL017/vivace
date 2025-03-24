@@ -58,6 +58,8 @@ Route::post('admin/product/{product}', [ProductController::class, 'updateData'])
 
 Route::get('admin/productsubcategories/{categoryId}', [ProductController::class, 'getSubcategories'])->name('productsubcategories.get');
 Route::delete('admin/product/attribute/{id}', [ProductController::class, 'deleteAttribute'])->name('product.attribute.delete');
+Route::get('/get-seo-data', [ProductController::class, 'getSeoData'])->name('get.seo.data');
+Route::post('/save-seo-data', [ProductController::class, 'saveSeoData'])->name('save.seo.data');
 
 
 
