@@ -1,5 +1,11 @@
 @extends('website.main.app')
 @section('title',$productData['name'])
+{{-- @section('seo')
+<title>{{ $product->meta_title ?? '' }}</title>
+<meta name="keywords" content="{{ $product->meta_keywords ?? '' }}">
+<meta name="description" content="{{ $product->meta_description ?? '' }}">
+<meta name="content" content="{{ $product->meta_content ?? '' }}">
+@endsection --}}
 @section('website.content')
     <section class="section-b-space pt-0">
         <div class="heading-banner">

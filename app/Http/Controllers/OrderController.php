@@ -112,7 +112,6 @@ class OrderController extends Controller
             'order_id' => 'required|exists:manual_orders,id',
             'tracking_id' => 'required|string|max:255',
             'tracking_link' => 'required|url',
-            // 'tracking_slip' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -142,10 +141,14 @@ class OrderController extends Controller
         $customerEmail = $order->email;
 
         if ($customerEmail) {
-            Mail::to($customerEmail)->send(new TrackingDetailsMail($order, $request->tracking_id, $request->tracking_link, $trackingSlipPath));
+            try {
+                Mail::to($customerEmail)->send(new TrackingDetailsMail($order, $request->tracking_id, $request->tracking_link, $trackingSlipPath));
+            } catch (\Exception $e) {
+                // Email send failure ko ignore karenge
+            }
         }
 
-        return response()->json(['success' => 'Tracking details updated and email sent successfully!']);
+        return response()->json(['success' => 'Tracking details updated successfully!']);
     }
 
 
