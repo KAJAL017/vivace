@@ -28,6 +28,7 @@
                                             <th>#</th>
                                             <th>Product Name</th>
                                             <th>Category</th>
+                                            <th>Sub Category</th>
                                             <th>Brand</th>
                                             <th>Collections</th>
                                             <th>ACTION</th>
@@ -52,6 +53,7 @@
 
                                                 </td>
                                                 <td>{{ $product->categoryname }}</td>
+                                                <td>{{ $product->subcategoryname }}</td>
                                                 <td>{{ $product->brandname }}</td>
                                                 <td>{{ $product->collectionName }}</td>
                                                 <td>

@@ -17,6 +17,7 @@ class ProductController extends Controller
     {
         $result['products'] = DB::table('products')
         ->join('categories', 'categories.id', '=', 'products.category_id')
+        ->join('sub_categories', 'sub_categories.id', '=', 'products.subcategory')
         ->join('brands', 'brands.id', '=', 'products.brand_id')
         ->join('collections', 'collections.id', '=', 'products.collection_id')
         ->select(
@@ -26,6 +27,7 @@ class ProductController extends Controller
             // 'product_attributes.mrp',
             'collections.name as collectionName',
             'categories.name as categoryname',
+            'sub_categories.name as subcategoryname',
             'brands.name as brandname',
         )
         ->orderBy('products.id','DESC')
