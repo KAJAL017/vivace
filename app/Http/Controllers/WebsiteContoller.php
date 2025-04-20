@@ -1556,7 +1556,7 @@ public function addToCart(Request $request)
 
         try {
             DB::table('users')->where('id',$user_id)->update([
-                'address_title' => $validatedData['title'],
+                // 'address_title' => $validatedData['title'],
                 'address' => $validatedData['address'],
                 // 'country' => $validatedData['country'],
                 'state' => $validatedData['state'],
