@@ -1545,14 +1545,13 @@ public function addToCart(Request $request)
     {
         $user_id = session::get('user_id');
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-    'email' => 'required|email',
-    'phone' => 'required|digits:10',
-    'address' => 'required|string|max:500',
-    'pincode' => 'required|digits:6',
-    'city' => 'required|string|max:255',
-    'state' => 'required|string|max:255',
-    'address_type' => 'required|in:1,2',
+            'title' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'country' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'pincode' => 'required|digits:6',
+            'phone' => 'required|digits:10',
         ]);
 
         try {
