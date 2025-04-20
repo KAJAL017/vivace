@@ -239,27 +239,27 @@
                     <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0">
-                    <form id="userForm">
+                    <form id="addAddressForm">
                         <div class="row g-3">
                             <div class="col-12">
                                 <div class="form-group">
                                     <label class="form-label">Name</label>
-                                    <input class="form-control" type="text" name="name" id="name"
-                                        placeholder="Enter your name.">
+                                    <input class="form-control" type="text" name="name" id="name" placeholder="Enter your name.">
+                                    <span class="text-danger error-message" id="name_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label class="form-label">Email address</label>
-                                    <input class="form-control" type="email" name="email" id="email"
-                                        placeholder="john.smith@example.com">
+                                    <input class="form-control" type="email" name="email" id="email" placeholder="john.smith@example.com">
+                                    <span class="text-danger error-message" id="email_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label class="form-label">Phone</label>
-                                    <input class="form-control" type="number" name="phone" id="phone"
-                                        placeholder="Enter your Number.">
+                                    <input class="form-control" type="number" name="phone" id="phone" placeholder="Enter your Number.">
+                                    <span class="text-danger error-message" id="phone_error"></span>
                                 </div>
                             </div>
                             <div class="col-12">
@@ -267,47 +267,48 @@
                                     <label class="form-label">Address</label>
                                     <textarea class="form-control" name="address" id="address" cols="30" rows="5"
                                         placeholder="Write your Address..."></textarea>
+                                    <span class="text-danger error-message" id="address_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label class="form-label">Pincode</label>
-                                    <input class="form-control" type="text" name="pincode" id="pincode"
-                                        placeholder="Enter your Pincode">
+                                    <input class="form-control" type="text" name="pincode" id="pincode" placeholder="Enter your Pincode">
+                                    <span class="text-danger error-message" id="pincode_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label class="form-label">City</label>
-                                    <input class="form-control" type="text" name="city" id="city"
-                                        placeholder="Enter your City">
+                                    <input class="form-control" type="text" name="city" id="city" placeholder="Enter your City">
+                                    <span class="text-danger error-message" id="city_error"></span>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
                                     <label class="form-label">State</label>
-                                    <input class="form-control" type="text" name="state" id="state"
-                                        placeholder="Enter your State">
+                                    <input class="form-control" type="text" name="state" id="state" placeholder="Enter your State">
+                                    <span class="text-danger error-message" id="state_error"></span>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
                                     <label class="form-label">Address Type</label>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="address_type"
-                                            id="billing_address" value="1" checked>
+                                        <input class="form-check-input" type="radio" name="address_type" id="billing_address" value="1" checked>
                                         <label class="form-check-label" for="billing_address">Billing Address</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="address_type"
-                                            id="shipping_address" value="2">
+                                        <input class="form-check-input" type="radio" name="address_type" id="shipping_address" value="2">
                                         <label class="form-check-label" for="shipping_address">Shipping Address</label>
                                     </div>
+                                    <span class="text-danger error-message" id="address_type_error"></span>
                                 </div>
                             </div>
-                            <button class="btn btn-submit" type="submit">Submit</button>
+                            <button class="btn btn-submit" type="submit" id="submitAddress">Submit</button>
                         </div>
                     </form>
+
 
                 </div>
             </div>
@@ -317,10 +318,12 @@
 @section('website.js')
     <!-- AJAX Script -->
     <script>
-        $(document).on('click', '#submitAddress', function(e) {
+        $(document).on('click', '#submitAddress', function (e) {
             e.preventDefault();
 
-            // Client-side form validation
+            // Clear previous errors
+            $('.error-message').text('');
+
             let form = $('#addAddressForm')[0];
             if (form.checkValidity() === false) {
                 form.classList.add('was-validated');
@@ -330,24 +333,24 @@
             let formData = $('#addAddressForm').serialize();
 
             $.ajax({
-                url: "{{ route('user.update.address') }}", // Laravel route
+                url: "{{ route('user.update.address') }}",
                 method: "POST",
                 data: formData,
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         toastr.success(response.message);
-                        $('#address-modal1').modal('hide');
+                        $('#add-address').modal('hide');
                         $('#addAddressForm')[0].reset();
                         form.classList.remove('was-validated');
                     } else {
                         toastr.error(response.message);
                     }
                 },
-                error: function(response) {
-                    let errors = response.responseJSON.errors;
+                error: function (xhr) {
+                    let errors = xhr.responseJSON.errors;
                     if (errors) {
-                        $.each(errors, function(key, value) {
-                            toastr.error(value[0]);
+                        $.each(errors, function (key, value) {
+                            $(`#${key}_error`).text(value[0]);
                         });
                     } else {
                         toastr.error('Something went wrong!');
@@ -356,6 +359,7 @@
             });
         });
     </script>
+
     <script>
        $(document).on('click', '.order-button .btn', function(e) {
     e.preventDefault();
