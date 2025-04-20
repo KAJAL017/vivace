@@ -341,7 +341,7 @@
                         toastr.success(response.message);
                         $('#add-address').modal('hide');
                         $('#addAddressForm')[0].reset();
-                        form.classList.remove('was-validated');
+                        location.reload();
                     } else {
                         // Show backend logical error (not validation)
                         toastr.error(response.message);
