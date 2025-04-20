@@ -2221,7 +2221,7 @@ public function UserAddressStore(Request $request)
         return response()->json(['status' => 'success', 'message' => 'Data saved successfully.']);
     } catch (\Exception $e) {
         DB::rollback();
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        // return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
     }
 }
 public function UserAddressUpdate(Request $request)
