@@ -219,10 +219,10 @@
                             <input type="hidden" value="{{ $subtotal }}" id="total_price">
                         </div>
 
-                        {{-- <div class="order-button">
+                        <div class="order-button">
                             <a class="btn btn_black sm w-100 rounded" href="{{ route('order.placed') }}">Place
                                 Order</a>
-                        </div> --}}
+                        </div>
                     </div>
                 </div>
             </div>
