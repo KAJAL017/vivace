@@ -1567,8 +1567,13 @@ public function addToCart(Request $request)
 
             return response()->json(['success' => true, 'message' => 'Address added successfully!']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Failed to add address.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add address.',
+                'error' => $e->getMessage(), // 👈 shows the real error
+            ], 500);
         }
+
     }
 
     public function addToWishlist(Request $request)
