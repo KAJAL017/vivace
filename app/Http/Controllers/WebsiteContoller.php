@@ -1545,9 +1545,9 @@ public function addToCart(Request $request)
     {
         $user_id = session::get('user_id');
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
+            // 'title' => 'required|string|max:255',
             'address' => 'required|string|max:500',
-            'country' => 'required|string|max:255',
+            // 'country' => 'required|string|max:255',
             'state' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'pincode' => 'required|digits:6',
@@ -1558,7 +1558,7 @@ public function addToCart(Request $request)
             DB::table('users')->where('id',$user_id)->update([
                 'address_title' => $validatedData['title'],
                 'address' => $validatedData['address'],
-                'country' => $validatedData['country'],
+                // 'country' => $validatedData['country'],
                 'state' => $validatedData['state'],
                 'city' => $validatedData['city'],
                 'pincode' => $validatedData['pincode'],
