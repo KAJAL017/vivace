@@ -2218,12 +2218,20 @@ public function UserAddressStore(Request $request)
         ]);
 
         DB::commit();
-        return response()->json(['status' => 'success', 'message' => 'Data saved successfully.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Data saved successfully.'
+        ]);
     } catch (\Exception $e) {
         DB::rollback();
-        // return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to save address.',
+            'error' => $e->getMessage() // Only show this in dev if needed
+        ], 500);
     }
 }
+
 public function UserAddressUpdate(Request $request)
 {
     DB::beginTransaction();

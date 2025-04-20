@@ -317,48 +317,55 @@
 @endsection
 @section('website.js')
     <!-- AJAX Script -->
-  <script>
-    $(document).on('click', '#submitAddress', function (e) {
-        e.preventDefault();
+    <script>
+        $(document).on('click', '#submitAddress', function (e) {
+            e.preventDefault();
 
-        // Clear previous errors
-        $('.error-message').text('');
+            // Clear previous errors
+            $('.error-message').text('');
 
-        let form = $('#addAddressForm')[0];
-        if (form.checkValidity() === false) {
-            form.classList.add('was-validated');
-            return;
-        }
-
-        let formData = $('#addAddressForm').serialize();
-
-        $.ajax({
-            url: "{{ route('user.address.store') }}",
-            method: "POST",
-            data: formData,
-            success: function (response) {
-                if (response.success) {
-                    toastr.success(response.message);
-                    $('#add-address').modal('hide');
-                    $('#addAddressForm')[0].reset();
-                    form.classList.remove('was-validated');
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function (xhr) {
-                let errors = xhr.responseJSON.errors;
-                if (errors) {
-                    $.each(errors, function (key, value) {
-                        $(`#${key}_error`).text(value[0]);
-                    });
-                } else {
-                    toastr.error('Something went wrong!');
-                }
+            let form = $('#addAddressForm')[0];
+            if (form.checkValidity() === false) {
+                form.classList.add('was-validated');
+                return;
             }
+
+            let formData = $('#addAddressForm').serialize();
+
+            $.ajax({
+                url: "{{ route('user.address.store') }}",
+                method: "POST",
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $('#add-address').modal('hide');
+                        $('#addAddressForm')[0].reset();
+                        form.classList.remove('was-validated');
+                    } else {
+                        // Show backend logical error (not validation)
+                        toastr.error(response.message);
+                        if (response.error) {
+                            console.error("Server error:", response.error);
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    let errors = xhr.responseJSON?.errors;
+                    if (errors) {
+                        $.each(errors, function (key, value) {
+                            $(`#${key}_error`).text(value[0]);
+                        });
+                    } else if (xhr.responseJSON?.message) {
+                        toastr.error(xhr.responseJSON.message);
+                    } else {
+                        toastr.error('Something went wrong!');
+                    }
+                }
+            });
         });
-    });
-</script>
+    </script>
+
 
     <script>
        $(document).on('click', '.order-button .btn', function(e) {
