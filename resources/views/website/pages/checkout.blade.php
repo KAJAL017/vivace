@@ -151,7 +151,7 @@
                             </div>
                         </div>
 
-                        {{-- <div class="payment-options">
+                        <div class="payment-options">
                             <h4 class="mb-3">Payment Method</h4>
                             <div class="row gy-3">
                                 <div class="col-sm-6">
@@ -159,13 +159,13 @@
                                             checked="checked" name="radio" value="Cod"> <label
                                             for="cod">Cod</label> </div>
                                 </div>
-                                <div class="col-sm-6">
+                                {{-- <div class="col-sm-6">
                                     <div class="payment-box"> <input class="custom-radio me-2" id="online"
                                             type="radio" name="radio" value="Online"> <label
                                             for="online">Online</label> </div>
-                                </div>
+                                </div> --}}
                             </div>
-                        </div> --}}
+                        </div>
                     </div>
                 </div>
                 @php
