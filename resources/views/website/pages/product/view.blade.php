@@ -38,7 +38,7 @@
                             <div class="swiper product-slider-thumb-1 product-thumbnail">
                                 <div class="swiper-wrapper ratio3_5">
                                     @foreach ($product_images as $image)
-                                        <div class="swiper-slide"> <img loading="lazy" class="bg-img img-slide"
+                                        <div class="swiper-slide img-slide"> <img loading="lazy" class="bg-img "
                                                 src="{{ url('public/' . $image->file_path) }}"
                                                 style="background-size: contain !important" alt="">
                                         </div>
