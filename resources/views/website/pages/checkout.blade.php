@@ -38,7 +38,8 @@
                     <div class="left-sidebar-checkout sticky">
                         <div class="address-option">
                             <div class="address-title">
-                                <h4>Shipping Address</h4><a href="#" data-bs-toggle="modal" data-bs-target="#add-address" title="add product" tabindex="0">+ Add New Address</a>
+                                <h4>Shipping Address</h4><a href="#" data-bs-toggle="modal"
+                                    data-bs-target="#add-address" title="add product" tabindex="0">+ Add New Address</a>
                             </div>
                             <div class="row">
                                 @foreach ($shipping_addresses as $key => $address)
@@ -46,7 +47,9 @@
                                         <label for="address-shipping-{{ $key }}">
                                             <span class="delivery-address-box">
                                                 <span class="form-check">
-                                                    <input class="custom-radio" id="address-shipping-{{ $key }}" value="{{ $address->id }}" type="radio" name="shipping_address" {{ $loop->first ? 'checked="checked"' : '' }}>
+                                                    <input class="custom-radio" id="address-shipping-{{ $key }}"
+                                                        value="{{ $address->id }}" type="radio" name="shipping_address"
+                                                        {{ $loop->first ? 'checked="checked"' : '' }}>
                                                 </span>
                                                 <span class="address-detail">
                                                     <span class="address">
@@ -90,11 +93,15 @@
                         <div style="margin-bottom: 20px;">
                             <div style="border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
                                 <label style="display: block; padding: 10px; cursor: pointer;">
-                                    <input type="radio" name="billing_option" class="billing_option" value="same_as_shipping" style="margin-right: 10px;" checked onclick="toggleBillingAddress(false)">
+                                    <input type="radio" name="billing_option" class="billing_option"
+                                        value="same_as_shipping" style="margin-right: 10px;" checked
+                                        onclick="toggleBillingAddress(false)">
                                     Same as shipping address
                                 </label>
                                 <label style="display: block; padding: 10px; cursor: pointer;">
-                                    <input type="radio" name="billing_option" class="billing_option" value="different_address" style="margin-right: 10px;" onclick="toggleBillingAddress(true)">
+                                    <input type="radio" name="billing_option" class="billing_option"
+                                        value="different_address" style="margin-right: 10px;"
+                                        onclick="toggleBillingAddress(true)">
                                     Use a different billing address
                                 </label>
                             </div>
@@ -102,7 +109,8 @@
 
                         <div class="address-option" id="billing-address" style="display: none;">
                             <div class="address-title">
-                                <h4>Billing Address </h4><a href="#" data-bs-toggle="modal" data-bs-target="#add-address" title="add product" tabindex="0">+ Add New Address</a>
+                                <h4>Billing Address </h4><a href="#" data-bs-toggle="modal"
+                                    data-bs-target="#add-address" title="add product" tabindex="0">+ Add New Address</a>
                             </div>
                             <div class="row gy-3">
                                 @foreach ($billing_addresses as $key => $address)
@@ -110,7 +118,9 @@
                                         <label for="address-billing-{{ $key }}">
                                             <span class="delivery-address-box">
                                                 <span class="form-check">
-                                                    <input class="custom-radio" id="address-billing-{{ $key }}" value="{{ $address->id }}" type="radio" name="billing_address" {{ $loop->first ? 'checked="checked"' : '' }}>
+                                                    <input class="custom-radio" id="address-billing-{{ $key }}"
+                                                        value="{{ $address->id }}" type="radio" name="billing_address"
+                                                        {{ $loop->first ? 'checked="checked"' : '' }}>
                                                 </span>
                                                 <span class="address-detail">
                                                     <span class="address">
@@ -155,77 +165,77 @@
                             <h4 class="mb-3">Payment Method</h4>
                             <div class="row gy-3">
                                 <div class="col-sm-6">
-                                    <div class="payment-box"> <input class="custom-radio me-2" id="cod" type="radio"
-                                            checked="checked" name="radio" value="Cod"> <label
+                                    <div class="payment-box"> <input class="custom-radio me-2" id="cod"
+                                            type="radio" checked="checked" name="radio" value="Cod"> <label
                                             for="cod">Cod</label> </div>
                                 </div>
-                                {{-- <div class="col-sm-6">
+                                <div class="col-sm-6">
                                     <div class="payment-box"> <input class="custom-radio me-2" id="online"
                                             type="radio" name="radio" value="Online"> <label
                                             for="online">Online</label> </div>
-                                </div> --}}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 @php
-                $CartData = CartProductData();
-                $subtotal = 0;
-            @endphp
+                    $CartData = CartProductData();
+                    $subtotal = 0;
+                @endphp
 
-            <div class="col-xxl-3 col-lg-4">
-                <div class="right-sidebar-checkout">
-                    <h4>Checkout</h4>
-                    <div class="cart-listing">
-                        <ul>
-
-                            @foreach ($CartData as $product)
-                                @php
-                                    $quantity = $product['cart_item']['quantity'];
-                                    $price = $product['product']['price'];
-                                    $itemTotal = $quantity * $price;
-                                    $subtotal += $itemTotal;
-                                @endphp
-
-                                <li data-product-id="{{ $product['product']['id'] }}"
-                                    data-quantity="{{ $product['cart_item']['quantity'] }}"
-                                    data-color="{{ $product['cart_item']['color_id'] }}"
-                                    data-size="{{ $product['cart_item']['size_id'] }}"
-                                    data-price="{{ $product['product']['price'] }}">
-                                    <img src="{{ $product['product']['image'] }}" alt="" width="50">
-                                    <div>
-                                        <h6>{{ $product['product']['name'] }}</h6>
-                                        <span>{{ ucfirst(strtolower(getColorData($product['cart_item']['color_id']))) }}</span>
-                                    </div>
-                                    <p>₹{{ number_format($itemTotal, 2) }}</p>
-                                </li>
-                            @endforeach
-                        </ul>
-
-                        <div class="summary-total">
+                <div class="col-xxl-3 col-lg-4">
+                    <div class="right-sidebar-checkout">
+                        <h4>Checkout</h4>
+                        <div class="cart-listing">
                             <ul>
-                                <li>
-                                    <p>Subtotal</p>
-                                    <span>₹{{ number_format($subtotal, 2) }}</span>
-                                </li>
 
-                                {{-- Removed shipping calculation --}}
+                                @foreach ($CartData as $product)
+                                    @php
+                                        $quantity = $product['cart_item']['quantity'];
+                                        $price = $product['product']['price'];
+                                        $itemTotal = $quantity * $price;
+                                        $subtotal += $itemTotal;
+                                    @endphp
+
+                                    <li data-product-id="{{ $product['product']['id'] }}"
+                                        data-quantity="{{ $product['cart_item']['quantity'] }}"
+                                        data-color="{{ $product['cart_item']['color_id'] }}"
+                                        data-size="{{ $product['cart_item']['size_id'] }}"
+                                        data-price="{{ $product['product']['price'] }}">
+                                        <img src="{{ $product['product']['image'] }}" alt="" width="50">
+                                        <div>
+                                            <h6>{{ $product['product']['name'] }}</h6>
+                                            <span>{{ ucfirst(strtolower(getColorData($product['cart_item']['color_id']))) }}</span>
+                                        </div>
+                                        <p>₹{{ number_format($itemTotal, 2) }}</p>
+                                    </li>
+                                @endforeach
                             </ul>
-                        </div>
 
-                        <div class="total">
-                            <h6>Total :</h6>
-                            <h6>₹{{ number_format($subtotal, 2) }}</h6>
-                            <input type="hidden" value="{{ $subtotal }}" id="total_price">
-                        </div>
+                            <div class="summary-total">
+                                <ul>
+                                    <li>
+                                        <p>Subtotal</p>
+                                        <span>₹{{ number_format($subtotal, 2) }}</span>
+                                    </li>
 
-                        <div class="order-button">
-                            <a class="btn btn_black sm w-100 rounded" href="{{ route('order.placed') }}">Place
-                                Order</a>
+                                    {{-- Removed shipping calculation --}}
+                                </ul>
+                            </div>
+
+                            <div class="total">
+                                <h6>Total :</h6>
+                                <h6>₹{{ number_format($subtotal, 2) }}</h6>
+                                <input type="hidden" value="{{ $subtotal }}" id="total_price">
+                            </div>
+
+                            <div class="order-button">
+                                <a class="btn btn_black sm w-100 rounded" href="{{ route('order.placed') }}">Place
+                                    Order</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
             </div>
         </div>
@@ -244,21 +254,24 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label class="form-label">Name</label>
-                                    <input class="form-control" type="text" name="name" id="name" placeholder="Enter your name.">
+                                    <input class="form-control" type="text" name="name" id="name"
+                                        placeholder="Enter your name.">
                                     <span class="text-danger error-message" id="name_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label class="form-label">Email address</label>
-                                    <input class="form-control" type="email" name="email" id="email" placeholder="john.smith@example.com">
+                                    <input class="form-control" type="email" name="email" id="email"
+                                        placeholder="john.smith@example.com">
                                     <span class="text-danger error-message" id="email_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label class="form-label">Phone</label>
-                                    <input class="form-control" type="number" name="phone" id="phone" placeholder="Enter your Number.">
+                                    <input class="form-control" type="number" name="phone" id="phone"
+                                        placeholder="Enter your Number.">
                                     <span class="text-danger error-message" id="phone_error"></span>
                                 </div>
                             </div>
@@ -273,21 +286,24 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label class="form-label">Pincode</label>
-                                    <input class="form-control" type="text" name="pincode" id="pincode" placeholder="Enter your Pincode">
+                                    <input class="form-control" type="text" name="pincode" id="pincode"
+                                        placeholder="Enter your Pincode">
                                     <span class="text-danger error-message" id="pincode_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label class="form-label">City</label>
-                                    <input class="form-control" type="text" name="city" id="city" placeholder="Enter your City">
+                                    <input class="form-control" type="text" name="city" id="city"
+                                        placeholder="Enter your City">
                                     <span class="text-danger error-message" id="city_error"></span>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
                                     <label class="form-label">State</label>
-                                    <input class="form-control" type="text" name="state" id="state" placeholder="Enter your State">
+                                    <input class="form-control" type="text" name="state" id="state"
+                                        placeholder="Enter your State">
                                     <span class="text-danger error-message" id="state_error"></span>
                                 </div>
                             </div>
@@ -295,11 +311,13 @@
                                 <div class="form-group">
                                     <label class="form-label">Address Type</label>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="address_type" id="billing_address" value="1" checked>
+                                        <input class="form-check-input" type="radio" name="address_type"
+                                            id="billing_address" value="1" checked>
                                         <label class="form-check-label" for="billing_address">Billing Address</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="address_type" id="shipping_address" value="2">
+                                        <input class="form-check-input" type="radio" name="address_type"
+                                            id="shipping_address" value="2">
                                         <label class="form-check-label" for="shipping_address">Shipping Address</label>
                                     </div>
                                     <span class="text-danger error-message" id="address_type_error"></span>
@@ -318,7 +336,7 @@
 @section('website.js')
     <!-- AJAX Script -->
     <script>
-        $(document).on('click', '#submitAddress', function (e) {
+        $(document).on('click', '#submitAddress', function(e) {
             e.preventDefault();
 
             // Clear previous errors
@@ -336,7 +354,7 @@
                 url: "{{ route('user.address.store') }}",
                 method: "POST",
                 data: formData,
-                success: function (response) {
+                success: function(response) {
                     if (response.success) {
                         toastr.success(response.message);
                         $('#add-address').modal('hide');
@@ -350,10 +368,10 @@
                         }
                     }
                 },
-                error: function (xhr) {
+                error: function(xhr) {
                     let errors = xhr.responseJSON?.errors;
                     if (errors) {
-                        $.each(errors, function (key, value) {
+                        $.each(errors, function(key, value) {
                             $(`#${key}_error`).text(value[0]);
                         });
                     } else if (xhr.responseJSON?.message) {
@@ -368,107 +386,106 @@
 
 
     <script>
-       $(document).on('click', '.order-button .btn', function(e) {
-    e.preventDefault();
+        $(document).on('click', '.order-button .btn', function(e) {
+            e.preventDefault();
 
-    // Clear previous error messages
-    $('.invalid-feedback').text('');
-    $('.form-control').removeClass('is-invalid');
+            // Clear previous error messages
+            $('.invalid-feedback').text('');
+            $('.form-control').removeClass('is-invalid');
 
-    // Check the selected billing option
-    let billingOption = $('input[name="billing_option"]:checked').val();
-    let billingAddressId = null;
+            // Check the selected billing option
+            let billingOption = $('input[name="billing_option"]:checked').val();
+            let billingAddressId = null;
 
-    if (billingOption === 'different_address') {
-        billingAddressId = $('input[name="billing_address"]:checked').val();
-        if (!billingAddressId) {
-            Swal.fire('Error', 'Please select a different billing address.', 'error');
-            return;
-        }
-    } else {
-        billingAddressId = $('input[name="shipping_address"]:checked').val();
-    }
+            if (billingOption === 'different_address') {
+                billingAddressId = $('input[name="billing_address"]:checked').val();
+                if (!billingAddressId) {
+                    Swal.fire('Error', 'Please select a different billing address.', 'error');
+                    return;
+                }
+            } else {
+                billingAddressId = $('input[name="shipping_address"]:checked').val();
+            }
 
-    let formData = {
-        _token: $('meta[name="csrf-token"]').attr('content'),
-        total_price: $('#total_price').val(),
-        billing_option: billingOption,
-        billing_address_id: billingAddressId,
-        payment_method: $('input[name="radio"]:checked').val(),
-        shipping_address_id: $('input[name="shipping_address"]:checked').val(),
-        cart_items: [],
-    };
+            let formData = {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                total_price: $('#total_price').val(),
+                billing_option: billingOption,
+                billing_address_id: billingAddressId,
+                payment_method: $('input[name="radio"]:checked').val(),
+                shipping_address_id: $('input[name="shipping_address"]:checked').val(),
+                cart_items: [],
+            };
 
-    // Collect cart items
-    $('.cart-listing ul li').each(function() {
-        let productId = $(this).data('product-id');
-        let quantity = $(this).data('quantity');
-        let price = $(this).data('price');
-        let color = $(this).data('color');
-        let size = $(this).data('size');
-        if (productId && quantity && price) {
-            formData.cart_items.push({
-                product_id: productId,
-                quantity: quantity,
-                price: price,
-                color: color,
-                size: size
+            // Collect cart items
+            $('.cart-listing ul li').each(function() {
+                let productId = $(this).data('product-id');
+                let quantity = $(this).data('quantity');
+                let price = $(this).data('price');
+                let color = $(this).data('color');
+                let size = $(this).data('size');
+                if (productId && quantity && price) {
+                    formData.cart_items.push({
+                        product_id: productId,
+                        quantity: quantity,
+                        price: price,
+                        color: color,
+                        size: size
+                    });
+                }
             });
-        }
-    });
 
-    if (formData.cart_items.length === 0) {
-        Swal.fire('Error', 'No items in your cart.', 'error');
-        return;
-    }
+            if (formData.cart_items.length === 0) {
+                Swal.fire('Error', 'No items in your cart.', 'error');
+                return;
+            }
 
-    // Process the order submission based on the payment method
-    if (formData.payment_method === 'Online') {
-        // Trigger PhonePe payment
-        $.ajax({
-            url: '{{ route('phonepe.payment.initiate') }}',
-            method: 'POST',
-            data: formData,
-            success: function(response) {
-                if (response.success) {
-                    window.location.href = response.redirect_url;
-                } else {
-                    Swal.fire('Error', response.message, 'error');
-                }
-            },
-            error: function(xhr) {
-                Swal.fire('Error', 'Payment failed. Please try again.', 'error');
-            },
-        });
-    } else {
-        $.ajax({
-            url: '{{ route('store.order') }}',
-            method: 'POST',
-            data: formData,
-            success: function(response) {
-                if (response.success) {
-                    window.location.href = response.redirect_url;
-                } else {
-                    Swal.fire('Error', response.message, 'error');
-                }
-            },
-            error: function(xhr) {
-                // If validation errors are returned from Laravel
-                let errors = xhr.responseJSON.errors;
-
-                // Loop through each error and display it next to the corresponding input field
-                $.each(errors, function(field, message) {
-                    let inputField = $('#' + field);
-                    inputField.addClass('is-invalid');
-                    inputField.siblings('.invalid-feedback').text(message[0]);
+            // Process the order submission based on the payment method
+            if (formData.payment_method === 'Online') {
+                // Trigger PhonePe payment
+                $.ajax({
+                    url: '{{ route('phonepe.payment.initiate') }}',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = response.redirect_url;
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error', 'Payment failed. Please try again.', 'error');
+                    },
                 });
+            } else {
+                $.ajax({
+                    url: '{{ route('store.order') }}',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = response.redirect_url;
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        // If validation errors are returned from Laravel
+                        let errors = xhr.responseJSON.errors;
 
-                Swal.fire('Error', 'Please check the form for validation errors.', 'error');
-            },
+                        // Loop through each error and display it next to the corresponding input field
+                        $.each(errors, function(field, message) {
+                            let inputField = $('#' + field);
+                            inputField.addClass('is-invalid');
+                            inputField.siblings('.invalid-feedback').text(message[0]);
+                        });
+
+                        Swal.fire('Error', 'Please check the form for validation errors.', 'error');
+                    },
+                });
+            }
         });
-    }
-});
-
     </script>
     <script>
         $(document).ready(function() {
