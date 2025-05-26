@@ -40,7 +40,7 @@
                                     @foreach ($product_images as $image)
                                         <div class="swiper-slide" style="background-size: contain !important"> <img
                                                 loading="lazy" class="bg-img" src="{{ url('public/' . $image->file_path) }}"
-                                                alt="">
+                                                style="background-size: contain !important" alt="">
                                         </div>
                                     @endforeach
                                 </div>
