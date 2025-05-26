@@ -31,7 +31,7 @@ class ProductController extends Controller
             'brands.name as brandname',
         )
         ->orderBy('products.id','DESC')
-        ->where(['is_deleted'=>0])
+        ->where('is_deleted',0)
         ->get();
 
 
