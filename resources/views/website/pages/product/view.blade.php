@@ -1,5 +1,5 @@
 @extends('website.main.app')
-@section('title',$productData['name'])
+@section('title', $productData['name'])
 {{-- @section('seo')
 <title>{{ $product->meta_title ?? '' }}</title>
 <meta name="keywords" content="{{ $product->meta_keywords ?? '' }}">
@@ -38,8 +38,9 @@
                             <div class="swiper product-slider-thumb-1 product-thumbnail">
                                 <div class="swiper-wrapper ratio3_5">
                                     @foreach ($product_images as $image)
-                                        <div class="swiper-slide"> <img loading="lazy"  class="bg-img"
-                                                src="{{ url('public/' . $image->file_path) }}" alt="">
+                                        <div class="swiper-slide" style="background-size: contain"> <img loading="lazy"
+                                                class="bg-img" src="{{ url('public/' . $image->file_path) }}"
+                                                alt="">
                                         </div>
                                     @endforeach
                                 </div>
@@ -49,8 +50,9 @@
                             <div class="swiper product-slider-1">
                                 <div class="swiper-wrapper">
                                     @foreach ($product_images as $image)
-                                        <div class="swiper-slide"> <img loading="lazy"  class="img-fluid"
-                                                src="{{ url('public/' . $image->file_path) }}" alt="">
+                                        <div class="swiper-slide" style="background-size: contain"> <img loading="lazy"
+                                                class="img-fluid" src="{{ url('public/' . $image->file_path) }}"
+                                                alt="">
                                         </div>
                                     @endforeach
                                 </div>
@@ -135,8 +137,8 @@
                                         data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"
                                         data-product-id="{{ $productData['id'] }}">Add To Cart</a>
                                 </div>
-                          </div>
-                          {{-- <div class="d-flex align-items-center gap-3 w-100">
+                            </div>
+                            {{-- <div class="d-flex align-items-center gap-3 w-100">
                             <a class="btn btn-success sm d-flex align-items-center gap-2 whatsapp-btn" href="#">
                                 <i class="fab fa-whatsapp"></i> Buy On WhatsApp
                             </a>
@@ -146,11 +148,11 @@
                                     <li><a href="#" class="btn btn_black sm add-to-wishlist-btn"
                                             data-product-id="{{ $productData['id'] }}">Add To Wishlist</a>
 
-                                            <li>
-                                                <a href="javascript:void(0);" id="shareButton" title="Quick View" tabindex="0">
-                                                    <i class="fa-solid fa-share-nodes me-2"></i>Share
-                                                </a>
-                                            </li>
+                                    <li>
+                                        <a href="javascript:void(0);" id="shareButton" title="Quick View" tabindex="0">
+                                            <i class="fa-solid fa-share-nodes me-2"></i>Share
+                                        </a>
+                                    </li>
 
                                 </ul>
                             </div>
@@ -185,7 +187,7 @@
                             </div> --}}
                         </div>
                     </div>
-{{-- <script>
+                    {{-- <script>
 document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
     e.preventDefault();
 
@@ -610,10 +612,12 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
                                                 class="iconsax" data-icon="heart" aria-hidden="true"
                                                 data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i></a></div> --}}
                                     <div class="product-image"><a class="pro-first"
-                                            href="{{ route('view.product', [$product->slug]) }}"> <img loading="lazy"  class="bg-img"
+                                            href="{{ route('view.product', [$product->slug]) }}"> <img loading="lazy"
+                                                class="bg-img"
                                                 src="{{ path() }}/{{ Product_first_image($product->id) }}"
                                                 alt="product"></a><a class="pro-sec"
-                                            href="{{ route('view.product', [$product->slug]) }}"> <img loading="lazy"  class="bg-img"
+                                            href="{{ route('view.product', [$product->slug]) }}"> <img loading="lazy"
+                                                class="bg-img"
                                                 src="{{ path() }}/{{ get_second_image($product->id) }}"
                                                 alt="product"></a></div>
                                     {{-- <div class="cart-info-icon"> <a href="#" data-bs-toggle="modal"
@@ -665,7 +669,7 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
 
 
     <script>
-        document.getElementById('shareButton').addEventListener('click', function () {
+        document.getElementById('shareButton').addEventListener('click', function() {
             // Get the current URL
             const currentUrl = window.location.href;
 
