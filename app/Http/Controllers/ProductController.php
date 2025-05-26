@@ -15,24 +15,21 @@ class ProductController extends Controller
 
     public function index()
     {
-        $result['products'] = DB::table('products')
-        ->join('categories', 'categories.id', '=', 'products.category_id')
-        ->join('sub_categories', 'sub_categories.id', '=', 'products.subcategory')
-        ->join('brands', 'brands.id', '=', 'products.brand_id')
-        ->join('collections', 'collections.id', '=', 'products.collection_id')
-        ->select(
-            'products.*',
-            // 'product_attributes.size_id',
-            // 'product_attributes.color_id',
-            // 'product_attributes.mrp',
-            'collections.name as collectionName',
-            'categories.name as categoryname',
-            'sub_categories.name as subcategoryname',
-            'brands.name as brandname',
-        )
-        ->orderBy('products.id','DESC')
+       $result['products'] = DB::table('products')
+    ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
+    ->leftJoin('sub_categories', 'sub_categories.id', '=', 'products.subcategory')
+    ->leftJoin('brands', 'brands.id', '=', 'products.brand_id')
+    ->leftJoin('collections', 'collections.id', '=', 'products.collection_id')
+    ->select(
+        'products.*',
+        'collections.name as collectionName',
+        'categories.name as categoryname',
+        'sub_categories.name as subcategoryname',
+        'brands.name as brandname',
+    )
+    ->orderBy('products.id', 'DESC')
+    ->get();
 
-        ->get();
 
 
 
