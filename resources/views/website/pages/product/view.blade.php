@@ -36,6 +36,17 @@
                     <div class="row gy-3 sticky">
                         <div class="col-12">
                             <div class="swiper product-slider-thumb-1 product-thumbnail">
+                                <style>
+                                    .img-slide {
+
+                                        background-size: contain !important;
+                                        background-position: center center;
+                                        background-repeat: no-repeat;
+                                        display: block;
+                                        width: 808px;
+                                        margin-right: 15px;
+                                    }
+                                </style>
                                 <div class="swiper-wrapper ratio3_5">
                                     @foreach ($product_images as $image)
                                         <div class="swiper-slide img-slide"> <img loading="lazy" class="bg-img "
