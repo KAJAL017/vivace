@@ -92,11 +92,6 @@
 
                             <div class="rating">
                                 <ul>
-                                    <li> <i class="fa-solid fa-star"> </i><i class="fa-solid fa-star"> </i><i
-                                            class="fa-solid fa-star">
-                                        </i><i class="fa-solid fa-star-half-stroke"></i><i class="fa-regular fa-star"></i>
-                                    </li>
-                                    <li>(4.7) Rating</li>
                                 </ul>
                                 {!! $productData['short_description'] !!}
                             </div>

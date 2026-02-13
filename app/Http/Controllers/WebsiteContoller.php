@@ -622,18 +622,31 @@ public function addToCart(Request $request)
             ], 404);
         }
 
-        // Update or insert cart item
-        DB::table('cart')->updateOrInsert(
-            [
+        // Check if item already exists in cart
+        $existingItem = DB::table('cart')
+            ->where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->where('size_id', $sizeId)
+            ->where('color_id', $colorId)
+            ->first();
+
+        if ($existingItem) {
+            // Update existing item
+            DB::table('cart')
+                ->where('id', $existingItem->id)
+                ->update([
+                    'quantity' => $existingItem->quantity + $quantity,
+                ]);
+        } else {
+            // Insert new item
+            DB::table('cart')->insert([
                 'user_id' => $userId,
                 'product_id' => $productId,
                 'size_id' => $sizeId,
                 'color_id' => $colorId,
-            ],
-            [
-                'quantity' => DB::raw("COALESCE(quantity, 0) + $quantity"),
-            ]
-        );
+                'quantity' => $quantity,
+            ]);
+        }
 
         // Retrieve updated cart data
         $cartData = DB::table(table: 'cart')
