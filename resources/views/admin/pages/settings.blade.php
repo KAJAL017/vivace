@@ -35,6 +35,18 @@
                                     </div>
                                 </div>
 
+                                <hr class="my-4">
+
+                                <h5 class="mb-3">Cash on Delivery (COD)</h5>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="cod_enabled" name="cod_enabled" 
+                                               {{ isset($settings->cod_enabled) && $settings->cod_enabled == 1 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="cod_enabled">Enable Cash on Delivery</label>
+                                    </div>
+                                </div>
+
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-primary">Save Settings</button>
                                 </div>

@@ -213,6 +213,7 @@ class AdminController extends Controller
                 'razorpay_key_id' => $request->razorpay_key_id,
                 'razorpay_key_secret' => $request->razorpay_key_secret,
                 'razorpay_enabled' => $request->has('razorpay_enabled') ? 1 : 0,
+                'cod_enabled' => $request->has('cod_enabled') ? 1 : 0,
                 'updated_at' => now(),
             ]);
         } else {
@@ -220,6 +221,7 @@ class AdminController extends Controller
                 'razorpay_key_id' => $request->razorpay_key_id,
                 'razorpay_key_secret' => $request->razorpay_key_secret,
                 'razorpay_enabled' => $request->has('razorpay_enabled') ? 1 : 0,
+                'cod_enabled' => $request->has('cod_enabled') ? 1 : 0,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -227,7 +229,7 @@ class AdminController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Razorpay settings updated successfully!',
+            'message' => 'Settings updated successfully!',
         ]);
      }
 }

@@ -174,16 +174,49 @@
                         <div class="payment-options">
                             <h4 class="mb-3">Payment Method</h4>
                             <div class="row gy-3">
+                                @php
+                                    $settings = DB::table('settings')->first();
+                                    $codEnabled = $settings && $settings->cod_enabled == 1;
+                                    $razorpayEnabled = $settings && $settings->razorpay_enabled == 1;
+                                @endphp
+                                
+                                @if($codEnabled)
                                 <div class="col-sm-6">
-                                    <div class="payment-box"> <input class="custom-radio me-2" id="cod"
-                                            type="radio" checked="checked" name="payment_method" value="Cod"> <label
-                                            for="cod">Cash on Delivery</label> </div>
+                                    <div class="payment-box"> 
+                                        <input class="custom-radio me-2" id="cod" type="radio" 
+                                               {{ !$razorpayEnabled ? 'checked="checked"' : '' }} 
+                                               name="payment_method" value="Cod"> 
+                                        <label for="cod">Cash on Delivery</label> 
+                                    </div>
                                 </div>
+                                @else
                                 <div class="col-sm-6">
-                                    <div class="payment-box"> <input class="custom-radio me-2" id="online"
-                                            type="radio" name="payment_method" value="Online"> <label
-                                            for="online">Online Payment</label> </div>
+                                    <div class="payment-box disabled" style="opacity: 0.5; cursor: not-allowed;"> 
+                                        <input class="custom-radio me-2" id="cod" type="radio" 
+                                               name="payment_method" value="Cod" disabled> 
+                                        <label for="cod" style="cursor: not-allowed;">Cash on Delivery (Not Available)</label> 
+                                    </div>
                                 </div>
+                                @endif
+                                
+                                @if($razorpayEnabled)
+                                <div class="col-sm-6">
+                                    <div class="payment-box"> 
+                                        <input class="custom-radio me-2" id="online" type="radio" 
+                                               {{ $razorpayEnabled && !$codEnabled ? 'checked="checked"' : '' }} 
+                                               name="payment_method" value="Online"> 
+                                        <label for="online">Razorpay</label> 
+                                    </div>
+                                </div>
+                                @else
+                                <div class="col-sm-6">
+                                    <div class="payment-box disabled" style="opacity: 0.5; cursor: not-allowed;"> 
+                                        <input class="custom-radio me-2" id="online" type="radio" 
+                                               name="payment_method" value="Online" disabled> 
+                                        <label for="online" style="cursor: not-allowed;">Razorpay (Not Available)</label> 
+                                    </div>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
