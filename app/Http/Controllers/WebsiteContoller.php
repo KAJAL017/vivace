@@ -87,8 +87,6 @@ class WebsiteContoller extends Controller
                         'size_id' => $item->size_id,
                         'color_id' => $item->color_id,
                         'quantity' => $item->quantity,
-                        'created_at' => now(),
-                        'updated_at' => now(),
                     ]);
                 }
             }
