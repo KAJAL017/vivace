@@ -49,62 +49,57 @@
 
     <section class="section-t-space second-banner">
         <div class="custom-container container">
-            <div class="row">
-                <div class="col-xxl-5 col-lg-8 offer-box-1">
-                    <div class="row gy-4 ratio_45">
-                        <div class="col-12">
-                            @php
-                                $banner_table_1 = DB::table('banner_table_1')->first();
-                            @endphp
-                            <div class="collection-banner p-left">
-                                @if ($banner_table_1 && $banner_table_1->banner)
-                                    <a href="{{ $banner_table_1->link }}">
-                                        <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_1->banner }}"
-                                            alt="Banner Image" />
-                                    </a>
-                                @else
-                                    <p>No banner image available.</p>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            @php
-                                $banner_table_2 = DB::table('banner_table_2')->first();
-                            @endphp
-                            <div class="collection-banner p-right">
-                                @if ($banner_table_2 && $banner_table_2->banner)
-                                    <a href="{{ $banner_table_2->link }}">
-                                        <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_2->banner }}"
-                                            alt="Banner Image" />
-                                    </a>
-                                @else
-                                    <p>No banner image available.</p> <!-- Or show a placeholder image -->
-                                @endif
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="col-4 d-none d-xxl-block">
-                    <div class="offer-banner-3 ratio1_3">
-                        <a href="#">
-                            @php
-                                $banner_table_3 = DB::table('banner_table_3')->first();
-                            @endphp
-
-                            @if ($banner_table_3 && $banner_table_3->banner)
-                                <a href="{{ $banner_table_3->link }}">
-                                    <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $banner_table_3->banner }}"
-                                        alt="Banner Image" />
-                                </a>
-                            @else
-                                <p>No banner image available.</p> <!-- You can replace this with a placeholder image -->
-                            @endif
-                        </a>
+            <div class="row gy-4">
+                @php
+                    $banner_table_1 = DB::table('banner_table_1')->first();
+                    $banner_table_2 = DB::table('banner_table_2')->first();
+                    $banner_table_3 = DB::table('banner_table_3')->first();
+                    $banner_table_4 = DB::table('banner_table_4')->first();
+                @endphp
+                
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="collection-banner">
+                        @if ($banner_table_1 && $banner_table_1->banner)
+                            <a href="{{ $banner_table_1->link }}">
+                                <img loading="lazy" class="bg-img w-100" src="{{ url('public/uploads') }}/{{ $banner_table_1->banner }}"
+                                    alt="Banner 1" style="object-fit: cover; border-radius: 8px;" />
+                            </a>
+                        @endif
                     </div>
                 </div>
 
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="collection-banner">
+                        @if ($banner_table_2 && $banner_table_2->banner)
+                            <a href="{{ $banner_table_2->link }}">
+                                <img loading="lazy" class="bg-img w-100" src="{{ url('public/uploads') }}/{{ $banner_table_2->banner }}"
+                                    alt="Banner 2" style="object-fit: cover; border-radius: 8px;" />
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="collection-banner">
+                        @if ($banner_table_3 && $banner_table_3->banner)
+                            <a href="{{ $banner_table_3->link }}">
+                                <img loading="lazy" class="bg-img w-100" src="{{ url('public/uploads') }}/{{ $banner_table_3->banner }}"
+                                    alt="Banner 3" style="object-fit: cover; border-radius: 8px;" />
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="collection-banner">
+                        @if ($banner_table_4 && $banner_table_4->banner)
+                            <a href="{{ $banner_table_4->link }}">
+                                <img loading="lazy" class="bg-img w-100" src="{{ url('public/uploads') }}/{{ $banner_table_4->banner }}"
+                                    alt="Banner 4" style="object-fit: cover; border-radius: 8px;" />
+                            </a>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </section>
