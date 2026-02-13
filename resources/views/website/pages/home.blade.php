@@ -86,41 +86,6 @@
 
                     </div>
                 </div>
-                <div class="col-xxl-3 col-4 d-none d-lg-block">
-                    <div class="special-offer-slider">
-                        <h4>Special Offer</h4>
-                        <div class="swiper special-offer-slide">
-                            <div class="swiper-wrapper trending-products">
-                                @foreach ($special_products as $product)
-                                    <div class="swiper-slide product-box-3">
-                                        <div class="img-wrapper">
-                                            <div class="product-image ratio_apos"><a class="pro-first"
-                                                    href="{{ route('view.product', [$product->slug]) }}">
-                                                    <img  loading="lazy"  class="bg-img"
-                                                        src="{{ path() }}/{{ Product_first_image($product->id) }}"
-                                                        alt="product" /></a><a class="pro-sec"
-                                                    href="{{ route('view.product', [$product->slug]) }}">
-                                                    <img loading="lazy"  class="bg-img"
-                                                        src="{{ path() }}/{{ get_second_image($product->id) }}"
-                                                        alt="product" /></a></div>
-                                        </div>
-                                        <div class="product-detail">
-                                            <a href="{{ route('view.product', [$product->slug]) }}">
-                                                <h6>{{ $product->name }}</h6>
-                                            </a>
-                                            <p>₹{{ $product->price }}
-                                                <del>₹{{ $product->mrp }}</del>
-                                            </p>
-                                        </div>
-                                    </div>
-                                @endforeach
-
-                            </div>
-                            <div class="swiper-button-prev"></div>
-                            <div class="swiper-button-next"></div>
-                        </div>
-                    </div>
-                </div>
                 <div class="col-4 d-none d-xxl-block">
                     <div class="offer-banner-3 ratio1_3">
                         <a href="#">
