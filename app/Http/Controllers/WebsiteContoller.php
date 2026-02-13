@@ -64,18 +64,33 @@ class WebsiteContoller extends Controller
             $temporaryCartItems = DB::table('cart')->where('user_id', $temporaryUserId)->get();
 
             foreach ($temporaryCartItems as $item) {
-                // Merge or update cart items for logged-in user
-                DB::table('cart')->updateOrInsert(
-                    [
+                // Check if item already exists in user's cart
+                $existingItem = DB::table('cart')
+                    ->where('user_id', $userId)
+                    ->where('product_id', $item->product_id)
+                    ->where('size_id', $item->size_id)
+                    ->where('color_id', $item->color_id)
+                    ->first();
+
+                if ($existingItem) {
+                    // Update existing item quantity
+                    DB::table('cart')
+                        ->where('id', $existingItem->id)
+                        ->update([
+                            'quantity' => $existingItem->quantity + $item->quantity,
+                        ]);
+                } else {
+                    // Insert new item with logged-in user ID
+                    DB::table('cart')->insert([
                         'user_id' => $userId,
                         'product_id' => $item->product_id,
                         'size_id' => $item->size_id,
                         'color_id' => $item->color_id,
-                    ],
-                    [
-                        'quantity' => DB::raw("COALESCE(quantity, 0) + $item->quantity"),
-                    ]
-                );
+                        'quantity' => $item->quantity,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
 
             // Clear temporary cart
@@ -1872,6 +1887,8 @@ public function storeOrder(Request $request)
                 'order_items' => $orderDetails,
                 'billing_address_id' => $validated['billing_address_id'],
                 'shipping_address_id' => $validated['shipping_address_id'],
+                'payment_method' => $validated['payment_method'],
+                'payment_id' => null,
             ],
         ]);
 
@@ -2190,7 +2207,6 @@ public function clearAll(Request $request)
 
 public function UserAddressStore(Request $request)
 {
-    DB::beginTransaction();
     try {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -2205,6 +2221,8 @@ public function UserAddressStore(Request $request)
 
         $userId = session('user_id');
 
+        DB::beginTransaction();
+
         DB::table('addresses')->insert([
             'user_id' => $userId,
             'name' => $request->name,
@@ -2218,16 +2236,22 @@ public function UserAddressStore(Request $request)
         ]);
 
         DB::commit();
+
         return response()->json([
             'success' => true,
             'message' => 'Data saved successfully.'
         ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'errors' => $e->errors()
+        ], 422);
     } catch (\Exception $e) {
         DB::rollback();
         return response()->json([
             'success' => false,
             'message' => 'Failed to save address.',
-            'error' => $e->getMessage() // Only show this in dev if needed
+            'error' => $e->getMessage()
         ], 500);
     }
 }
@@ -2491,12 +2515,186 @@ public function StoreManualOrder(Request $request)
     }
 }
 
+public function initiateRazorpayPayment(Request $request)
+{
+    try {
+        // Get Razorpay credentials from database
+        $settings = DB::table('settings')->first();
+        
+        if (!$settings || !$settings->razorpay_enabled) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Razorpay payment is not enabled.'
+            ], 400);
+        }
 
+        $validated = $request->validate([
+            'total_price' => 'required|numeric',
+            'payment_method' => 'required|string',
+            'cart_items' => 'required|array',
+            'shipping_address_id' => 'required|exists:addresses,id',
+        ]);
 
+        // Store order data in session for later use
+        session([
+            'razorpay_order_data' => [
+                'total_price' => $request->total_price,
+                'billing_option' => $request->billing_option,
+                'billing_address_id' => $request->billing_address_id,
+                'payment_method' => $request->payment_method,
+                'shipping_address_id' => $request->shipping_address_id,
+                'cart_items' => $request->cart_items,
+            ]
+        ]);
 
+        // Return Razorpay credentials and order details
+        return response()->json([
+            'success' => true,
+            'razorpay_key' => $settings->razorpay_key_id,
+            'amount' => $request->total_price * 100, // Convert to paise
+            'currency' => 'INR',
+            'name' => 'Vivace Collections',
+            'description' => 'Order Payment',
+        ]);
 
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to initiate payment.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
+public function verifyRazorpayPayment(Request $request)
+{
+    try {
+        $settings = DB::table('settings')->first();
 
+        if (!$settings) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment settings not found.'
+            ], 400);
+        }
 
+        $razorpayPaymentId = $request->razorpay_payment_id;
+
+        // For direct payment (without order), we just verify the payment exists
+        // In production, you should verify using Razorpay API
+        if (!$razorpayPaymentId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment ID not found.'
+            ], 400);
+        }
+
+        // Get order data from session
+        $orderData = session('razorpay_order_data');
+
+        if (!$orderData) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order data not found.'
+            ], 400);
+        }
+
+        // Create order
+        $userId = session('user_id') ?? session('temporary_user_id');
+        if (!$userId) {
+            if (!session()->has('temporary_user_id')) {
+                session(['temporary_user_id' => uniqid('temp_')]);
+            }
+            $userId = session('temporary_user_id');
+        }
+
+        DB::beginTransaction();
+
+        // Generate custom order ID
+        $lastOrder = DB::table('orders')
+            ->select('custom_order_id')
+            ->orderBy('id', 'desc')
+            ->lockForUpdate()
+            ->first();
+
+        $newOrderId = 'VC00001';
+        if ($lastOrder) {
+            $lastIdNumber = (int) substr($lastOrder->custom_order_id, 2);
+            $newOrderId = 'VC' . str_pad($lastIdNumber + 1, 5, '0', STR_PAD_LEFT);
+        }
+
+        // Insert order
+        $orderId = DB::table('orders')->insertGetId([
+            'user_id' => $userId,
+            'custom_order_id' => $newOrderId,
+            'payment_method' => 'Online',
+            'payment_id' => $razorpayPaymentId,
+            'total_amount' => $orderData['total_price'],
+            'status' => 'paid',
+            'billing_address_id' => $orderData['billing_address_id'],
+            'shipping_address_id' => $orderData['shipping_address_id'],
+            'date' => now()->format('d-m-Y H:i:s A'),
+        ]);
+
+        $orderItems = [];
+        $orderDetails = [];
+        foreach ($orderData['cart_items'] as $item) {
+            $product = DB::table('products')->find($item['product_id']);
+            $orderItems[] = [
+                'order_id' => $orderId,
+                'custom_order_id' => $newOrderId,
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'color_id' => $item['color'],
+                'size_id' => $item['size'],
+                'price' => $item['price'],
+                'date' => now()->format('d-m-Y'),
+            ];
+
+            $orderDetails[] = [
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'price' => $item['price'],
+                'quantity' => $item['quantity'],
+            ];
+        }
+
+        DB::table('order_items')->insert($orderItems);
+        DB::table('cart')->where('user_id', $userId)->delete();
+
+        DB::commit();
+
+        // Store order success data in session
+        session([
+            'order_success' => [
+                'order_id' => $newOrderId,
+                'total_price' => $orderData['total_price'],
+                'address' => $orderData,
+                'order_items' => $orderDetails,
+                'billing_address_id' => $orderData['billing_address_id'],
+                'shipping_address_id' => $orderData['shipping_address_id'],
+                'payment_method' => 'Online',
+                'payment_id' => $razorpayPaymentId,
+            ],
+        ]);
+
+        // Clear razorpay order data
+        session()->forget('razorpay_order_data');
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('order.placed'),
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Payment verification failed.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 }

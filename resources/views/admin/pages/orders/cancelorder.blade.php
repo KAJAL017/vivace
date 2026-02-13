@@ -22,6 +22,7 @@
                                         <th>#</th>
                                         <th>User Name</th>
                                         <th>Payment Method</th>
+                                        <th>Payment ID</th>
                                         <th>Total Amount</th>
                                         <th>Status</th>
                                         <th>Date</th>
@@ -34,7 +35,18 @@
                                         <td>{{ $key + 1 }}</td>
                                         <td>{{ getUser($order->user_id)->name ?? ''}}</td>
                                         <td>
-                                            <span class="badge bg-success text-light px-2 py-1 fs-13">{{ $order->payment_method }}</span>
+                                            @if($order->payment_method == 'Online')
+                                                <span class="badge bg-success text-light px-2 py-1 fs-13">Online</span>
+                                            @else
+                                                <span class="badge bg-warning text-light px-2 py-1 fs-13">COD</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($order->payment_id)
+                                                <span class="text-muted small">{{ $order->payment_id }}</span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
                                         </td>
                                         <td>₹{{ number_format($order->total_amount, 2) }}</td>
                                         <td>

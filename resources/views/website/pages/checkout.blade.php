@@ -1,6 +1,18 @@
 @extends('website.main.app')
 @section('title', 'Checkout')
 @section('website.content')
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        .error-message {
+            display: block;
+            font-size: 12px;
+            margin-top: 5px;
+            color: #dc3545;
+        }
+        .form-control.error {
+            border-color: #dc3545;
+        }
+    </style>
     <section class="section-b-space pt-0">
         <div class="heading-banner">
             <div class="custom-container container">
@@ -94,14 +106,12 @@
                             <div style="border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
                                 <label style="display: block; padding: 10px; cursor: pointer;">
                                     <input type="radio" name="billing_option" class="billing_option"
-                                        value="same_as_shipping" style="margin-right: 10px;" checked
-                                        onclick="toggleBillingAddress(false)">
+                                        value="same_as_shipping" style="margin-right: 10px;" checked>
                                     Same as shipping address
                                 </label>
                                 <label style="display: block; padding: 10px; cursor: pointer;">
                                     <input type="radio" name="billing_option" class="billing_option"
-                                        value="different_address" style="margin-right: 10px;"
-                                        onclick="toggleBillingAddress(true)">
+                                        value="different_address" style="margin-right: 10px;">
                                     Use a different billing address
                                 </label>
                             </div>
@@ -166,13 +176,13 @@
                             <div class="row gy-3">
                                 <div class="col-sm-6">
                                     <div class="payment-box"> <input class="custom-radio me-2" id="cod"
-                                            type="radio" checked="checked" name="radio" value="Cod"> <label
-                                            for="cod">Cod</label> </div>
+                                            type="radio" checked="checked" name="payment_method" value="Cod"> <label
+                                            for="cod">Cash on Delivery</label> </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="payment-box"> <input class="custom-radio me-2" id="online"
-                                            type="radio" name="radio" value="Online"> <label
-                                            for="online">Online</label> </div>
+                                            type="radio" name="payment_method" value="Online"> <label
+                                            for="online">Online Payment</label> </div>
                                 </div>
                             </div>
                         </div>
@@ -188,7 +198,6 @@
                         <h4>Checkout</h4>
                         <div class="cart-listing">
                             <ul>
-
                                 @foreach ($CartData as $product)
                                     @php
                                         $quantity = $product['cart_item']['quantity'];
@@ -218,8 +227,6 @@
                                         <p>Subtotal</p>
                                         <span>₹{{ number_format($subtotal, 2) }}</span>
                                     </li>
-
-                                    {{-- Removed shipping calculation --}}
                                 </ul>
                             </div>
 
@@ -230,8 +237,7 @@
                             </div>
 
                             <div class="order-button">
-                                <a class="btn btn_black sm w-100 rounded" href="{{ route('order.placed') }}">Place
-                                    Order</a>
+                                <button class="btn btn_black sm w-100 rounded" id="placeOrderBtn">Place Order</button>
                             </div>
                         </div>
                     </div>
@@ -240,12 +246,13 @@
             </div>
         </div>
     </section>
-    <!-- Modal Structure -->
+    
+    <!-- Add Address Modal -->
     <div class="reviews-modal modal theme-modal fade" id="add-address" tabindex="-1" role="dialog" aria-modal="true">
         <div class="modal-dialog modal-md modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4>Address Profile</h4>
+                    <h4>Add New Address</h4>
                     <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0">
@@ -253,15 +260,15 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label class="form-label">Name</label>
+                                    <label class="form-label">Name <span class="text-danger">*</span></label>
                                     <input class="form-control" type="text" name="name" id="name"
-                                        placeholder="Enter your name.">
+                                        placeholder="Enter your name">
                                     <span class="text-danger error-message" id="name_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label class="form-label">Email address</label>
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
                                     <input class="form-control" type="email" name="email" id="email"
                                         placeholder="john.smith@example.com">
                                     <span class="text-danger error-message" id="email_error"></span>
@@ -269,15 +276,15 @@
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label class="form-label">Phone</label>
-                                    <input class="form-control" type="number" name="phone" id="phone"
-                                        placeholder="Enter your Number.">
+                                    <label class="form-label">Phone <span class="text-danger">*</span></label>
+                                    <input class="form-control" type="text" name="phone" id="phone"
+                                        placeholder="Enter your Number" maxlength="10">
                                     <span class="text-danger error-message" id="phone_error"></span>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label class="form-label">Address</label>
+                                    <label class="form-label">Address <span class="text-danger">*</span></label>
                                     <textarea class="form-control" name="address" id="address" cols="30" rows="5"
                                         placeholder="Write your Address..."></textarea>
                                     <span class="text-danger error-message" id="address_error"></span>
@@ -285,15 +292,15 @@
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label class="form-label">Pincode</label>
+                                    <label class="form-label">Pincode <span class="text-danger">*</span></label>
                                     <input class="form-control" type="text" name="pincode" id="pincode"
-                                        placeholder="Enter your Pincode">
+                                        placeholder="Enter your Pincode" maxlength="6">
                                     <span class="text-danger error-message" id="pincode_error"></span>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label class="form-label">City</label>
+                                    <label class="form-label">City <span class="text-danger">*</span></label>
                                     <input class="form-control" type="text" name="city" id="city"
                                         placeholder="Enter your City">
                                     <span class="text-danger error-message" id="city_error"></span>
@@ -301,7 +308,7 @@
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label class="form-label">State</label>
+                                    <label class="form-label">State <span class="text-danger">*</span></label>
                                     <input class="form-control" type="text" name="state" id="state"
                                         placeholder="Enter your State">
                                     <span class="text-danger error-message" id="state_error"></span>
@@ -309,7 +316,7 @@
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label class="form-label">Address Type</label>
+                                    <label class="form-label">Address Type <span class="text-danger">*</span></label>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="address_type"
                                             id="billing_address" value="1" checked>
@@ -326,106 +333,140 @@
                             <button class="btn btn-submit" type="submit" id="submitAddress">Submit</button>
                         </div>
                     </form>
-
-
                 </div>
             </div>
         </div>
     </div>
 @endsection
 @section('website.js')
-    <!-- AJAX Script -->
     <script>
-        $(document).on('click', '#submitAddress', function(e) {
-            e.preventDefault();
-
-            // Clear previous errors
-            $('.error-message').text('');
-
-            let form = $('#addAddressForm')[0];
-            if (form.checkValidity() === false) {
-                form.classList.add('was-validated');
-                return;
-            }
-
-            let formData = $('#addAddressForm').serialize();
-
-            $.ajax({
-                url: "{{ route('user.address.store') }}",
-                method: "POST",
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        toastr.success(response.message);
-                        $('#add-address').modal('hide');
-                        $('#addAddressForm')[0].reset();
-                        location.reload();
-                    } else {
-                        // Show backend logical error (not validation)
-                        toastr.error(response.message);
-                        if (response.error) {
-                            console.error("Server error:", response.error);
-                        }
-                    }
-                },
-                error: function(xhr) {
-                    let errors = xhr.responseJSON?.errors;
-                    if (errors) {
-                        $.each(errors, function(key, value) {
-                            $(`#${key}_error`).text(value[0]);
-                        });
-                    } else if (xhr.responseJSON?.message) {
-                        toastr.error(xhr.responseJSON.message);
-                    } else {
-                        toastr.error('Something went wrong!');
-                    }
+        // Toggle billing address visibility
+        document.querySelectorAll('.billing_option').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const billingAddress = document.getElementById('billing-address');
+                if (this.value === 'different_address') {
+                    billingAddress.style.display = 'block';
+                } else {
+                    billingAddress.style.display = 'none';
                 }
             });
         });
-    </script>
 
-
-    <script>
-        $(document).on('click', '.order-button .btn', function(e) {
+        // Add Address Form Submission
+        document.getElementById('addAddressForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(function(el) {
+                el.textContent = '';
+            });
+            document.querySelectorAll('.form-control').forEach(function(el) {
+                el.classList.remove('error');
+            });
+            
+            const formData = new FormData(this);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            fetch('{{ route("user.address.store") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => {
+                return response.json().then(data => {
+                    return {
+                        status: response.status,
+                        ok: response.ok,
+                        data: data
+                    };
+                });
+            })
+            .then(result => {
+                if (result.ok && result.data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('add-address'));
+                    modal.hide();
+                    document.getElementById('addAddressForm').reset();
+                    location.reload();
+                } else if (result.data.errors) {
+                    // Display validation errors below each input
+                    Object.keys(result.data.errors).forEach(function(key) {
+                        const errorElement = document.getElementById(key + '_error');
+                        const inputElement = document.getElementById(key);
+                        if (errorElement) {
+                            errorElement.textContent = result.data.errors[key][0];
+                        }
+                        if (inputElement) {
+                            inputElement.classList.add('error');
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
 
-            // Clear previous error messages
-            $('.invalid-feedback').text('');
-            $('.form-control').removeClass('is-invalid');
-
-            // Check the selected billing option
-            let billingOption = $('input[name="billing_option"]:checked').val();
+        // Place Order Button
+        document.getElementById('placeOrderBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Disable button to prevent double submission
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            
+            // Get billing option
+            const billingOption = document.querySelector('input[name="billing_option"]:checked').value;
             let billingAddressId = null;
-
+            
             if (billingOption === 'different_address') {
-                billingAddressId = $('input[name="billing_address"]:checked').val();
-                if (!billingAddressId) {
-                    Swal.fire('Error', 'Please select a different billing address.', 'error');
+                const billingAddressRadio = document.querySelector('input[name="billing_address"]:checked');
+                if (!billingAddressRadio) {
+                    btn.disabled = false;
+                    btn.textContent = 'Place Order';
                     return;
                 }
+                billingAddressId = billingAddressRadio.value;
             } else {
-                billingAddressId = $('input[name="shipping_address"]:checked').val();
+                const shippingAddressRadio = document.querySelector('input[name="shipping_address"]:checked');
+                if (!shippingAddressRadio) {
+                    btn.disabled = false;
+                    btn.textContent = 'Place Order';
+                    return;
+                }
+                billingAddressId = shippingAddressRadio.value;
             }
-
-            let formData = {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                total_price: $('#total_price').val(),
-                billing_option: billingOption,
-                billing_address_id: billingAddressId,
-                payment_method: $('input[name="radio"]:checked').val(),
-                shipping_address_id: $('input[name="shipping_address"]:checked').val(),
-                cart_items: [],
-            };
-
+            
+            // Get shipping address
+            const shippingAddressRadio = document.querySelector('input[name="shipping_address"]:checked');
+            if (!shippingAddressRadio) {
+                btn.disabled = false;
+                btn.textContent = 'Place Order';
+                return;
+            }
+            
+            // Get payment method
+            const paymentMethodRadio = document.querySelector('input[name="payment_method"]:checked');
+            if (!paymentMethodRadio) {
+                btn.disabled = false;
+                btn.textContent = 'Place Order';
+                return;
+            }
+            
             // Collect cart items
-            $('.cart-listing ul li').each(function() {
-                let productId = $(this).data('product-id');
-                let quantity = $(this).data('quantity');
-                let price = $(this).data('price');
-                let color = $(this).data('color');
-                let size = $(this).data('size');
+            const cartItems = [];
+            document.querySelectorAll('.cart-listing ul li').forEach(function(item) {
+                const productId = item.getAttribute('data-product-id');
+                const quantity = item.getAttribute('data-quantity');
+                const price = item.getAttribute('data-price');
+                const color = item.getAttribute('data-color');
+                const size = item.getAttribute('data-size');
+                
                 if (productId && quantity && price) {
-                    formData.cart_items.push({
+                    cartItems.push({
                         product_id: productId,
                         quantity: quantity,
                         price: price,
@@ -434,114 +475,131 @@
                     });
                 }
             });
-
-            if (formData.cart_items.length === 0) {
-                Swal.fire('Error', 'No items in your cart.', 'error');
+            
+            if (cartItems.length === 0) {
+                btn.disabled = false;
+                btn.textContent = 'Place Order';
                 return;
             }
-
-            // Process the order submission based on the payment method
-            if (formData.payment_method === 'Online') {
-                // Trigger PhonePe payment
-                $.ajax({
-                    url: '{{ route('phonepe.payment.initiate') }}',
+            
+            // Prepare form data
+            const formData = {
+                total_price: document.getElementById('total_price').value,
+                billing_option: billingOption,
+                billing_address_id: billingAddressId,
+                payment_method: paymentMethodRadio.value,
+                shipping_address_id: shippingAddressRadio.value,
+                cart_items: cartItems
+            };
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            // Process order based on payment method
+            if (paymentMethodRadio.value === 'Online') {
+                // Razorpay payment
+                fetch('{{ route("razorpay.payment.initiate") }}', {
                     method: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            window.location.href = response.redirect_url;
-                        } else {
-                            Swal.fire('Error', response.message, 'error');
-                        }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
                     },
-                    error: function(xhr) {
-                        Swal.fire('Error', 'Payment failed. Please try again.', 'error');
-                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Initialize Razorpay
+                        const options = {
+                            key: data.razorpay_key,
+                            amount: data.amount,
+                            currency: data.currency,
+                            name: data.name,
+                            description: data.description,
+                            handler: function (response) {
+                                // Verify payment
+                                fetch('{{ route("razorpay.payment.verify") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': csrfToken,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        razorpay_payment_id: response.razorpay_payment_id
+                                    })
+                                })
+                                .then(res => res.json())
+                                .then(result => {
+                                    if (result.success) {
+                                        window.location.href = result.redirect_url;
+                                    } else {
+                                        btn.disabled = false;
+                                        btn.textContent = 'Place Order';
+                                        console.error('Verification failed:', result);
+                                    }
+                                })
+                                .catch(error => {
+                                    btn.disabled = false;
+                                    btn.textContent = 'Place Order';
+                                    console.error('Verification Error:', error);
+                                });
+                            },
+                            modal: {
+                                ondismiss: function() {
+                                    btn.disabled = false;
+                                    btn.textContent = 'Place Order';
+                                }
+                            },
+                            theme: {
+                                color: '#000000'
+                            }
+                        };
+                        const rzp = new Razorpay(options);
+                        rzp.on('payment.failed', function (response){
+                            btn.disabled = false;
+                            btn.textContent = 'Place Order';
+                            console.error('Payment failed:', response.error);
+                        });
+                        rzp.open();
+                    } else {
+                        btn.disabled = false;
+                        btn.textContent = 'Place Order';
+                        console.error('Initiate failed:', data);
+                    }
+                })
+                .catch(error => {
+                    btn.disabled = false;
+                    btn.textContent = 'Place Order';
+                    console.error('Error:', error);
                 });
             } else {
-                $.ajax({
-                    url: '{{ route('store.order') }}',
+                // COD order
+                fetch('{{ route("store.order") }}', {
                     method: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            window.location.href = response.redirect_url;
-                        } else {
-                            Swal.fire('Error', response.message, 'error');
-                        }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
                     },
-                    error: function(xhr) {
-                        // If validation errors are returned from Laravel
-                        let errors = xhr.responseJSON.errors;
-
-                        // Loop through each error and display it next to the corresponding input field
-                        $.each(errors, function(field, message) {
-                            let inputField = $('#' + field);
-                            inputField.addClass('is-invalid');
-                            inputField.siblings('.invalid-feedback').text(message[0]);
-                        });
-
-                        Swal.fire('Error', 'Please check the form for validation errors.', 'error');
-                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        btn.disabled = false;
+                        btn.textContent = 'Place Order';
+                        console.error('Order failed:', data);
+                    }
+                })
+                .catch(error => {
+                    btn.disabled = false;
+                    btn.textContent = 'Place Order';
+                    console.error('Error:', error);
                 });
             }
         });
     </script>
-    <script>
-        $(document).ready(function() {
-            $('#userForm').on('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
-
-                let formData = new FormData(this);
-
-                $.ajax({
-                    url: "{{ route('user.address.store') }}", // Replace with your Laravel route
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            toastr.success(response.message);
-                            window.location.reload(); // Reload the page after success
-                        }
-                    },
-                    error: function(xhr) {
-                        // Handle validation errors
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            let errors = xhr.responseJSON.errors;
-
-                            // Clear previous error messages
-                            $('.form-control').removeClass('is-invalid');
-                            $('.invalid-feedback').remove();
-
-                            // Show validation errors next to the relevant inputs
-                            $.each(errors, function(field, messages) {
-                                let inputField = $('#' + field);
-                                inputField.addClass(
-                                    'is-invalid'
-                                ); // Add 'is-invalid' class to show error styling
-
-                                // Show the error message
-                                inputField.after('<div class="invalid-feedback">' +
-                                    messages.join('<br>') + '</div>');
-                            });
-
-                            // Optionally, show a toastr error message
-                            toastr.error("Please fix the highlighted errors.");
-                        } else {
-                            // If the error doesn't have validation errors, show a general error message
-                            toastr.error("An unexpected error occurred.");
-                        }
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        function toggleBillingAddress(show) {
-            document.getElementById('billing-address').style.display = show ? 'block' : 'none';
-        }
-    </script>
-
 @endsection

@@ -122,6 +122,23 @@
                         </ul>
                     </div>
 
+                    <div class="summery-footer">
+                        <div class="sidebar-title">
+                            <h4>Payment Details</h4>
+                        </div>
+                        <ul>
+                            <li>
+                                <h6><strong>Payment Method:</strong> {{ session('order_success.payment_method', 'N/A') }}</h6>
+                                @if(session('order_success.payment_id'))
+                                    <h6><strong>Payment ID:</strong> {{ session('order_success.payment_id') }}</h6>
+                                    <h6><strong>Status:</strong> <span style="color: green;">Paid</span></h6>
+                                @else
+                                    <h6><strong>Status:</strong> <span style="color: orange;">Cash on Delivery</span></h6>
+                                @endif
+                            </li>
+                        </ul>
+                    </div>
+
 
                 </div>
             </div>

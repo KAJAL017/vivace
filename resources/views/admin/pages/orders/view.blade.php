@@ -186,6 +186,33 @@
 
               <div class="card">
                    <div class="card-header">
+                        <h4 class="card-title">Payment Details</h4>
+                   </div>
+                   <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                             <p class="mb-0 text-muted">Payment Method:</p>
+                             <p class="mb-0 fw-medium">{{ $order->payment_method ?? 'N/A' }}</p>
+                        </div>
+                        @if($order->payment_id)
+                        <div class="d-flex justify-content-between mb-2">
+                             <p class="mb-0 text-muted">Payment ID:</p>
+                             <p class="mb-0 fw-medium">{{ $order->payment_id }}</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                             <p class="mb-0 text-muted">Status:</p>
+                             <span class="badge bg-success-subtle text-success">Paid</span>
+                        </div>
+                        @else
+                        <div class="d-flex justify-content-between">
+                             <p class="mb-0 text-muted">Status:</p>
+                             <span class="badge bg-warning-subtle text-warning">Cash on Delivery</span>
+                        </div>
+                        @endif
+                   </div>
+              </div>
+
+              <div class="card">
+                   <div class="card-header">
                         <h4 class="card-title">Customer Details</h4>
                    </div>
                    <div class="card-body">

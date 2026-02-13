@@ -91,6 +91,8 @@ Route::get('admin/orders/deliveredorder',[OrderController::class,'DeliveredOrder
 Route::get('admin/orders/cancel',[OrderController::class,'CancelOrder'])->name('CancelOrder');
 Route::get('admin/orders/{custom_order_id}', [OrderController::class, 'latestOrderView'])->name('order.view');
 Route::get('admin/contacts',[AdminController::class,'contacts'])->name('admin.contact');
+Route::get('admin/settings',[AdminController::class,'settings'])->name('admin.settings');
+Route::post('admin/settings/update',[AdminController::class,'updateSettings'])->name('admin.settings.update');
 Route::get('admin/manual/orders',[OrderController::class,'ManualOrder'])->name('ManualOrder');
 Route::get('admin/manual/ongoing/orders',[OrderController::class,'ManualOngoingOrder'])->name('ManualOrder.OngoingOrder');
 
@@ -162,6 +164,8 @@ Route::post('user/update-address', [WebsiteContoller::class, 'updateAddress'])->
 Route::get('order/placed',[WebsiteContoller::class,'order_placed'])->name('order.placed');
 Route::post('/store-order', [WebsiteContoller::class, 'storeOrder'])->name('store.order');
 
+Route::post('/payment/razorpay/initiate', [WebsiteContoller::class, 'initiateRazorpayPayment'])->name('razorpay.payment.initiate');
+Route::post('/payment/razorpay/verify', [WebsiteContoller::class, 'verifyRazorpayPayment'])->name('razorpay.payment.verify');
 Route::post('/payment/phonepe/initiate', [WebsiteContoller::class, 'initiatePayment'])->name('phonepe.payment.initiate');
 Route::post('/payment/phonepe/callback', [WebsiteContoller::class, 'handleCallback'])->name('phonepe.payment.callback');
 

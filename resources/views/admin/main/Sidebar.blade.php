@@ -213,6 +213,15 @@
                 </div>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.settings') }}">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </li>
+
         </ul>
     </div>
 </div>

@@ -195,5 +195,40 @@ class AdminController extends Controller
          throw new \Exception('Failed to retrieve Shiprocket token.');
      }
 
+     public function settings(){
+        $result['settings'] = DB::table('settings')->first();
+        return view('admin.pages.settings', $result);
+     }
 
+     public function updateSettings(Request $request){
+        $request->validate([
+            'razorpay_key_id' => 'required|string',
+            'razorpay_key_secret' => 'required|string',
+        ]);
+
+        $settings = DB::table('settings')->first();
+
+        if($settings){
+            DB::table('settings')->update([
+                'razorpay_key_id' => $request->razorpay_key_id,
+                'razorpay_key_secret' => $request->razorpay_key_secret,
+                'razorpay_enabled' => $request->has('razorpay_enabled') ? 1 : 0,
+                'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('settings')->insert([
+                'razorpay_key_id' => $request->razorpay_key_id,
+                'razorpay_key_secret' => $request->razorpay_key_secret,
+                'razorpay_enabled' => $request->has('razorpay_enabled') ? 1 : 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Razorpay settings updated successfully!',
+        ]);
+     }
 }
+
