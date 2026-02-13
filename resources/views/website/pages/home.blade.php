@@ -164,7 +164,7 @@
                 <div class="col-xl-9 col-lg-8 col-12">
                     <div class="row gy-4 ratio_square">
                         @foreach ($collections as $collection)
-                            <div class="col-md-4 col-sm-6 col-12"><a class="banner mb-0 p-left"
+                            <div class="col-md-3 col-sm-6 col-12"><a class="banner mb-0 p-left"
                                     href="{{ route('collction.filter', [$collection->id]) }}">
                                     <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $collection->image_path }}"
                                         alt="banner-img">
