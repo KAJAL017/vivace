@@ -57,7 +57,7 @@
                     @if ($banner_table_1 && $banner_table_1->banner)
                         <a href="{{ $banner_table_1->link }}">
                             <img loading="lazy" class="img-fluid w-100" src="{{ url('public/uploads') }}/{{ $banner_table_1->banner }}"
-                                alt="Banner Image" style="object-fit: cover; height: 300px;" />
+                                alt="Banner Image" style="object-fit: cover;" />
                         </a>
                     @endif
                 </div>
@@ -69,7 +69,7 @@
                     @if ($banner_table_2 && $banner_table_2->banner)
                         <a href="{{ $banner_table_2->link }}">
                             <img loading="lazy" class="img-fluid w-100" src="{{ url('public/uploads') }}/{{ $banner_table_2->banner }}"
-                                alt="Banner Image" style="object-fit: cover; height: 300px;" />
+                                alt="Banner Image" style="object-fit: cover;" />
                         </a>
                     @endif
                 </div>
@@ -81,7 +81,7 @@
                     @if ($banner_table_3 && $banner_table_3->banner)
                         <a href="{{ $banner_table_3->link }}">
                             <img loading="lazy" class="img-fluid w-100" src="{{ url('public/uploads') }}/{{ $banner_table_3->banner }}"
-                                alt="Banner Image" style="object-fit: cover; height: 300px;" />
+                                alt="Banner Image" style="object-fit: cover;" />
                         </a>
                     @endif
                 </div>
@@ -93,7 +93,7 @@
                     @if ($banner_table_4 && $banner_table_4->banner)
                         <a href="{{ $banner_table_4->link }}">
                             <img loading="lazy" class="img-fluid w-100" src="{{ url('public/uploads') }}/{{ $banner_table_4->banner }}"
-                                alt="Banner Image" style="object-fit: cover; height: 300px;" />
+                                alt="Banner Image" style="object-fit: cover;" />
                         </a>
                     @endif
                 </div>
