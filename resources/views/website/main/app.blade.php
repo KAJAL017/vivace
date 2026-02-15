@@ -260,12 +260,6 @@
                                         @endforeach
                                     </li>
                                 @endforeach
-                                <li>
-                                    <a class="nav-link" href="{{ route('view.discounted.product') }}">Discounted </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link" href="{{ route('view.brands') }}">Brands</a>
-                                </li>
                             </ul>
                         </nav>
 
