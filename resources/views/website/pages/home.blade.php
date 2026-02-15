@@ -55,7 +55,7 @@
                         $banner_table_1 = DB::table('banner_table_1')->first();
                     @endphp
                     @if ($banner_table_1 && $banner_table_1->banner)
-                        <a href="{{ $banner_table_1->link }}" style="display: block; height: 300px; overflow: hidden; border-radius: 8px;">
+                        <a href="{{ $banner_table_1->link }}" style="display: block; height: 500px; overflow: hidden; border-radius: 8px;">
                             <img loading="lazy" class="w-100 h-100" src="{{ url('public/uploads') }}/{{ $banner_table_1->banner }}"
                                 alt="Banner Image" style="object-fit: cover;" />
                         </a>
@@ -67,7 +67,7 @@
                         $banner_table_2 = DB::table('banner_table_2')->first();
                     @endphp
                     @if ($banner_table_2 && $banner_table_2->banner)
-                        <a href="{{ $banner_table_2->link }}" style="display: block; height: 300px; overflow: hidden; border-radius: 8px;">
+                        <a href="{{ $banner_table_2->link }}" style="display: block; height: 500px; overflow: hidden; border-radius: 8px;">
                             <img loading="lazy" class="w-100 h-100" src="{{ url('public/uploads') }}/{{ $banner_table_2->banner }}"
                                 alt="Banner Image" style="object-fit: cover;" />
                         </a>
@@ -79,7 +79,7 @@
                         $banner_table_3 = DB::table('banner_table_3')->first();
                     @endphp
                     @if ($banner_table_3 && $banner_table_3->banner)
-                        <a href="{{ $banner_table_3->link }}" style="display: block; height: 300px; overflow: hidden; border-radius: 8px;">
+                        <a href="{{ $banner_table_3->link }}" style="display: block; height: 500px; overflow: hidden; border-radius: 8px;">
                             <img loading="lazy" class="w-100 h-100" src="{{ url('public/uploads') }}/{{ $banner_table_3->banner }}"
                                 alt="Banner Image" style="object-fit: cover;" />
                         </a>
@@ -91,7 +91,7 @@
                         $banner_table_4 = DB::table('banner_table_4')->first();
                     @endphp
                     @if ($banner_table_4 && $banner_table_4->banner)
-                        <a href="{{ $banner_table_4->link }}" style="display: block; height: 300px; overflow: hidden; border-radius: 8px;">
+                        <a href="{{ $banner_table_4->link }}" style="display: block; height: 500px; overflow: hidden; border-radius: 8px;">
                             <img loading="lazy" class="w-100 h-100" src="{{ url('public/uploads') }}/{{ $banner_table_4->banner }}"
                                 alt="Banner Image" style="object-fit: cover;" />
                         </a>
