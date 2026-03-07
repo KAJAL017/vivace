@@ -100,6 +100,7 @@
                                 </thead>
                                 @php
                                     $totalPrice = 0;
+                                    $gstRate = 5; // 5% GST
                                 @endphp
                                 <tbody>
                                     @foreach ($CartData as $product)
@@ -159,9 +160,19 @@
                     <div class="cart-items">
                         <div class="cart-body">
                             <h6>Price Details ({{ count($CartData) }} Items) </h6>
+                            @php
+                                $gstAmount = ($totalPrice * $gstRate) / 100;
+                                $grandTotal = $totalPrice + $gstAmount;
+                            @endphp
                             <ul>
                                 <li>
-                                    <p>Bag total </p><span>₹{{ number_format($totalPrice, 2) }}</span>
+                                    <p>Bag total </p><span id="bagTotal">₹{{ number_format($totalPrice, 2) }}</span>
+                                </li>
+                                <li>
+                                    <p>GST ({{ $gstRate }}%) </p><span id="gstAmount">₹{{ number_format($gstAmount, 2) }}</span>
+                                </li>
+                                <li class="fw-bold border-top pt-2 mt-2">
+                                    <p>Grand Total </p><span id="grandTotal">₹{{ number_format($grandTotal, 2) }}</span>
                                 </li>
                                 {{-- <li>
                                     <p>Coupon Discount </p><span class="Coupon">Apply Coupon </span>
@@ -238,8 +249,14 @@
                         grandTotal += rowTotal;
                     });
 
-                    // Update the Bag Total dynamically
-                    $('.cart-body span').text('₹' + grandTotal.toFixed(2));
+                    // Calculate GST (5%)
+                    let gstAmount = (grandTotal * 5) / 100;
+                    let finalTotal = grandTotal + gstAmount;
+
+                    // Update the Bag Total, GST, and Grand Total dynamically
+                    $('#bagTotal').text('₹' + grandTotal.toFixed(2));
+                    $('#gstAmount').text('₹' + gstAmount.toFixed(2));
+                    $('#grandTotal').text('₹' + finalTotal.toFixed(2));
                 } else {
                     console.error(response.message);
                 }
@@ -281,7 +298,9 @@
 
                             // Update cart title and total price
                             $('#cartTitle').text(' (0 Items)');
-                            $('.cart-body span').text('₹0.00');
+                            $('#bagTotal').text('₹0.00');
+                            $('#gstAmount').text('₹0.00');
+                            $('#grandTotal').text('₹0.00');
 
                             // Show the "no data" message
                             $('#data-show').show();
