@@ -405,18 +405,25 @@
             const selectedShippingAddress = document.querySelector('input[name="shipping_address"]:checked');
             if (!selectedShippingAddress) return;
             
-            // Get the city from the selected address
-            const addressBox = selectedShippingAddress.closest('label').querySelector('.address-detail');
-            const cityElement = addressBox.querySelector('.address-home:has(.address-tag:contains("City:"))');
+            // Get the city from the selected address label
+            const addressLabel = selectedShippingAddress.closest('label');
             let city = '';
             
-            // Extract city text
-            addressBox.querySelectorAll('.address').forEach(function(addr) {
-                const tag = addr.querySelector('.address-tag');
-                if (tag && tag.textContent.trim() === 'City:') {
-                    city = addr.querySelector('.address-home').textContent.replace('City:', '').trim().toLowerCase();
+            // Find all address spans and look for the one with City tag
+            const addressSpans = addressLabel.querySelectorAll('.address');
+            addressSpans.forEach(function(span) {
+                const addressHome = span.querySelector('.address-home');
+                if (addressHome) {
+                    const addressTag = addressHome.querySelector('.address-tag');
+                    if (addressTag && addressTag.textContent.trim() === 'City:') {
+                        // Get the city text (everything after the tag)
+                        const fullText = addressHome.textContent.trim();
+                        city = fullText.replace('City:', '').trim().toLowerCase();
+                    }
                 }
             });
+            
+            console.log('Selected City:', city); // Debug log
             
             // Calculate shipping charge
             let shippingCharge = 0;
