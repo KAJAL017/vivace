@@ -89,6 +89,7 @@
                                 <del>₹{{ number_format($mrp, 2) }}</del>
                                 <span class="offer-btn">{{ $discountPercentage }}% off</span>
                             </p>
+                            <span class="badge bg-secondary text-white mb-3" style="font-size: 0.85rem;">Excluding GST</span>
 
                             <div class="rating">
                                 <ul>
