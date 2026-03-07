@@ -162,7 +162,8 @@
                             <h6>Price Details ({{ count($CartData) }} Items) </h6>
                             @php
                                 $gstAmount = ($totalPrice * $gstRate) / 100;
-                                $grandTotal = $totalPrice + $gstAmount;
+                                $shippingCharge = 0; // Will be calculated at checkout based on address
+                                $grandTotal = $totalPrice + $gstAmount + $shippingCharge;
                             @endphp
                             <ul>
                                 <li>
@@ -170,6 +171,9 @@
                                 </li>
                                 <li>
                                     <p>GST ({{ $gstRate }}%) </p><span id="gstAmount">₹{{ number_format($gstAmount, 2) }}</span>
+                                </li>
+                                <li>
+                                    <p>Shipping Charge </p><span id="shippingCharge">Calculated at checkout</span>
                                 </li>
                                 <li class="fw-bold border-top pt-2 mt-2">
                                     <p>Grand Total </p><span id="grandTotal">₹{{ number_format($grandTotal, 2) }}</span>

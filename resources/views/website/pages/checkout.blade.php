@@ -255,18 +255,45 @@
                             </ul>
 
                             <div class="summary-total">
+                                @php
+                                    // Get selected shipping address city
+                                    $selectedShippingCity = '';
+                                    if ($shipping_addresses->isNotEmpty()) {
+                                        $selectedShippingCity = strtolower(trim($shipping_addresses->first()->city));
+                                    }
+                                    
+                                    // Calculate shipping charge
+                                    $shippingCharge = 0;
+                                    if ($selectedShippingCity !== 'srinagar') {
+                                        $shippingCharge = 150;
+                                    }
+                                    
+                                    // Calculate GST (5%)
+                                    $gstAmount = ($subtotal * 5) / 100;
+                                    
+                                    // Calculate total
+                                    $total = $subtotal + $gstAmount + $shippingCharge;
+                                @endphp
                                 <ul>
                                     <li>
                                         <p>Subtotal</p>
-                                        <span>₹{{ number_format($subtotal, 2) }}</span>
+                                        <span id="subtotal-amount">₹{{ number_format($subtotal, 2) }}</span>
+                                    </li>
+                                    <li>
+                                        <p>GST (5%)</p>
+                                        <span id="gst-amount">₹{{ number_format($gstAmount, 2) }}</span>
+                                    </li>
+                                    <li>
+                                        <p>Shipping Charge</p>
+                                        <span id="shipping-amount">₹{{ number_format($shippingCharge, 2) }}</span>
                                     </li>
                                 </ul>
                             </div>
 
                             <div class="total">
                                 <h6>Total :</h6>
-                                <h6>₹{{ number_format($subtotal, 2) }}</h6>
-                                <input type="hidden" value="{{ $subtotal }}" id="total_price">
+                                <h6 id="total-amount">₹{{ number_format($total, 2) }}</h6>
+                                <input type="hidden" value="{{ $total }}" id="total_price">
                             </div>
 
                             <div class="order-button">
@@ -373,6 +400,52 @@
 @endsection
 @section('website.js')
     <script>
+        // Function to update shipping charge based on selected city
+        function updateShippingCharge() {
+            const selectedShippingAddress = document.querySelector('input[name="shipping_address"]:checked');
+            if (!selectedShippingAddress) return;
+            
+            // Get the city from the selected address
+            const addressBox = selectedShippingAddress.closest('label').querySelector('.address-detail');
+            const cityElement = addressBox.querySelector('.address-home:has(.address-tag:contains("City:"))');
+            let city = '';
+            
+            // Extract city text
+            addressBox.querySelectorAll('.address').forEach(function(addr) {
+                const tag = addr.querySelector('.address-tag');
+                if (tag && tag.textContent.trim() === 'City:') {
+                    city = addr.querySelector('.address-home').textContent.replace('City:', '').trim().toLowerCase();
+                }
+            });
+            
+            // Calculate shipping charge
+            let shippingCharge = 0;
+            if (city !== 'srinagar') {
+                shippingCharge = 150;
+            }
+            
+            // Get subtotal
+            const subtotalText = document.getElementById('subtotal-amount').textContent.replace('₹', '').replace(',', '');
+            const subtotal = parseFloat(subtotalText);
+            
+            // Calculate GST (5%)
+            const gstAmount = (subtotal * 5) / 100;
+            
+            // Calculate total
+            const total = subtotal + gstAmount + shippingCharge;
+            
+            // Update UI
+            document.getElementById('shipping-amount').textContent = '₹' + shippingCharge.toFixed(2);
+            document.getElementById('gst-amount').textContent = '₹' + gstAmount.toFixed(2);
+            document.getElementById('total-amount').textContent = '₹' + total.toFixed(2);
+            document.getElementById('total_price').value = total.toFixed(2);
+        }
+        
+        // Add event listeners to shipping address radio buttons
+        document.querySelectorAll('input[name="shipping_address"]').forEach(function(radio) {
+            radio.addEventListener('change', updateShippingCharge);
+        });
+        
         // Toggle billing address visibility
         document.querySelectorAll('.billing_option').forEach(function(radio) {
             radio.addEventListener('change', function() {
