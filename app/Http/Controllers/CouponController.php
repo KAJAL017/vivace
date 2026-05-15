@@ -13,10 +13,47 @@ class CouponController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $coupons = DB::table('coupons')->where(['is_deleted'=>0])->get();
-        return view('admin.pages.coupon.list',compact('coupons'));
+        $query = DB::table('coupons')->where('is_deleted', 0);
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('coupon_code', 'like', '%' . $search . '%');
+        }
+        
+        // Status filter
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+        
+        // Type filter
+        if ($request->has('type') && $request->type !== '') {
+            $query->where('coupon_type', $request->type);
+        }
+        
+        // Pagination
+        $coupons = $query->orderBy('id', 'desc')->paginate(10);
+        
+        // Stats
+        $total_coupons = DB::table('coupons')->where('is_deleted', 0)->count();
+        $active_coupons = DB::table('coupons')->where('is_deleted', 0)->where('status', 1)->count();
+        $percentage_coupons = DB::table('coupons')->where('is_deleted', 0)->where('coupon_type', 1)->count();
+        
+        // AJAX request
+        if ($request->ajax()) {
+            $html = view('admin.pages.coupon.partials.coupon-table', compact('coupons'))->render();
+            $pagination = view('admin.pages.coupon.partials.pagination', compact('coupons'))->render();
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'pagination' => $pagination
+            ]);
+        }
+        
+        return view('admin.pages.coupon.list', compact('coupons', 'total_coupons', 'active_coupons', 'percentage_coupons'));
     }
 
     /**

@@ -9,10 +9,33 @@ use Illuminate\Support\Facades\DB;
 class SizeController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $sizes = DB::table('sizes')->where(['is_deleted'=>0])->orderBy('id','DESC')->get();
-        return view('admin.pages.size.list',compact('sizes'));
+        $query = DB::table('sizes')->where('is_deleted', 0);
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        
+        // Always paginate
+        $sizes = $query->orderBy('id', 'DESC')->paginate(10);
+        
+        // Append query parameters to pagination links
+        $sizes->appends($request->only(['search']));
+        
+        // Check if it's an AJAX request
+        if ($request->ajax()) {
+            $tableHtml = view('admin.pages.size.partials.size-table', compact('sizes'))->render();
+            $paginationHtml = view('admin.pages.size.partials.pagination', compact('sizes'))->render();
+            
+            return response()->json([
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml
+            ]);
+        }
+        
+        return view('admin.pages.size.list', compact('sizes'));
     }
     public function create()
     {

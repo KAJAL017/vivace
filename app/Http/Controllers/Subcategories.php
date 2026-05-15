@@ -9,15 +9,41 @@ use Illuminate\Support\Facades\DB;
 class Subcategories extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $sub_categories = DB::table('sub_categories')
-        ->select('sub_categories.*','categories.name as categoryname')
-        ->join('categories','categories.id','=','sub_categories.category_id')
-        ->where(['sub_categories.is_deleted'=>0])
-        ->orderBy('sub_categories.id','DESC')
-        ->get();
-        return view('admin.pages.subcategory.list',compact('sub_categories'));
+        $query = DB::table('sub_categories')
+            ->select('sub_categories.*','categories.name as categoryname')
+            ->join('categories','categories.id','=','sub_categories.category_id')
+            ->where('sub_categories.is_deleted', 0);
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $query->where('sub_categories.name', 'like', '%' . $request->search . '%');
+        }
+        
+        // Category filter
+        if ($request->has('category_filter') && $request->category_filter != '') {
+            $query->where('sub_categories.category_id', $request->category_filter);
+        }
+        
+        // Always paginate
+        $sub_categories = $query->orderBy('sub_categories.id', 'DESC')->paginate(10);
+        
+        // Append query parameters to pagination links
+        $sub_categories->appends($request->only(['search', 'category_filter']));
+        
+        // Check if it's an AJAX request
+        if ($request->ajax()) {
+            $tableHtml = view('admin.pages.subcategory.partials.subcategory-table', compact('sub_categories'))->render();
+            $paginationHtml = view('admin.pages.subcategory.partials.pagination', compact('sub_categories'))->render();
+            
+            return response()->json([
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml
+            ]);
+        }
+        
+        return view('admin.pages.subcategory.list', compact('sub_categories'));
     }
     public function create()
     {

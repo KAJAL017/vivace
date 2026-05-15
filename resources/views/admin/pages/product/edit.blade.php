@@ -1,18 +1,308 @@
 @extends('admin.main.app')
 @section('admin-title', 'Edit Product')
+@section('topbar-text', 'Edit Product')
 @section('admin-css')
-
-    <style>
-        #color-input {
-            width: 150px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+<style>
+    /* Corporate Product Create Page Styles */
+    .product-create-container {
+        padding: 2rem 0;
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-header h2 {
+        color: white;
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    
+    .page-header p {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0.5rem 0 0 0;
+        font-size: 0.95rem;
+    }
+    
+    .section-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        border: none;
+        overflow: hidden;
+    }
+    
+    .section-card .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 3px solid #e74c3c;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0;
+    }
+    
+    .section-card .card-header h4 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.125rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-card .card-header h4 i,
+    .section-card .card-header h4 iconify-icon {
+        margin-right: 0.75rem;
+        color: #e74c3c;
+        font-size: 1.5rem;
+    }
+    
+    .section-card .card-body {
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9375rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #e74c3c;
+        box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.15);
+    }
+    
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid #dee2e6;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    
+    .form-check-input:checked {
+        background-color: #e74c3c;
+        border-color: #e74c3c;
+    }
+    
+    .form-check-label {
+        font-weight: 500;
+        color: #495057;
+        margin-left: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .checkbox-group {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 2px dashed #dee2e6;
+    }
+    
+    .checkbox-group .form-check {
+        margin-bottom: 0;
+    }
+    
+    .inventory-row {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        border: 2px solid #e9ecef;
+        position: relative;
+    }
+    
+    .inventory-row:hover {
+        border-color: #e74c3c;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);
+    }
+    
+    .inventory-row-divider {
+        border: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #e74c3c, transparent);
+        margin: 1.5rem 0;
+    }
+    
+    .btn-add-row {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    }
+    
+    .btn-add-row:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+    }
+    
+    .btn-remove-row {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+    
+    .btn-remove-row:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    }
+    
+    .action-buttons {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .btn-create {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        border: none;
+        color: white;
+        padding: 0.875rem 2.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4);
+        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        color: white;
+    }
+    
+    .btn-create iconify-icon {
+        vertical-align: middle;
+        font-size: 1.25rem;
+    }
+    
+    .btn-reset {
+        background: white;
+        border: 2px solid #dee2e6;
+        color: #6c757d;
+        padding: 0.875rem 2.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-reset:hover {
+        background: #f8f9fa;
+        border-color: #adb5bd;
+        color: #495057;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-reset iconify-icon {
+        vertical-align: middle;
+        font-size: 1.25rem;
+    }
+    
+    /* Quill Editor Styling */
+    .ql-container {
+        border-radius: 0 0 10px 10px;
+        border: 2px solid #e9ecef;
+        border-top: none;
+    }
+    
+    .ql-toolbar {
+        border-radius: 10px 10px 0 0;
+        border: 2px solid #e9ecef;
+        background: #f8f9fa;
+    }
+    
+    .ql-editor {
+        min-height: 250px;
+        font-size: 0.9375rem;
+    }
+    
+    /* File Input Styling */
+    input[type="file"] {
+        padding: 0.875rem 1rem;
+    }
+    
+    input[type="file"]::file-selector-button {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-right: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    input[type="file"]::file-selector-button:hover {
+        background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+        transform: translateY(-2px);
+    }
+    
+    #color-input {
+        width: 150px;
+        padding: 10px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 1.5rem;
         }
-    </style>
+        
+        .section-card .card-body {
+            padding: 1.5rem 1rem;
+        }
+        
+        .action-buttons {
+            padding: 1.5rem;
+        }
+    }
+</style>
 @endsection
-
 @php
+    // Get product data from controller
     if (isset($product)) {
         $product_id = $product->id;
         $product_name = $product->name;
@@ -31,10 +321,14 @@
         $product_newarrival = $product->newarrival;
         $product_bestseller = $product->bestseller;
         $special_product = $product->special;
+        
+        // Get product tags
+        $productTags = DB::table('product_tags')
+            ->where('product_id', $product->id)
+            ->pluck('tag_id')
+            ->toArray();
     }
-
-@endphp
-@php
+    
     $colors = DB::table('colors')
         ->where(['is_deleted' => 0])
         ->orderBy('id', 'DESC')
@@ -44,23 +338,50 @@
         ->orderBy('id', 'DESC')
         ->get();
 @endphp
+
+
 @section('admin-content')
-    <div class="container-xxl">
+    <div class="container-xxl product-create-container">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2>
+                        <iconify-icon icon="solar:pen-bold-duotone" class="me-2"></iconify-icon>
+                        Edit Product
+                    </h2>
+                    <p>Update product details and inventory information</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{{ route('product.index') }}" class="btn btn-light">
+                        <iconify-icon icon="solar:arrow-left-bold" class="me-2"></iconify-icon>
+                        Back to Products
+                    </a>
+                </div>
+            </div>
+        </div>
+        
         <form id="productForm" enctype="multipart/form-data">
             <input type="hidden" value="{{ $product->id ?? '' }}" name="ProductID">
             <div class="row">
-                <div class="col-xl-12 col-lg-12 ">
-                    <div class="card">
+                <div class="col-xl-12 col-lg-12">
+                    
+                    <!-- Product Information -->
+                    <div class="card section-card">
                         <div class="card-header">
-                            <h4 class="card-title">Product Information</h4>
+                            <h4>
+                                <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+                                Product Information
+                            </h4>
                         </div>
                         <div class="card-body">
-                            <div class="row">
+                            <div class="row g-4">
                                 <div class="col-lg-4">
-                                    <div class="mb-3">
+                                    <div class="mb-0">
                                         <label for="product_name" class="form-label">Product Name</label>
                                         <input type="text" id="product_name" class="form-control"
-                                            placeholder="Items Name" name="product_name" value="{{ $product_name ?? '' }}">
+                                            placeholder="Enter product name" name="product_name" value="{{ $product_name ?? '' }}">
                                     </div>
                                 </div>
                                 @php
@@ -69,25 +390,22 @@
                                         ->get();
                                 @endphp
                                 <div class="col-lg-4">
-                                    <label for="product-categories" class="form-label">Product Categories</label>
-                                    <select class="form-control select2" id="product-categories" name="category">
-                                        <option value="">Select Category</option>
+                                    <label for="product-categories" class="form-label">Product Category</label>
+                                    <select class="form-control" id="product-categories" name="category" data-choices
+                                        data-choices-groups data-placeholder="Select Categories">
+                                        <option value="">Choose a category</option>
                                         @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}"
-                                                @if (isset($product) && $product->category_id == $category->id) selected @endif>
-                                                {{ $category->name }}
-                                            </option>
+                                            <option value="{{ $category->id }}" {{ (isset($product) && $product->category_id == $category->id) ? 'selected' : '' }}>{{ $category->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 <div class="col-lg-4">
-                                    <label for="product-subcategories" class="form-label">Product Subcategories</label>
+                                    <label for="product-subcategories" class="form-label">Subcategory</label>
                                     <select class="form-control select2" id="product-subcategories" name="subcategory">
                                         <option value="">Select Subcategory</option>
                                     </select>
                                 </div>
-
                             </div>
 
                             @php
@@ -96,26 +414,31 @@
                                     ->get();
                             @endphp
 
-                            <div class="row">
+                            <div class="row g-4 mt-2">
                                 <div class="col-lg-4">
-                                    <div class="mb-3">
-                                        <label for="product_url" class="form-label">Product Identifier URL</label>
+                                    <div class="mb-0">
+                                        <label for="product_url" class="form-label">Product URL Slug</label>
                                         <input type="text" id="product_url" class="form-control" name="product_url"
-                                            placeholder="Product Slug" disabled value="{{ $slug ?? '' }}">
+                                            placeholder="auto-generated-slug" disabled value="{{ $slug ?? '' }}">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <div class="mb-0">
+                                        <label for="product_sku" class="form-label">SKU (Stock Keeping Unit)</label>
+                                        <input type="text" id="product_sku" class="form-control" name="sku"
+                                            placeholder="Enter SKU (e.g., PROD-001)" value="{{ $product->sku ?? '' }}">
                                     </div>
                                 </div>
 
-
-
                                 <div class="col-lg-4">
-                                    <div class="mb-3">
+                                    <div class="mb-0">
                                         <label for="product-brand" class="form-label">Brand</label>
                                         <select class="form-control" id="product-categories" data-choices
-                                            data-choices-groups data-placeholder="Select Categories" name="brand">
-                                            <option selected disabled>Choose a Brand</option>
+                                            data-choices-groups data-placeholder="Select Brand" name="brand">
+                                            <option value="">Choose a brand</option>
                                             @foreach ($brands as $brand)
-                                                <option {{ $product_brand_id == $brand->id ? 'selected' : '' }}
-                                                    value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                <option value="{{ $brand->id }}" {{ (isset($product_brand_id) && $product_brand_id == $brand->id) ? 'selected' : '' }}>{{ $brand->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -126,41 +449,36 @@
                                     <select class="form-control" id="gender" data-choices data-choices-groups
                                         data-placeholder="Select Gender" name="gender">
                                         <option value="" selected disabled>Select Gender</option>
-                                        <option {{ $product_gender == 'Men' ? 'selected' : '' }} value="Men">Men</option>
-                                        <option {{ $product_gender == 'Women' ? 'selected' : '' }} value="Women">Women
-                                        </option>
-                                        <option {{ $product_gender == 'Other' ? 'selected' : '' }} value="Other">Other
-                                        </option>
+                                        <option value="Men" {{ (isset($product_gender) && $product_gender == 'Men') ? 'selected' : '' }}>Men</option>
+                                        <option value="Women" {{ (isset($product_gender) && $product_gender == 'Women') ? 'selected' : '' }}>Women</option>
+                                        <option value="Other" {{ (isset($product_gender) && $product_gender == 'Other') ? 'selected' : '' }}>Other</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card">
+                    
+                    <!-- Additional Information -->
+                    <div class="card section-card">
                         <div class="card-header">
-                            <h4 class="card-title">Additional Information</h4>
+                            <h4>
+                                <iconify-icon icon="solar:tag-bold-duotone"></iconify-icon>
+                                Additional Information
+                            </h4>
                         </div>
                         @php
                             $tags = DB::table('tags')
                                 ->where(['is_deleted' => 0])
                                 ->get();
-                                $productTags = DB::table('product_tags')
-                                ->where('product_id', $product->id)
-                                ->pluck('tag_id')
-                                ->toArray();
-
                         @endphp
                         <div class="card-body">
-                            <div class="row ">
-                                <div class="col-lg-6 mt-3">
-                                    <label for="product-stock" class="form-label">Tag</label>
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <label for="product-stock" class="form-label">Tags</label>
                                     <select class="form-control" id="choices-multiple-remove-button" data-choices
                                         data-choices-removeItem name="tags[]" multiple style="z-index: 999 !important">
                                         @foreach ($tags as $tag)
-                                            <option value="{{ $tag->id }}"
-                                                {{ in_array($tag->id, $productTags) ? 'selected' : '' }}>
-                                                {{ $tag->name }}
-                                            </option>
+                                            <option value="{{ $tag->id }}" {{ (isset($productTags) && in_array($tag->id, $productTags)) ? 'selected' : '' }}>{{ $tag->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -175,226 +493,308 @@
                                         ->where(['is_deleted' => 0])
                                         ->get();
                                 @endphp
-                                <div class="col-lg-6 mt-3">
+                                <div class="col-lg-6">
                                     <label for="product-collection" class="form-label">Collections</label>
                                     <select class="form-control" id="product-collection" name="collection" data-choices
                                         data-choices-groups data-placeholder="Select Collection">
                                         <option value="">Choose a collection</option>
                                         @foreach ($collections as $collection)
-                                            <option {{ $collection_id == $collection->id ? 'selected' : '' }}
-                                                value="{{ $collection->id }}">{{ $collection->name }}</option>
+                                            <option value="{{ $collection->id }}" {{ (isset($collection_id) && $collection_id == $collection->id) ? 'selected' : '' }}>{{ $collection->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-
-                                <div class="col-lg-12 mt-3">
-                                    <label for="product-yt-link" class="form-label">Youtube Link</label>
-                                    <input type="text" name="yt_link" placeholder="Enter Your Youtube Link"
+                                <div class="col-lg-12">
+                                    <label for="product-yt-link" class="form-label">Youtube Video Link</label>
+                                    <input type="text" name="yt_link" placeholder="https://youtube.com/watch?v=..."
                                         class="form-control" id="product-yt-link" value="{{ $yt_link ?? '' }}">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Include Quill stylesheet and script -->
 
 
-                    <div class="card">
+                    <!-- Product Descriptions -->
+                    <div class="card section-card">
                         <div class="card-header">
-                            <h4 class="card-title">Product Descriptions</h4>
+                            <h4>
+                                <iconify-icon icon="solar:text-bold-duotone"></iconify-icon>
+                                Product Descriptions
+                            </h4>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="mt-3">
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <div class="mb-0">
                                         <label for="short_description" class="form-label">Short Description</label>
-                                        <div id="short_description" style="height: 300px">{!! $product_short_description  ?? '' !!}</div>
+                                        <div id="short_description" style="height: 300px">{!! $product_short_description ?? '' !!}</div>
                                     </div>
-
-                                </div>
-                                <div class="mt-3">
-                                    <label for="description" class="form-label">Description</label>
-                                    <div id="description" style="height: 300px">{!! $description  ?? '' !!}</div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header"></div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-2">
-                                    <div class="form-check form-checkbox-success mb-2">
-                                        <input type="checkbox" class="form-check-input" id="featured" name="featured"
-                                            value="1" {{ $product_featured == 1 ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="featured">Featured</label>
-                                    </div>
-                                </div>
-                                <div class="col-lg-2">
-                                    <div class="form-check form-checkbox-success mb-2">
-                                        <input type="checkbox" class="form-check-input" id="discounted"
-                                            name="discounted" value="1"
-                                            {{ $product_discounted == 1 ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="discounted">Discounted</label>
-                                    </div>
-                                </div>
-                                <div class="col-lg-2">
-                                    <div class="form-check form-checkbox-success mb-2">
-                                        <input type="checkbox" class="form-check-input" id="newarrival"
-                                            name="newarrival" value="1"
-                                            {{ $product_newarrival == 1 ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="newarrival">New Arrival</label>
-                                    </div>
-                                </div>
-                                <div class="col-lg-2">
-                                    <div class="form-check form-checkbox-success mb-2">
-                                        <input type="checkbox" class="form-check-input" id="bestseller"
-                                            name="bestseller" value="1"
-                                            {{ $product_bestseller == 1 ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="bestseller">Best Seller</label>
-                                    </div>
-                                </div>
-                                <div class="col-lg-2">
-                                    <div class="form-check form-checkbox-success mb-2">
-                                        <input type="checkbox" class="form-check-input" id="special"
-                                            name="special" value="1"    {{ $special_product == 1 ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="special">Special Product</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">Product Multimedia</div>
-                        <div class="card-body">
-                            <div class="row">
-                                {{-- <div class="col-lg-6">
-                                    <label for="first_image" class="form-label">First Image</label>
-                                    <input type="file" id="first_image" class="form-control" name="first_image">
                                 </div>
                                 <div class="col-lg-6">
-                                    <label for="second_image" class="form-label">Second Image</label>
-                                    <input type="file" id="second_image" class="form-control" name="second_image">
-                                </div> --}}
-                                <div class="col-lg-12">
-                                    <label for="second_image" class="form-label">Images</label>
-                                    <input type="file" id="second_image" class="form-control" name="product_images[]"
-                                        multiple>
+                                    <div class="mb-0">
+                                        <label for="description" class="form-label">Full Description</label>
+                                        <div id="description" style="height: 300px">{!! $description ?? '' !!}</div>
+                                    </div>
                                 </div>
-                                <div class="row mt-5">
-                                    @foreach ($product_images as $item)
-                                        <div class="col-lg-2" id="image-{{ $item->id }}">
-                                            <img src="{{ url('public') }}/{{ $item->file_path }}" alt=""
-                                                width="100px" class="rounded">
-                                            <p>
-                                                <button class="btn btn-danger mt-3 delete-image" type="button"
-                                                    data-id="{{ $item->id }}"
-                                                    data-url="{{ route('product.image.delete', $item->id) }}">Delete</button>
-                                            </p>
-                                        </div>
-                                    @endforeach
-
-
-                                </div>
-
-
                             </div>
                         </div>
-
                     </div>
-                    <div class="card">
+                    
+                    <!-- Product Flags -->
+                    <div class="card section-card">
                         <div class="card-header">
-                            <h4 class="card-title">Inventory Information</h4>
+                            <h4>
+                                <iconify-icon icon="solar:flag-bold-duotone"></iconify-icon>
+                                Product Flags & Features
+                            </h4>
                         </div>
-
+                        <div class="card-body">
+                            <div class="checkbox-group">
+                                <div class="row g-4">
+                                    <div class="col-lg-2 col-md-4 col-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="featured" name="featured"
+                                                value="1" {{ (isset($product_featured) && $product_featured == 1) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="featured">Featured</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="discounted"
+                                                name="discounted" value="1" {{ (isset($product_discounted) && $product_discounted == 1) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="discounted">Discounted</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="newarrival"
+                                                name="newarrival" value="1" {{ (isset($product_newarrival) && $product_newarrival == 1) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="newarrival">New Arrival</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="bestseller"
+                                                name="bestseller" value="1" {{ (isset($product_bestseller) && $product_bestseller == 1) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="bestseller">Best Seller</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="special"
+                                                name="special" value="1" {{ (isset($special_product) && $special_product == 1) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="special">Special</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Multimedia -->
+                    <div class="card section-card">
+                        <div class="card-header">
+                            <h4>
+                                <iconify-icon icon="solar:gallery-bold-duotone"></iconify-icon>
+                                Product Images
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label for="second_image" class="form-label">Product Images (Multiple)</label>
+                                    <input type="file" id="second_image" class="form-control" name="product_images[]"
+                                        multiple accept="image/*">
+                                    <small class="text-muted mt-2 d-block">You can select multiple images. Recommended size: 800x800px</small>
+                                </div>
+                                
+                                @if(isset($product_images) && count($product_images) > 0)
+                                <div class="col-lg-12 mt-4">
+                                    <label class="form-label">Existing Images</label>
+                                    <div class="row g-3">
+                                        @foreach ($product_images as $item)
+                                            <div class="col-lg-2 col-md-3 col-4" id="image-{{ $item->id }}">
+                                                <div class="position-relative">
+                                                    <img src="{{ url('public') }}/{{ $item->file_path }}" alt="Product Image"
+                                                        class="img-fluid rounded shadow-sm" style="width: 100%; height: 150px; object-fit: cover;">
+                                                    <button class="btn btn-danger btn-sm delete-image position-absolute top-0 end-0 m-2" type="button"
+                                                        data-id="{{ $item->id }}"
+                                                        data-url="{{ route('product.image.delete', $item->id) }}">
+                                                        <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Inventory Information -->
+                    <div class="card section-card">
+                        <div class="card-header">
+                            <h4>
+                                <iconify-icon icon="solar:box-bold-duotone"></iconify-icon>
+                                Inventory & Variants
+                            </h4>
+                        </div>
                         <div class="card-body">
                             <div id="form-rows">
-                                @foreach ($product_attributes as $attribute)
-                                    <div class="row form-row" id="row-{{ $attribute->id }}">
-                                        <div class="col-lg-4">
-                                            <label for="mrp" class="form-label">MRP</label>
-                                            <div class="input-group mb-3">
-                                                <input type="number" class="form-control" name="mrp[]"
-                                                    value="{{ $attribute->mrp }}" placeholder="Enter Here">
+                                @if(isset($product_attributes) && count($product_attributes) > 0)
+                                    @foreach ($product_attributes as $index => $attribute)
+                                        @if($index > 0)
+                                        <hr class="inventory-row-divider">
+                                        @endif
+                                        <div class="row form-row inventory-row" id="row-{{ $attribute->id }}">
+                                            <input type="hidden" name="attr_id[]" value="{{ $attribute->id }}">
+                                            <div class="col-lg-3">
+                                                <label for="mrp" class="form-label">MRP (₹)</label>
+                                                <div class="input-group mb-3">
+                                                    <input type="number" class="form-control" placeholder="0.00" name="mrp[]" value="{{ $attribute->mrp }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <label for="price" class="form-label">Selling Price (₹)</label>
+                                                <div class="input-group mb-3">
+                                                    <input type="number" class="form-control" placeholder="0.00" name="price[]" value="{{ $attribute->price }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <label for="size" class="form-label">Size</label>
+                                                <select class="form-control" data-choices data-choices-removeItem name="size[]">
+                                                    <option value="" disabled>Select Size</option>
+                                                    @foreach ($sizes as $size)
+                                                        <option value="{{ $size->id }}" {{ $size->id == $attribute->size_id ? 'selected' : '' }}>{{ $size->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <label for="color" class="form-label">Color</label>
+                                                <select class="form-control" data-choices data-choices-removeItem name="color[]">
+                                                    <option value="" disabled>Select Color</option>
+                                                    @foreach ($colors as $color)
+                                                        <option value="{{ $color->id }}" {{ $color->id == $attribute->color_id ? 'selected' : '' }}>{{ $color->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-lg-3 mt-3">
+                                                <label for="qty" class="form-label">Quantity</label>
+                                                <div class="input-group mb-3">
+                                                    <input type="number" class="form-control" placeholder="0" name="qty[]" value="{{ $attribute->qty }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5 mt-3">
+                                                <label for="attr_image" class="form-label">Variant Image</label>
+                                                <div class="input-group mb-3">
+                                                    <input type="file" class="form-control" name="attr_image[]" accept="image/*">
+                                                </div>
+                                                @if ($attribute->image)
+                                                    <div class="mt-2">
+                                                        <img src="{{ url('public/' . $attribute->image) }}" alt="Variant Image" 
+                                                            class="rounded shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 2px solid #e9ecef;">
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="col-lg-2 mt-3">
+                                                <label class="form-label d-block">&nbsp;</label>
+                                                <div class="input-group">
+                                                    <button class="btn btn-add-row add-row w-100" type="button">
+                                                        <iconify-icon icon="solar:add-circle-bold" class="me-2"></iconify-icon>
+                                                        Add
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 mt-3">
+                                                <label class="form-label d-block">&nbsp;</label>
+                                                <div class="input-group">
+                                                    <button class="btn btn-remove-row remove-row w-100" type="button" data-id="{{ $attribute->id }}">
+                                                        <iconify-icon icon="solar:trash-bin-trash-bold" class="me-2"></iconify-icon>
+                                                        Remove
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-lg-4">
-                                            <label for="price" class="form-label">Price</label>
+                                    @endforeach
+                                @else
+                                    <div class="row form-row inventory-row">
+                                        <div class="col-lg-3">
+                                            <label for="mrp" class="form-label">MRP (₹)</label>
                                             <div class="input-group mb-3">
-                                                <input type="number" class="form-control" name="price[]"
-                                                    value="{{ $attribute->price }}" placeholder="Enter Here">
+                                                <input type="number" id="mrp" class="form-control"
+                                                    placeholder="0.00" name="mrp[]">
                                             </div>
                                         </div>
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-3">
+                                            <label for="price" class="form-label">Selling Price (₹)</label>
+                                            <div class="input-group mb-3">
+                                                <input type="number" id="price" class="form-control"
+                                                    placeholder="0.00" name="price[]">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
                                             <label for="size" class="form-label">Size</label>
-                                            <select class="form-control" name="size[]">
-                                                <option value="" disabled>Select Size</option>
+                                            <select class="form-control" id="choices-multiple-remove-button" data-choices
+                                                data-choices-removeItem name="size[]">
+                                                <option value="" selected disabled>Select Size</option>
                                                 @foreach ($sizes as $size)
-                                                    <option value="{{ $size->id }}"
-                                                        {{ $size->id == $attribute->size_id ? 'selected' : '' }}>
-                                                        {{ $size->name }}
-                                                    </option>
+                                                    <option value="{{ $size->id }}">{{ $size->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                         <div class="col-lg-3">
                                             <label for="color" class="form-label">Color</label>
-                                            <select class="form-control" name="color[]">
-                                                <option value="" disabled>Select Color</option>
+                                            <select class="form-control" id="choices-multiple-remove-button" data-choices
+                                                data-choices-removeItem name="color[]">
+                                                <option value="" selected disabled>Select Color</option>
                                                 @foreach ($colors as $color)
-                                                    <option value="{{ $color->id }}"
-                                                        {{ $color->id == $attribute->color_id ? 'selected' : '' }}>
-                                                        {{ $color->name }}
-                                                    </option>
+                                                    <option value="{{ $color->id }}">{{ $color->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="col-lg-3">
-                                            <label for="qty" class="form-label">Qty</label>
+                                        <div class="col-lg-3 mt-3">
+                                            <label for="qty" class="form-label">Quantity</label>
                                             <div class="input-group mb-3">
-                                                <input type="number" class="form-control" name="qty[]"
-                                                    value="{{ $attribute->qty }}" placeholder="Enter Here">
+                                                <input type="number" id="qty" class="form-control"
+                                                    placeholder="0" name="qty[]">
                                             </div>
                                         </div>
-                                        <div class="col-lg-5">
-                                            <label for="attr_image" class="form-label">Images</label>
+                                        <div class="col-lg-7 mt-3">
+                                            <label for="attr_image" class="form-label">Variant Image</label>
                                             <div class="input-group mb-3">
-                                                <input type="file" class="form-control" name="attr_image[]">
+                                                <input type="file" id="attr_image" class="form-control"
+                                                    name="attr_image[]" accept="image/*">
                                             </div>
-
-                                            @if ($attribute->image)
-                                                <div class="mt-3">
-                                                    <img src="{{ url('public/' . $attribute->image) }}"
-                                                        alt="Attribute Image" width="80px" class="rounded shadow-sm"
-                                                        style="border: 1px solid #ddd; padding: 5px;">
-                                                </div>
-                                            @endif
-
                                         </div>
-                                        <div class="col-lg-1">
-                                            <div class="input-group mt-3">
-                                                <button class="btn btn-danger remove-row" type="button"
-                                                    data-id="{{ $attribute->id }}">Remove</button>
+                                        <div class="col-lg-2 mt-3">
+                                            <label class="form-label d-block">&nbsp;</label>
+                                            <div class="input-group">
+                                                <button class="btn btn-add-row add-row w-100" type="button">
+                                                    <iconify-icon icon="solar:add-circle-bold" class="me-2"></iconify-icon>
+                                                    Add Variant
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
-                                <div class="d-flex justify-content-end mt-3">
-                                    <button type="button" class="btn btn-primary add-row">Add Attribute</button>
-                                </div>
+                                @endif
                             </div>
                         </div>
-
-
                     </div>
-                    <div class="p-3 bg-light mb-3 rounded">
-                        <div class="row justify-content-end g-2">
-                            <div class="col-lg-2">
-                                <button type="submit" class="btn btn-outline-secondary w-100">Update Product</button>
-
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons mb-4">
+                        <div class="row justify-content-end g-3">
+                            <div class="col-lg-2 col-md-4">
+                                <button type="reset" class="btn btn-reset w-100">
+                                    <iconify-icon icon="solar:restart-bold" class="me-2"></iconify-icon>
+                                    Reset
+                                </button>
                             </div>
-                            <div class="col-lg-2">
-                                <button type="reset" class="btn btn-primary w-100">Reset</button>
+                            <div class="col-lg-2 col-md-4">
+                                <button type="submit" class="btn btn-create w-100">
+                                    <iconify-icon icon="solar:check-circle-bold" class="me-2"></iconify-icon>
+                                    Update Product
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -404,144 +804,222 @@
     </div>
 @endsection
 @section('admin-js')
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
 <script>
-var quillShortDescription = new Quill('#short_description', {
-    theme: 'snow',
-    modules: {
-        clipboard: {
-            matchVisual: false,
-            matchers: [
-                ['*', function(node, delta) {
-                    delta.ops = delta.ops.map(op => {
-                        if (op.insert && typeof op.insert === 'string') {
-                            // Remove unsafe tags and attributes
-                            op.insert = op.insert
-                                .replace(/<script[^>]*?>.*?<\/script>/gi, '') // Remove <script> tags
-                                .replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '') // Remove <iframe> tags
-                                .replace(/<style[^>]*?>.*?<\/style>/gi, '')   // Remove <style> tags
-                                .replace(/on\w+="[^"]*"/g, '');               // Remove event handlers
+    var quill = new Quill('#short_description', {
+        theme: 'snow',
+        modules: {
+            toolbar: {
+                clipboard: {
+                matchVisual: false
+            },
+                container: [
+                    [{
+                        'font': []
+                    }, {
+                        'size': []
+                    }],
+                    [{
+                        'header': [1, 2, 3, 4, 5, 6, false]
+                    }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{
+                        'color': []
+                    }, {
+                        'background': []
+                    }],
+                    [{
+                        'script': 'sub'
+                    }, {
+                        'script': 'super'
+                    }],
+                    [{
+                        'list': 'ordered'
+                    }, {
+                        'list': 'bullet'
+                    }],
+                    [{
+                        'indent': '-1'
+                    }, {
+                        'indent': '+1'
+                    }, {
+                        'align': []
+                    }],
+                    ['blockquote', 'code-block'],
+                    ['link', 'image', 'video'],
+                    ['clean'] // remove formatting button
+                ],
+                handlers: {
+                    'image': function() {
+                        var fileInput = this.container.querySelector('input.ql-image[type=file]');
+                        if (fileInput === null) {
+                            fileInput = document.createElement('input');
+                            fileInput.setAttribute('type', 'file');
+                            fileInput.setAttribute('accept', 'image/*');
+                            fileInput.classList.add('ql-image');
+                            fileInput.addEventListener('change', function() {
+                                var file = fileInput.files[0];
+                                if (file) {
+                                    var reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        var range = quill.getSelection();
+                                        quill.insertEmbed(range.index, 'image', e.target
+                                            .result);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            });
+                            this.container.appendChild(fileInput);
                         }
-                        return op;
-                    });
-                    return delta;
-                }]
-            ]
-        },
-        toolbar: {
-            container: [
-                // Toolbar configuration
-            ],
-            handlers: {
-                'image': function() {
-                    // Image handler logic
+                        fileInput.click();
+                    }
                 }
             }
         }
-    }
-});
-
-var quillDescription = new Quill('#description', {
-    theme: 'snow',
-    modules: {
-        clipboard: {
-            matchVisual: false,
-            matchers: [
-                ['*', function(node, delta) {
-                    delta.ops = delta.ops.map(op => {
-                        if (op.insert && typeof op.insert === 'string') {
-                            // Remove unsafe tags and attributes
-                            op.insert = op.insert
-                                .replace(/<script[^>]*?>.*?<\/script>/gi, '') // Remove <script> tags
-                                .replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '') // Remove <iframe> tags
-                                .replace(/<style[^>]*?>.*?<\/style>/gi, '')   // Remove <style> tags
-                                .replace(/on\w+="[^"]*"/g, '');               // Remove event handlers
-                        }
-                        return op;
-                    });
-                    return delta;
-                }]
-            ]
-        },
-        toolbar: {
-            container: [
-                // Toolbar configuration
-            ],
-            handlers: {
-                'image': function() {
-                    // Image handler logic
-                }
-            }
-        }
-    }
-});
+    });
 </script>
-
+<script>
+    var quill = new Quill('#description', {
+        theme: 'snow',
+        modules: {
+            clipboard: {
+                matchVisual: false
+            },
+            toolbar: {
+                container: [
+                    [{
+                        'font': []
+                    }, {
+                        'size': []
+                    }],
+                    [{
+                        'header': [1, 2, 3, 4, 5, 6, false]
+                    }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{
+                        'color': []
+                    }, {
+                        'background': []
+                    }],
+                    [{
+                        'script': 'sub'
+                    }, {
+                        'script': 'super'
+                    }],
+                    [{
+                        'list': 'ordered'
+                    }, {
+                        'list': 'bullet'
+                    }],
+                    [{
+                        'indent': '-1'
+                    }, {
+                        'indent': '+1'
+                    }, {
+                        'align': []
+                    }],
+                    ['blockquote', 'code-block'],
+                    ['link', 'image', 'video'],
+                    ['clean'] // remove formatting button
+                ],
+                handlers: {
+                    'image': function() {
+                        var fileInput = this.container.querySelector('input.ql-image[type=file]');
+                        if (fileInput === null) {
+                            fileInput = document.createElement('input');
+                            fileInput.setAttribute('type', 'file');
+                            fileInput.setAttribute('accept', 'image/*');
+                            fileInput.classList.add('ql-image');
+                            fileInput.addEventListener('change', function() {
+                                var file = fileInput.files[0];
+                                if (file) {
+                                    var reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        var range = quill.getSelection();
+                                        quill.insertEmbed(range.index, 'image', e.target
+                                            .result);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            });
+                            this.container.appendChild(fileInput);
+                        }
+                        fileInput.click();
+                    }
+                }
+            }
+        }
+    });
+</script>
 
 
     <script>
         $(document).ready(function() {
             $(document).on('click', '.add-row', function() {
                 var newRow = `
-            <div class="row form-row">
-                <hr style="border: 0; height: 2px; background: linear-gradient(#808080, #ffff); margin: 20px 0;">
-                <div class="col-lg-4">
-                    <label for="mrp" class="form-label">MRP</label>
-                    <div class="input-group mb-3">
-                        <input type="number" class="form-control" placeholder="Enter Here" name="mrp[]">
+                <hr class="inventory-row-divider">
+                <div class="row form-row inventory-row">
+                    <div class="col-lg-3">
+                        <label for="mrp" class="form-label">MRP (₹)</label>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" placeholder="0.00" name="mrp[]">
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-4">
-                    <label for="price" class="form-label">Price</label>
-                    <div class="input-group mb-3">
-                        <input type="number" class="form-control" placeholder="Enter Here" name="price[]">
+                    <div class="col-lg-3">
+                        <label for="price" class="form-label">Selling Price (₹)</label>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" placeholder="0.00" name="price[]">
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-4">
-                    <label for="size" class="form-label">Size</label>
-                    <select class="form-control" data-choices data-choices-removeItem name="size[]">
-                        <option value="" selected disabled>Select Size</option>
-                        @foreach ($sizes as $size)
-                            <option value="{{ $size->id }}">{{ $size->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-lg-3">
-                    <label for="color" class="form-label">Color</label>
-                    <select class="form-control" data-choices data-choices-removeItem name="color[]">
-                        <option value="" selected disabled>Select Color</option>
-                        @foreach ($colors as $color)
-                            <option value="{{ $color->id }}">{{ $color->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-lg-3">
-                    <label for="qty" class="form-label">Qty</label>
-                    <div class="input-group mb-3">
-                        <input type="number" class="form-control" placeholder="Enter Here" name="qty[]">
+                    <div class="col-lg-3">
+                        <label for="size" class="form-label">Size</label>
+                        <select class="form-control" data-choices data-choices-removeItem name="size[]">
+                            <option value="" selected disabled>Select Size</option>
+                            @foreach ($sizes as $size)
+                                <option value="{{ $size->id }}">{{ $size->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
-                <div class="col-lg-5">
-                    <label for="attr_image" class="form-label">Images</label>
-                    <div class="input-group mb-3">
-                        <input type="file" class="form-control" name="attr_image[]">
+                    <div class="col-lg-3">
+                        <label for="color" class="form-label">Color</label>
+                        <select class="form-control" data-choices data-choices-removeItem name="color[]">
+                            <option value="" selected disabled>Select Color</option>
+                            @foreach ($colors as $color)
+                                <option value="{{ $color->id }}">{{ $color->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
-                <div class="col-lg-1">
-                    <div class="input-group mt-3">
-                        <button class="btn btn-danger remove-row" type="button">Remove</button>
+                    <div class="col-lg-3 mt-3">
+                        <label for="qty" class="form-label">Quantity</label>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" placeholder="0" name="qty[]">
+                        </div>
                     </div>
-                </div>
-            </div>`;
+                    <div class="col-lg-7 mt-3">
+                        <label for="attr_image" class="form-label">Variant Image</label>
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" name="attr_image[]" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="col-lg-2 mt-3">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <div class="input-group">
+                            <button class="btn btn-remove-row remove-row w-100" type="button">
+                                <iconify-icon icon="solar:trash-bin-trash-bold" class="me-2"></iconify-icon>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
                 $('#form-rows').append(newRow);
             });
-
             $(document).on('click', '.remove-row', function() {
+                $(this).closest('.form-row').prev('hr').remove();
                 $(this).closest('.form-row').remove();
             });
         });
     </script>
-
 
     <script>
         function generateSlug(value) {
@@ -588,163 +1066,120 @@ var quillDescription = new Quill('#description', {
             document.getElementById('color-input').value = hexColor;
         });
     </script>
-
     <script>
-        $(document).on('click', '.delete-image', function() {
-            var url = $(this).data('url');
-            var token = $('meta[name="csrf-token"]').attr('content');
-
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                data: {
-                    _token: token
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#image-' + response.id).remove();
-                        toastr.success(response.message);
-                    } else {
-                        toastr.error(response.message);
+        $(document).ready(function() {
+            $('#productForm').on('submit', function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+                var short_description = quill.root.innerHTML;
+                formData.append('short_description', short_description);
+                var description = quill.root.innerHTML;
+                formData.append('description', description);
+                $.ajax({
+                    url: "{{ route('product.update', $product->id ?? 0) }}",
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "{{ route('product.index') }}";
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let errorMessage = '<ul>';
+                            $.each(errors, function(key, value) {
+                                errorMessage += '<li>' + value[0] +
+                                    '</li>';
+                            });
+                            errorMessage += '</ul>';
+                            Swal.fire({
+                                title: 'Validation Error',
+                                html: errorMessage,
+                                icon: 'error'
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred. Please try again.',
+                                icon: 'error'
+                            });
+                        }
                     }
-                },
-                error: function(xhr) {
-                    toastr.error('Something went wrong!');
-                }
+                });
             });
         });
     </script>
-
-<script>
-    $(document).ready(function() {
-        $('#productForm').on('submit', function(e) {
-            e.preventDefault();
-
-            // Get the product ID
-            let productId = $('input[name="ProductID"]').val();
-
-            // Create FormData object
-            let formData = new FormData(this);
-
-            // Get the content from the Quill editors
-            var shortDescription = quillShortDescription.root.innerHTML;
-            var description = quillDescription.root.innerHTML;
-
-            // Append the Quill content to the FormData object
-            formData.append('short_description', shortDescription);
-            formData.append('description', description);
-
-            // Add CSRF token to headers
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            // Send the AJAX request
-            $.ajax({
-                url: "{{ route('product.updateData', ['product' => '__PRODUCT_ID__']) }}".replace('__PRODUCT_ID__', productId),
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                beforeSend: function() {
-                    Swal.fire({
-                        title: 'Please wait...',
-                        text: 'Processing your request...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                },
-                success: function(response) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: response.message,
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "{{ route('product.index') }}";
-                        }
-                    });
-                },
-                error: function(xhr) {
-                    Swal.close();
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessage = '<ul>';
-                        $.each(errors, function(key, value) {
-                            errorMessage += '<li>' + value[0] + '</li>';
-                        });
-                        errorMessage += '</ul>';
-                        Swal.fire({
-                            title: 'Validation Error',
-                            html: errorMessage,
-                            icon: 'error'
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'An error occurred. Please try again.',
-                            icon: 'error'
-                        });
-                    }
-                }
-            });
-        });
-    });
-</script>
     <script>
         $(document).ready(function() {
-            // Initialize select2 for both categories and subcategories
-            $('#product-categories').select2({
-                placeholder: 'Select Category',
-                allowClear: true
-            });
-
             $('#product-subcategories').select2({
                 placeholder: 'Select Subcategory',
                 allowClear: true
             });
-
-            // When the category is changed, load the subcategories dynamically
+            
+            // Load subcategories on page load if category is selected
+            @if(isset($product) && $product->category_id)
+                let initialCategoryId = {{ $product->category_id }};
+                let selectedSubcategoryId = {{ $product->subcategory ?? 'null' }};
+                
+                if (initialCategoryId) {
+                    $.ajax({
+                        url: "{{ route('productsubcategories.get', ['categoryId' => '__CATEGORY_ID__']) }}"
+                            .replace('__CATEGORY_ID__', initialCategoryId),
+                        type: 'GET',
+                        success: function(response) {
+                            $('#product-subcategories').empty();
+                            if (response.length > 0) {
+                                $('#product-subcategories').append(
+                                    '<option value="">Select Subcategory</option>');
+                                $.each(response, function(index, subcategory) {
+                                    let selected = (selectedSubcategoryId && subcategory.id == selectedSubcategoryId) ? 'selected' : '';
+                                    $('#product-subcategories').append(
+                                        '<option value="' + subcategory.id + '" ' + selected + '>' +
+                                        subcategory.name + '</option>');
+                                });
+                            } else {
+                                $('#product-subcategories').append(
+                                    '<option value="">No Subcategories Available</option>');
+                            }
+                            $('#product-subcategories').trigger('change');
+                        }
+                    });
+                }
+            @endif
+            
             $('#product-categories').on('change', function() {
                 let categoryId = $(this).val();
-
-                // Clear the subcategory dropdown and show a loading message
                 $('#product-subcategories').empty().append('<option>Loading...</option>').trigger('change');
-
                 if (categoryId) {
                     $.ajax({
                         url: "{{ route('productsubcategories.get', ['categoryId' => '__CATEGORY_ID__']) }}"
                             .replace('__CATEGORY_ID__', categoryId),
                         type: 'GET',
                         success: function(response) {
-                            // Clear the subcategory dropdown and add the options
                             $('#product-subcategories').empty();
-                            $('#product-subcategories').append(
-                                '<option value="">Select Subcategory</option>');
-
-                            // Add each subcategory option
-                            $.each(response, function(index, subcategory) {
-                                $('#product-subcategories').append('<option value="' +
-                                    subcategory.id + '">' + subcategory.name +
-                                    '</option>');
-                            });
-
-                            // Reinitialize select2 to reflect the new options
+                            if (response.length > 0) {
+                                $('#product-subcategories').append(
+                                    '<option value="">Select Subcategory</option>');
+                                $.each(response, function(index, subcategory) {
+                                    $('#product-subcategories').append(
+                                        '<option value="' + subcategory.id + '">' +
+                                        subcategory.name + '</option>');
+                                });
+                            } else {
+                                $('#product-subcategories').append(
+                                    '<option value="">No Subcategories Available</option>');
+                            }
                             $('#product-subcategories').trigger('change');
-
-                            // If the product has a subcategory, pre-select it
-                            @if (isset($product))
-                                var selectedSubcategory = {{ $product->subcategory }};
-                                if (selectedSubcategory) {
-                                    $('#product-subcategories').val(selectedSubcategory)
-                                        .trigger('change');
-                                }
-                            @endif
                         },
                         error: function() {
                             $('#product-subcategories').empty().append(
@@ -753,58 +1188,85 @@ var quillDescription = new Quill('#description', {
                         }
                     });
                 } else {
-                    // If no category is selected, reset the subcategory dropdown
                     $('#product-subcategories').empty().append(
                         '<option value="">Select Subcategory</option>');
                     $('#product-subcategories').trigger('change');
                 }
             });
-
-            // If a category is already selected when editing the product, trigger the change to load subcategories
-            @if (isset($product) && $product->category_id)
-                $('#product-categories').val({{ $product->category_id }}).trigger('change');
-            @endif
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            // Handle the "Remove" button click
-            $('.remove-row').on('click', function() {
-                let attributeId = $(this).data('id');
-                let row = $(this).closest('.form-row'); // Get the row to remove
-
-                // Confirm deletion before sending AJAX request
-                if (confirm('Are you sure you want to delete this attribute?')) {
-                    // Send the AJAX request to delete the attribute
-                    $.ajax({
-                        url: "{{ route('product.attribute.delete', '') }}/" + attributeId,
-                        type: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}', // CSRF token for security
-                        },
-                        success: function(response) {
-                            if (response.status === 'success') {
-                                // Remove the row from the DOM
-                                row.remove();
-
-                                // Optionally, show a success message
-                                alert(response.message);
-                            } else {
-                                // Show an error message if deletion failed
-                                alert(response.message);
+            
+            // Delete image functionality
+            $(document).on('click', '.delete-image', function() {
+                let imageId = $(this).data('id');
+                let deleteUrl = $(this).data('url');
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e74c3c',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: deleteUrl,
+                            type: 'DELETE',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                $('#image-' + imageId).fadeOut(300, function() {
+                                    $(this).remove();
+                                });
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Image has been deleted.',
+                                    'success'
+                                );
+                            },
+                            error: function() {
+                                Swal.fire(
+                                    'Error!',
+                                    'Failed to delete image.',
+                                    'error'
+                                );
                             }
-                        },
-                        error: function() {
-                            alert('An error occurred while trying to delete the attribute.');
+                        });
+                    }
+                });
+            });
+            
+            // Remove attribute row functionality
+            $(document).on('click', '.remove-row', function() {
+                let attrId = $(this).data('id');
+                let rowElement = $(this).closest('.form-row');
+                let dividerElement = rowElement.prev('hr');
+                
+                if (attrId) {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This will remove the variant!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#e74c3c',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, remove it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Add hidden input to mark for deletion
+                            rowElement.append('<input type="hidden" name="delete_attr[]" value="' + attrId + '">');
+                            dividerElement.remove();
+                            rowElement.fadeOut(300, function() {
+                                $(this).remove();
+                            });
                         }
                     });
+                } else {
+                    dividerElement.remove();
+                    rowElement.remove();
                 }
             });
         });
     </script>
-
-
-
-    </script>
-
 @endsection

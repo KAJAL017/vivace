@@ -13,6 +13,22 @@ class AdminController extends Controller
         return view('admin.pages.auth.login');
     }
     public function auth(Request $request)    {
+        // Handle verification code only request
+        if ($request->has('verification_only') && $request->verification_only) {
+            if ($request->code === '18') {
+                session(['admin_verified' => true]);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Verification successful',
+                ]);
+            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification code',
+            ], 401);
+        }
+
+        // Handle login request
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -23,6 +39,7 @@ class AdminController extends Controller
             session([
                 'admin_id' => $admin->id,
                 'ADMIN_LOGIN' => true,
+                'admin_verified' => true, // Keep verification flag
             ]);
 
             if ($request->boolean('remember')) {
@@ -44,15 +61,119 @@ class AdminController extends Controller
         ], 401);
     }
 
+    public function logout(Request $request)
+    {
+        // Clear all admin session data including verification
+        $request->session()->forget(['admin_id', 'ADMIN_LOGIN', 'admin_verified']);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect('/admin')->with('success', 'Logged out successfully');
+    }
+
      public function dashboard(){
+        // Products & Brands
         $result['products'] = DB::table('products')->where(['is_deleted'=>0])->count();
         $result['brands'] = DB::table('brands')->where(['is_deleted'=>0])->count();
         $result['users'] = DB::table('users')->count();
+        
+        // Orders Statistics
+        $result['total_orders'] = DB::table('orders')->count();
+        $result['completed_orders'] = DB::table('orders')->where('is_deliverd', 1)->count();
+        $result['ongoing_orders'] = DB::table('orders')
+            ->where('is_confirm', 1)
+            ->where('is_deliverd', '!=', 1)
+            ->where('is_cancel', '!=', 1)
+            ->count();
+        $result['cancelled_orders'] = DB::table('orders')->where('is_cancel', 1)->count();
+        $result['pending_orders'] = DB::table('orders')
+            ->where('is_confirm', '!=', 1)
+            ->where('is_cancel', '!=', 1)
+            ->where('is_deliverd', '!=', 1)
+            ->count();
+        
+        // Revenue Calculation
+        $result['total_revenue'] = DB::table('orders')
+            ->where('is_deliverd', 1)
+            ->sum('total_amount');
+        
+        // Manual Orders
+        $result['manual_orders'] = DB::table('manual_orders')->count();
+        
+        // Recent Orders for Activity
+        $result['recent_orders'] = DB::table('orders')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->select('orders.*', 'users.name as customer_name', 'users.email as customer_email')
+            ->orderBy('orders.id', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // Top Selling Products
+        $result['top_products'] = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->select('products.name', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->groupBy('products.id', 'products.name')
+            ->orderBy('total_sold', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // Sales Data by Order ID (since no timestamp)
+        // Weekly Sales - Last 7 orders
+        $result['weekly_sales'] = DB::table('orders')
+            ->where('is_deliverd', 1)
+            ->orderBy('id', 'desc')
+            ->limit(7)
+            ->get(['id', 'total_amount']);
+        
+        // Monthly Sales - Last 30 orders
+        $result['monthly_sales'] = DB::table('orders')
+            ->where('is_deliverd', 1)
+            ->orderBy('id', 'desc')
+            ->limit(30)
+            ->get(['id', 'total_amount']);
+        
+        // Yearly Sales - Last 365 orders
+        $result['yearly_sales'] = DB::table('orders')
+            ->where('is_deliverd', 1)
+            ->orderBy('id', 'desc')
+            ->limit(365)
+            ->get(['id', 'total_amount']);
+        
         return view('admin.pages.dashboard',$result);
      }
-     public function contacts(){
-        $result['contacts'] = DB::table('contacts')->get();
-        return view('admin.pages.contacts',$result);
+     public function contacts(Request $request){
+        $query = DB::table('contacts')->orderBy('id', 'DESC');
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%')
+                  ->orWhere('phone', 'like', '%' . $search . '%')
+                  ->orWhere('subject', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Pagination
+        $contacts = $query->paginate(10);
+        
+        // Stats
+        $total_queries = DB::table('contacts')->count();
+        
+        // AJAX request
+        if ($request->ajax()) {
+            $html = view('admin.pages.partials.contacts-table', compact('contacts'))->render();
+            $pagination = view('admin.pages.partials.contacts-pagination', compact('contacts'))->render();
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'pagination' => $pagination
+            ]);
+        }
+        
+        return view('admin.pages.contacts', compact('contacts', 'total_queries'));
      }
 
      public function pushToShiprocket(Request $request)

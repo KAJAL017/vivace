@@ -8,10 +8,33 @@ use Illuminate\Support\Facades\DB;
 
 class ProductCategory extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = DB::table('categories')->where('is_deleted',0)->orderBy('id', 'DESC')->get();
-        return view('admin.pages.category.list',compact('categories'));
+        $query = DB::table('categories')->where('is_deleted', 0);
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        
+        // Always paginate
+        $categories = $query->orderBy('id', 'DESC')->paginate(10);
+        
+        // Append query parameters to pagination links
+        $categories->appends($request->only(['search']));
+        
+        // Check if it's an AJAX request
+        if ($request->ajax()) {
+            $tableHtml = view('admin.pages.category.partials.category-table', compact('categories'))->render();
+            $paginationHtml = view('admin.pages.category.partials.pagination', compact('categories'))->render();
+            
+            return response()->json([
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml
+            ]);
+        }
+        
+        return view('admin.pages.category.list', compact('categories'));
     }
     public function create()
     {

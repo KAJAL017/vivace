@@ -13,27 +13,75 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class ProductController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-       $result['products'] = DB::table('products')
-    ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
-    ->leftJoin('sub_categories', 'sub_categories.id', '=', 'products.subcategory')
-    ->leftJoin('brands', 'brands.id', '=', 'products.brand_id')
-    ->leftJoin('collections', 'collections.id', '=', 'products.collection_id')
-    ->select(
-        'products.*',
-        'collections.name as collectionName',
-        'categories.name as categoryname',
-        'sub_categories.name as subcategoryname',
-        'brands.name as brandname',
-    )
-    ->orderBy('products.id', 'DESC')
-    ->get();
+        // Stats for cards
+        $result['total_products'] = DB::table('products')->where('is_deleted', 0)->count();
+        $result['active_products'] = DB::table('products')->where('is_deleted', 0)->count();
+        $result['out_of_stock'] = DB::table('products')
+            ->where('is_deleted', 0)
+            ->whereRaw('(SELECT COALESCE(SUM(qty), 0) FROM product_attributes WHERE product_attributes.product_id = products.id) <= 0')
+            ->count();
+        $result['categories_count'] = DB::table('categories')->where('is_deleted', 0)->count();
+        
+        // Get filter options
+        $result['categories'] = DB::table('categories')->where('is_deleted', 0)->orderBy('name')->get();
+        $result['brands'] = DB::table('brands')->where('is_deleted', 0)->orderBy('name')->get();
+        $result['collections'] = DB::table('collections')->where('is_deleted', 0)->orderBy('name')->get();
+        
+        // Build query with filters
+        $query = DB::table('products')
+            ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
+            ->leftJoin('sub_categories', 'sub_categories.id', '=', 'products.subcategory')
+            ->leftJoin('brands', 'brands.id', '=', 'products.brand_id')
+            ->leftJoin('collections', 'collections.id', '=', 'products.collection_id')
+            ->select(
+                'products.*',
+                'collections.name as collectionName',
+                'categories.name as categoryname',
+                'sub_categories.name as subcategoryname',
+                'brands.name as brandname',
+            )
+            ->where('products.is_deleted', 0);
+        
+        // Apply filters
+        if ($request->filled('search')) {
+            $searchType = $request->input('search_type', 'name');
+            $searchTerm = $request->search;
+            
+            if ($searchType === 'name') {
+                $query->where('products.name', 'like', '%' . $searchTerm . '%');
+            } elseif ($searchType === 'sku') {
+                $query->where('products.sku', 'like', '%' . $searchTerm . '%');
+            } elseif ($searchType === 'category') {
+                $query->where('categories.name', 'like', '%' . $searchTerm . '%');
+            }
+        }
+        
+        if ($request->filled('category')) {
+            $query->where('products.category_id', $request->category);
+        }
+        
+        if ($request->filled('brand')) {
+            $query->where('products.brand_id', $request->brand);
+        }
+        
+        if ($request->filled('collection')) {
+            $query->where('products.collection_id', $request->collection);
+        }
+        
+        $result['products'] = $query->orderBy('products.id', 'DESC')->paginate(10);
+        
+        // If AJAX request, return JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'html' => view('admin.pages.product.partials.product-table', $result)->render(),
+                'pagination' => view('admin.pages.product.partials.pagination', ['products' => $result['products']])->render()
+            ]);
+        }
 
-
-
-
-        return view('admin.pages.product.list',$result);
+        return view('admin.pages.product.list', $result);
     }
 
     /**
@@ -87,6 +135,7 @@ class ProductController extends Controller
             $productId = DB::table('products')->insertGetId([
                 'name' => $request->product_name,
                  'slug' => \Illuminate\Support\Str::slug($request->input('product_name')),
+                'sku' => $request->sku,
                 'category_id' => $request->category,
                 'subcategory' => $request->subcategory,
                 'collection_id' => $request->collection,
@@ -448,6 +497,7 @@ public function getSubcategories($categoryId)
             DB::table('products')->where('id', $productId)->update([
                  'name' => $request->product_name,
                  'slug' => \Illuminate\Support\Str::slug($request->input('product_name')),
+                'sku' => $request->sku,
                 'category_id' => $request->category,
                 'subcategory' => $request->subcategory,
                 'collection_id' => $request->collection,
@@ -567,6 +617,33 @@ public function getSubcategories($categoryId)
 
     return response()->json(['status' => 'success', 'message' => 'Product deleted successfully']);
     }
+    
+    public function updateStock(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            
+            foreach ($request->updates as $update) {
+                DB::table('product_attributes')
+                    ->where('id', $update['id'])
+                    ->update(['qty' => $update['qty']]);
+            }
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Stock updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update stock: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
     public function deleteAttribute($id)
@@ -626,5 +703,35 @@ public function saveSeoData(Request $request)
     }
 }
 
+    // Load More Products (AJAX)
+    public function loadMoreProducts(Request $request)
+    {
+        $offset = $request->input('offset', 0);
+        $limit = 10;
+        
+        $products = DB::table('products')
+            ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
+            ->leftJoin('sub_categories', 'sub_categories.id', '=', 'products.subcategory')
+            ->leftJoin('brands', 'brands.id', '=', 'products.brand_id')
+            ->leftJoin('collections', 'collections.id', '=', 'products.collection_id')
+            ->select(
+                'products.*',
+                'collections.name as collectionName',
+                'categories.name as categoryname',
+                'sub_categories.name as subcategoryname',
+                'brands.name as brandname',
+            )
+            ->where('products.is_deleted', 0)
+            ->orderBy('products.id', 'DESC')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'products' => $products,
+            'has_more' => count($products) === $limit
+        ]);
+    }
 
 }

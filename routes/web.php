@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 // --------------------------------------- ADMIN ROUTE HERE ---------------------------
 Route::get('admin',action: [AdminController::class,'login']);
 Route::post('admin/auth',action: [AdminController::class,'auth'])->name('admin.login.process');
+Route::get('admin/logout',action: [AdminController::class,'logout'])->name('admin.logout');
 Route::get('admin/dashboard',action: [AdminController::class,'dashboard'])->name('admin.dashboard');
 
 Route::resource('admin/category', controller: ProductCategory::class);
@@ -47,6 +48,7 @@ Route::resource('admin/tag',controller: TagController::class);
 Route::delete('admin/tag/delete/{id}', action: [TagController::class, 'destroy'])->name('tag.destroy');
 
 Route::resource('admin/product', controller: ProductController::class);
+Route::post('admin/product/update-stock', [ProductController::class, 'updateStock'])->name('product.update.stock');
 Route::delete('admin/product/delete/{id}',action: [ProductController::class, 'destroy'])->name('product.destroy');
 Route::get('admin/product/copy/{id}',action: [ProductController::class, 'ProductCopy'])->name('product.copy');
 Route::get('admin/product/image_upload/{id}', [ProductController::class,'image_upload'])->name('product.image.upload');
@@ -55,6 +57,7 @@ Route::get('admin/product/bulk/upload', [ProductController::class,'bulk_upload']
 Route::post('admin/upload-excel', [ProductController::class, 'uploadExcel'])->name('product.uploadExcel');
 Route::delete('admin/product-image/{id}', [ProductController::class, 'deleteImage'])->name('product.image.delete');
 Route::post('admin/product/{product}', [ProductController::class, 'updateData'])->name('product.updateData');
+Route::get('admin/product/load-more', [ProductController::class, 'loadMoreProducts'])->name('product.load.more');
 
 Route::get('admin/productsubcategories/{categoryId}', [ProductController::class, 'getSubcategories'])->name('productsubcategories.get');
 Route::delete('admin/product/attribute/{id}', [ProductController::class, 'deleteAttribute'])->name('product.attribute.delete');
@@ -85,6 +88,8 @@ Route::post('/extra-banner/store3', [ExtraBanners::class, 'store3'])->name('extr
 Route::post('/extra-banner/store4', [ExtraBanners::class, 'store4'])->name('extra-banner.store4');
 // Route::delete('admin/banner/delete/{id}', action: [BannerController::class, 'destroy'])->name('banner.destroy');
 
+Route::get('admin/orders',[OrderController::class,'index'])->name('orders.index');
+Route::get('admin/manual-orders',[OrderController::class,'manualOrdersIndex'])->name('manual.orders.index');
 Route::get('admin/orders/latest',[OrderController::class,'latestOrder'])->name('latestOrder');
 Route::get('admin/orders/ongoingorder',[OrderController::class,'OngoingOrder'])->name('OngoingOrder');
 Route::get('admin/orders/deliveredorder',[OrderController::class,'DeliveredOrder'])->name(name: 'DeliveredOrder');

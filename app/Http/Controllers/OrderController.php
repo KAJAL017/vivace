@@ -13,6 +13,97 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 class OrderController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = DB::table('orders')
+            ->leftJoin('users', 'orders.user_id', '=', 'users.id')
+            ->leftJoin('addresses as billing', 'orders.billing_address_id', '=', 'billing.id')
+            ->leftJoin('addresses as shipping', 'orders.shipping_address_id', '=', 'shipping.id')
+            ->select(
+                'orders.*',
+                'users.name as user_name',
+                'users.email as user_email',
+                DB::raw('COALESCE(billing.name, shipping.name, users.name) as name'),
+                DB::raw('COALESCE(users.email) as email'),
+                DB::raw('COALESCE(billing.phone, shipping.phone) as phone')
+            )
+            ->orderBy('orders.id', 'DESC');
+        
+        // Status filter
+        if ($request->has('status') && $request->status !== '') {
+            switch ($request->status) {
+                case 'latest':
+                    $query->where('orders.is_confirm', '!=', 1)
+                          ->where('orders.is_cancel', '!=', 1)
+                          ->where('orders.is_deliverd', '!=', 1);
+                    break;
+                case 'ongoing':
+                    $query->where('orders.is_confirm', 1)
+                          ->where('orders.is_deliverd', '!=', 1);
+                    break;
+                case 'cancelled':
+                    $query->where('orders.is_cancel', 1);
+                    break;
+                case 'delivered':
+                    $query->where('orders.is_deliverd', 1);
+                    break;
+            }
+        }
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('orders.custom_order_id', 'like', '%' . $search . '%')
+                  ->orWhere('users.name', 'like', '%' . $search . '%')
+                  ->orWhere('users.email', 'like', '%' . $search . '%')
+                  ->orWhere('billing.name', 'like', '%' . $search . '%')
+                  ->orWhere('billing.phone', 'like', '%' . $search . '%')
+                  ->orWhere('shipping.name', 'like', '%' . $search . '%')
+                  ->orWhere('shipping.phone', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Date range filter
+        if ($request->has('start_date') && $request->start_date != '') {
+            $query->whereRaw("STR_TO_DATE(orders.date, '%d-%m-%Y') >= ?", [$request->start_date]);
+        }
+        if ($request->has('end_date') && $request->end_date != '') {
+            $query->whereRaw("STR_TO_DATE(orders.date, '%d-%m-%Y') <= ?", [$request->end_date]);
+        }
+        
+        // Pagination
+        $orders = $query->paginate(10);
+        
+        // Stats
+        $total_orders = DB::table('orders')->count();
+        $latest_orders = DB::table('orders')
+            ->where('is_confirm', '!=', 1)
+            ->where('is_cancel', '!=', 1)
+            ->where('is_deliverd', '!=', 1)
+            ->count();
+        $ongoing_orders = DB::table('orders')
+            ->where('is_confirm', 1)
+            ->where('is_deliverd', '!=', 1)
+            ->count();
+        $cancelled_orders = DB::table('orders')->where('is_cancel', 1)->count();
+        $delivered_orders = DB::table('orders')->where('is_deliverd', 1)->count();
+        
+        // AJAX request
+        if ($request->ajax()) {
+            $html = view('admin.pages.orders.partials.orders-table', compact('orders'))->render();
+            $pagination = view('admin.pages.orders.partials.pagination', compact('orders'))->render();
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'pagination' => $pagination
+            ]);
+        }
+        
+        return view('admin.pages.orders.list', compact('orders', 'total_orders', 'latest_orders', 'ongoing_orders', 'cancelled_orders', 'delivered_orders'));
+    }
+    
     public function latestOrder(){
         $result['orders'] = DB::table('orders')->where('is_confirm', '!=', 1)->where('is_cancel', '!=', 1)
         ->where('is_deliverd', '!=', 1)
@@ -49,6 +140,83 @@ class OrderController extends Controller
         ->get();
 
         return view('admin.pages.orders.manualorder',$result);
+    }
+    
+    public function manualOrdersIndex(Request $request)
+    {
+        $query = DB::table('manual_orders')
+            ->where('is_deleted', 0)
+            ->orderBy('id', 'DESC');
+        
+        // Status filter
+        if ($request->has('status') && $request->status !== '') {
+            switch ($request->status) {
+                case 'pending':
+                    $query->where('is_confirm', '!=', 1)
+                          ->where('is_proceed', '!=', 1);
+                    break;
+                case 'ongoing':
+                    $query->where('is_confirm', '!=', 1)
+                          ->where('is_proceed', 1);
+                    break;
+                case 'shipped':
+                    $query->where('is_confirm', 1);
+                    break;
+            }
+        }
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('order_id', 'like', '%' . $search . '%')
+                  ->orWhere('name', 'like', '%' . $search . '%')
+                  ->orWhere('mobile', 'like', '%' . $search . '%')
+                  ->orWhere('alternate_mobile', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Date range filter
+        if ($request->has('start_date') && $request->start_date != '') {
+            $query->whereDate('date', '>=', $request->start_date);
+        }
+        if ($request->has('end_date') && $request->end_date != '') {
+            $query->whereDate('date', '<=', $request->end_date);
+        }
+        
+        // Pagination
+        $orders = $query->paginate(10);
+        
+        // Stats
+        $total_orders = DB::table('manual_orders')->where('is_deleted', 0)->count();
+        $pending_orders = DB::table('manual_orders')
+            ->where('is_deleted', 0)
+            ->where('is_confirm', '!=', 1)
+            ->where('is_proceed', '!=', 1)
+            ->count();
+        $ongoing_orders = DB::table('manual_orders')
+            ->where('is_deleted', 0)
+            ->where('is_confirm', '!=', 1)
+            ->where('is_proceed', 1)
+            ->count();
+        $shipped_orders = DB::table('manual_orders')
+            ->where('is_deleted', 0)
+            ->where('is_confirm', 1)
+            ->count();
+        
+        // AJAX request
+        if ($request->ajax()) {
+            $html = view('admin.pages.orders.partials.manual-orders-table', compact('orders'))->render();
+            $pagination = view('admin.pages.orders.partials.manual-pagination', compact('orders'))->render();
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'pagination' => $pagination
+            ]);
+        }
+        
+        return view('admin.pages.orders.manual-list', compact('orders', 'total_orders', 'pending_orders', 'ongoing_orders', 'shipped_orders'));
     }
     public function ManualOngoingOrder(){
 

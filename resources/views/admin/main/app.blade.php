@@ -18,6 +18,10 @@
     <link href="{{ admin_assets() }}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <!-- App css (Require in all Page) -->
     <link href="{{ admin_assets() }}/assets/css/app.min.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Enterprise Admin Design CSS -->
+    <link href="{{ admin_assets() }}/assets/css/enterprise-admin.css" rel="stylesheet" type="text/css" />
+    
     <!-- Theme Config js (Require in all Page) -->
     <script src="{{ admin_assets() }}/assets/js/config.js"></script>
     <link rel="stylesheet" href="{{ admin_assets() }}/jquery.dataTables.min.css">

@@ -7,10 +7,33 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 class BrandController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $brands = DB::table('brands')->where(['is_deleted'=>0])->orderBy('id','DESC')->get();
-        return view('admin.pages.brand.list',compact('brands'));
+        $query = DB::table('brands')->where('is_deleted', 0);
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        
+        // Always paginate
+        $brands = $query->orderBy('id', 'DESC')->paginate(10);
+        
+        // Append query parameters to pagination links
+        $brands->appends($request->only(['search']));
+        
+        // Check if it's an AJAX request
+        if ($request->ajax()) {
+            $tableHtml = view('admin.pages.brand.partials.brand-table', compact('brands'))->render();
+            $paginationHtml = view('admin.pages.brand.partials.pagination', compact('brands'))->render();
+            
+            return response()->json([
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml
+            ]);
+        }
+        
+        return view('admin.pages.brand.list', compact('brands'));
     }
     public function create()
     {

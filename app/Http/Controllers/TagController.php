@@ -9,10 +9,33 @@ use Illuminate\Validation\Rule;
 
 class TagController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tags = DB::table('tags')->where(['is_deleted'=>0])->orderBy('id','DESC')->get();
-        return view('admin.pages.tags.list',compact('tags'));
+        $query = DB::table('tags')->where('is_deleted', 0);
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        
+        // Always paginate
+        $tags = $query->orderBy('id', 'DESC')->paginate(10);
+        
+        // Append query parameters to pagination links
+        $tags->appends($request->only(['search']));
+        
+        // Check if it's an AJAX request
+        if ($request->ajax()) {
+            $tableHtml = view('admin.pages.tags.partials.tag-table', compact('tags'))->render();
+            $paginationHtml = view('admin.pages.tags.partials.pagination', compact('tags'))->render();
+            
+            return response()->json([
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml
+            ]);
+        }
+        
+        return view('admin.pages.tags.list', compact('tags'));
     }
     public function create()
     {

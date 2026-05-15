@@ -5,63 +5,61 @@
                 <!-- Menu Toggle Button -->
                 <div class="topbar-item">
                     <button type="button" class="button-toggle-menu me-2">
-                        <iconify-icon icon="solar:hamburger-menu-broken"
-                            class="fs-24 align-middle"></iconify-icon>
+                        <iconify-icon icon="solar:hamburger-menu-broken" class="fs-24 align-middle"></iconify-icon>
                     </button>
                 </div>
 
-                <!-- Menu Toggle Button -->
+                <!-- Page Title -->
                 <div class="topbar-item">
-                    <h4 class="fw-bold topbar-button pe-none text-uppercase mb-0">@yield('topbar-text')</h4>
+                    <h4 class="fw-bold topbar-button pe-none text-uppercase mb-0">
+                        <iconify-icon icon="solar:widget-5-bold-duotone" class="me-2"></iconify-icon>
+                        @yield('topbar-text')
+                    </h4>
                 </div>
             </div>
 
-            <div class="d-flex align-items-center gap-1">
-
-                <!-- Theme Color (Light/Dark) -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Settings -->
                 <div class="topbar-item">
-                    <button type="button" class="topbar-button" id="light-dark-mode">
-                        <iconify-icon icon="solar:moon-bold-duotone" class="fs-24 align-middle"></iconify-icon>
-                    </button>
+                    <a href="{{ route('admin.settings') }}" class="topbar-button" title="Settings">
+                        <iconify-icon icon="solar:settings-bold-duotone" class="fs-22 align-middle"></iconify-icon>
+                    </a>
                 </div>
 
-
-
-                <!-- Theme Setting -->
-                <div class="topbar-item d-none d-md-flex">
-                    <button type="button" class="topbar-button" id="theme-settings-btn"
-                        data-bs-toggle="offcanvas" data-bs-target="#theme-settings-offcanvas"
-                        aria-controls="theme-settings-offcanvas">
-                        <iconify-icon icon="solar:settings-bold-duotone"
-                            class="fs-24 align-middle"></iconify-icon>
-                    </button>
-                </div>
-
-
-
-                <!-- User -->
+                <!-- User Profile -->
                 <div class="dropdown topbar-item">
                     <a type="button" class="topbar-button" id="page-header-user-dropdown"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
                             <img class="rounded-circle" width="32"
-                                src="{{ admin_assets() }}/assets/images/users/avatar-1.jpg" alt="avatar-3">
+                                src="{{ admin_assets() }}/assets/images/users/avatar-1.jpg" alt="Admin Avatar">
                         </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <!-- item-->
-                        <h6 class="dropdown-header">Welcome </h6>
-                        <a class="dropdown-item" href="pages-profile.html">
-                            <i class="bx bx-user-circle text-muted fs-18 align-middle me-1"></i><span
-                                class="align-middle">Profile</span>
+                        <!-- Header -->
+                        <h6 class="dropdown-header">
+                            <iconify-icon icon="solar:user-bold-duotone" class="me-1"></iconify-icon>
+                            Welcome Admin
+                        </h6>
+                        
+                        <!-- Profile Link -->
+                        <a class="dropdown-item" href="#">
+                            <i class="bx bx-user-circle text-muted fs-18 align-middle me-2"></i>
+                            <span class="align-middle">My Profile</span>
                         </a>
 
+                        <!-- Settings Link -->
+                        <a class="dropdown-item" href="{{ route('admin.settings') }}">
+                            <i class="bx bx-cog text-muted fs-18 align-middle me-2"></i>
+                            <span class="align-middle">Settings</span>
+                        </a>
 
                         <div class="dropdown-divider my-1"></div>
 
-                        <a class="dropdown-item text-danger" href="auth-signin.html">
-                            <i class="bx bx-log-out fs-18 align-middle me-1"></i><span
-                                class="align-middle">Logout</span>
+                        <!-- Logout -->
+                        <a class="dropdown-item text-danger" href="{{ route('admin.logout') }}">
+                            <i class="bx bx-log-out fs-18 align-middle me-2"></i>
+                            <span class="align-middle">Logout</span>
                         </a>
                     </div>
                 </div>
@@ -69,3 +67,28 @@
         </div>
     </div>
 </header>
+
+<style>
+.badge-notification {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+</style>

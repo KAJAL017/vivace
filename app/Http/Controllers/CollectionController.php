@@ -10,16 +10,43 @@ class CollectionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $collections  =  DB::table('collections')
-        ->select('collections.*','sub_categories.name as categoryname')
-        ->leftJoin('sub_categories','sub_categories.id','collections.sub_category_id')
-        ->where('collections.is_deleted',0)
-        ->orderBy('collections.id','DESC')
-        ->get();
+        $query = DB::table('collections')
+            ->select('collections.*','sub_categories.name as categoryname')
+            ->leftJoin('sub_categories','sub_categories.id','collections.sub_category_id')
+            ->where('collections.is_deleted',0);
+        
+        // Search filter
+        if ($request->has('search') && $request->search != '') {
+            $query->where('collections.name', 'like', '%' . $request->search . '%');
+        }
+        
+        // Subcategory filter
+        if ($request->has('subcategory') && $request->subcategory != '') {
+            $query->where('collections.sub_category_id', $request->subcategory);
+        }
+        
+        $collections = $query->orderBy('collections.id','DESC')->paginate(10);
+        
+        // Get all subcategories for filter dropdown
+        $subcategories = DB::table('sub_categories')
+            ->where('is_deleted', 0)
+            ->orderBy('name', 'ASC')
+            ->get();
 
-        return view('admin.pages.collections.list',compact('collections'));
+        // Check if it's an AJAX request
+        if ($request->ajax()) {
+            $tableHtml = view('admin.pages.collections.partials.collection-table', compact('collections'))->render();
+            $paginationHtml = view('admin.pages.collections.partials.pagination', compact('collections'))->render();
+            
+            return response()->json([
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml
+            ]);
+        }
+
+        return view('admin.pages.collections.list', compact('collections', 'subcategories'));
     }
 
     /**
