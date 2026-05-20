@@ -767,4 +767,184 @@
         console.log('All charts initialized successfully');
     });
 </script>
+
+{{-- Google Analytics Dashboard --}}
+@php
+    $settings = DB::table('settings')->first();
+    $ga_id = $settings->google_analytics_id ?? '';
+    $ga_api_key = $settings->google_analytics_api_key ?? '';
+@endphp
+
+@if($ga_id)
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title">
+                    <i class="fa-brands fa-google me-2"></i> Google Analytics
+                </h4>
+                <a href="https://analytics.google.com" target="_blank" class="btn btn-sm btn-primary">
+                    Open Analytics <i class="ri-external-link-line"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <strong>Measurement ID:</strong> {{ $ga_id }}
+                    @if($ga_api_key)
+                    <span class="ms-3"><strong>API Key:</strong> Configured</span>
+                    @else
+                    <span class="ms-3 text-muted">API Key: Not configured (basic tracking only)</span>
+                    @endif
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <i class="fa-solid fa-users fa-2x mb-2"></i>
+                                <h5>Real-Time Users</h5>
+                                <p class="mb-0" id="ga-realtime-users">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <i class="fa-solid fa-eye fa-2x mb-2"></i>
+                                <h5>Page Views (Today)</h5>
+                                <p class="mb-0" id="ga-pageviews">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <i class="fa-solid fa-clock fa-2x mb-2"></i>
+                                <h5>Avg. Session Duration</h5>
+                                <p class="mb-0" id="ga-duration">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <i class="fa-solid fa-percent fa-2x mb-2"></i>
+                                <h5>Bounce Rate</h5>
+                                <p class="mb-0" id="ga-bounce">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Top Pages</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm" id="ga-top-pages">
+                                        <thead>
+                                            <tr>
+                                                <th>Page</th>
+                                                <th>Views</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td colspan="2" class="text-center">Loading...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Top Sources</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm" id="ga-top-sources">
+                                        <thead>
+                                            <tr>
+                                                <th>Source</th>
+                                                <th>Users</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td colspan="2" class="text-center">Loading...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <p class="text-muted">
+                        <i class="fa-solid fa-circle-info me-1"></i>
+                        For detailed analytics, please visit
+                        <a href="https://analytics.google.com" target="_blank">Google Analytics Dashboard</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.ga-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // For basic tracking without API, show setup instructions
+    const gaId = '{{ $ga_id }}';
+    console.log('Google Analytics ID: ' + gaId);
+
+    // Simulated data for demonstration (replace with actual API call in production)
+    setTimeout(function() {
+        document.getElementById('ga-realtime-users').textContent = 'View in GA';
+        document.getElementById('ga-pageviews').textContent = 'View in GA';
+        document.getElementById('ga-duration').textContent = 'View in GA';
+        document.getElementById('ga-bounce').textContent = 'View in GA';
+    }, 1000);
+});
+</script>
+@else
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">
+                    <i class="fa-brands fa-google me-2"></i> Google Analytics
+                </h4>
+            </div>
+            <div class="card-body text-center py-5">
+                <i class="fa-brands fa-google fa-4x text-muted mb-3"></i>
+                <h5>Google Analytics Not Configured</h5>
+                <p class="text-muted mb-4">Add your Google Analytics Measurement ID in Settings to track your website analytics.</p>
+                <a href="{{ route('admin.settings') }}" class="btn btn-primary">
+                    <i class="ri-settings-3-line me-1"></i> Go to Settings
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 @endsection

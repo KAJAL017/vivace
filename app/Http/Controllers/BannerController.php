@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Services\ImageKitService;
 
 class BannerController extends Controller
 {
@@ -56,30 +57,88 @@ class BannerController extends Controller
          }
 
          $oldImagePath = null;
+         $oldImagekitFileId = null;
          if ($id) {
-             // Get the existing category and image path
-             $oldCategory = DB::table('banners')->where('id', $id)->first();
-             $oldImagePath = $oldCategory->banner ?? null;
+             // Get the existing banner and image details
+             $oldBanner = DB::table('banners')->where('id', $id)->first();
+             $oldImagePath          = $oldBanner->banner              ?? null;
+             $oldImagekitFileId     = $oldBanner->imagekit_file_id    ?? null;
          }
 
-         $imagePath = $oldImagePath;
-         if ($request->hasFile('banner')) {
-             // Generate a new name for the image
-             $imageName = time() . '_' . $request->file('banner')->getClientOriginalName();
-             $request->file('banner')->move(public_path('uploads/banners'), $imageName);
-             $imagePath = 'banners/' . $imageName;
+         $imagePath          = $oldImagePath;
+         $imagekitFileId     = $oldImagekitFileId;
+         $imagekitUrl        = null;
+         $imagekitUrlDesktop = null;
+         $imagekitUrlTablet  = null;
+         $imagekitUrlMobile  = null;
+         $uploadedToImagekit = false;
 
-             // Delete the old image if it exists
-             if ($oldImagePath && file_exists(public_path('uploads/' . $oldImagePath))) {
-                 unlink(public_path('uploads/' . $oldImagePath));
+         // Preserve existing responsive URLs if no new file uploaded (update case)
+         if ($id && isset($oldBanner)) {
+             $imagekitUrl        = $oldBanner->imagekit_url         ?? null;
+             $imagekitUrlDesktop = $oldBanner->imagekit_url_desktop ?? null;
+             $imagekitUrlTablet  = $oldBanner->imagekit_url_tablet  ?? null;
+             $imagekitUrlMobile  = $oldBanner->imagekit_url_mobile  ?? null;
+             $uploadedToImagekit = $oldBanner->uploaded_to_imagekit ?? 0;
+         }
+
+         if ($request->hasFile('banner')) {
+             $imagekitService = new ImageKitService();
+
+             // Upload to ImageKit (with local fallback)
+             $uploadResult = $imagekitService->uploadWithFallback(
+                 $request->file('banner'),
+                 'uploads/banners',
+                 'banners'
+             );
+
+             \Illuminate\Support\Facades\Log::info('Banner upload result', $uploadResult);
+
+             $uploadedToImagekit = $uploadResult['uploaded_to_imagekit'];
+
+             if ($uploadedToImagekit) {
+                 // ImageKit pe upload hua — responsive URLs bhi save karo
+                 $imagePath          = $uploadResult['file_path'];
+                 $imagekitFileId     = $uploadResult['imagekit_file_id'];
+                 $imagekitUrl        = $uploadResult['imagekit_url'];
+                 $imagekitUrlDesktop = $uploadResult['imagekit_url_desktop'];
+                 $imagekitUrlTablet  = $uploadResult['imagekit_url_tablet'];
+                 $imagekitUrlMobile  = $uploadResult['imagekit_url_mobile'];
+             } else {
+                 // Local fallback
+                 $imagePath          = $uploadResult['file_path'];
+                 $imagekitFileId     = null;
+                 $imagekitUrl        = null;
+                 $imagekitUrlDesktop = null;
+                 $imagekitUrlTablet  = null;
+                 $imagekitUrlMobile  = null;
+             }
+
+             // Delete old image
+             if ($oldImagePath) {
+                 // Delete from ImageKit if it was stored there
+                 if ($oldImagekitFileId && $imagekitService->isEnabled()) {
+                     $imagekitService->deleteImage($oldImagekitFileId);
+                 }
+                 
+                 // Delete from local storage if it exists
+                 $localPath = 'uploads/' . $oldImagePath;
+                 if (file_exists(public_path($localPath))) {
+                     unlink(public_path($localPath));
+                 }
              }
          }
 
          $data = [
-
-             'banner' => $imagePath,
-             'url' => $request->url,
-             'index_number' => $request->index,
+             'banner'                => $imagePath,
+             'url'                   => $request->url,
+             'index_number'          => $request->index,
+             'imagekit_file_id'      => $imagekitFileId,
+             'imagekit_url'          => $imagekitUrl,
+             'imagekit_url_desktop'  => $imagekitUrlDesktop ?? null,
+             'imagekit_url_tablet'   => $imagekitUrlTablet  ?? null,
+             'imagekit_url_mobile'   => $imagekitUrlMobile  ?? null,
+             'uploaded_to_imagekit'  => $uploadedToImagekit ? 1 : 0,
          ];
 
          if ($id) {
@@ -123,6 +182,28 @@ class BannerController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+
+    /**
+     * Toggle banner active/inactive status
+     */
+    public function toggleActive(Request $request)
+    {
+        $id = $request->id;
+        $banner = DB::table('banners')->where('id', $id)->where('is_deleted', 0)->first();
+
+        if (!$banner) {
+            return response()->json(['success' => false, 'message' => 'Banner not found.']);
+        }
+
+        $newStatus = $banner->is_active ? 0 : 1;
+        DB::table('banners')->where('id', $id)->update(['is_active' => $newStatus]);
+
+        return response()->json([
+            'success'   => true,
+            'is_active' => $newStatus,
+            'message'   => $newStatus ? 'Banner activated.' : 'Banner deactivated.',
+        ]);
     }
 
     /**

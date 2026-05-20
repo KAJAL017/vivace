@@ -52,6 +52,107 @@ class WebsiteContoller extends Controller
         ]);
     }
 
+    // Send OTP for login
+    public function sendLoginOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ], [
+            'email.exists' => 'No account found with this email address.',
+        ]);
+
+        $user = DB::table('users')->where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Generate 6-digit OTP
+        $otp = rand(100000, 999999);
+        $expiresAt = now()->addMinutes(10);
+
+        // Update user with OTP
+        DB::table('users')
+            ->where('id', $user->id)
+            ->update([
+                'otp' => $otp,
+                'otp_expires_at' => $expiresAt,
+            ]);
+
+        // Send OTP via email
+        try {
+            \Mail::to($user->email)->send(new \App\Mail\OtpMail($otp, $user->name));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP sent successfully to your email!',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send OTP. Please try again.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // Verify OTP and login
+    public function verifyLoginOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
+
+        $user = DB::table('users')->where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Check if OTP matches and is not expired
+        if ($user->otp != $request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid OTP. Please try again.',
+            ], 400);
+        }
+
+        if (now()->greaterThan($user->otp_expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP has expired. Please request a new one.',
+            ], 400);
+        }
+
+        // OTP is valid - clear it and log in user
+        DB::table('users')
+            ->where('id', $user->id)
+            ->update([
+                'otp' => null,
+                'otp_expires_at' => null,
+            ]);
+
+        Session::put('user_login', true);
+        Session::put('user_id', $user->id);
+        Session::put('user_name', $user->name);
+
+        // Merge cart after login
+        $this->mergeCart();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login successful!',
+            'redirect' => route('website.home'),
+        ]);
+    }
+
 
     public function mergeCart()
     {
@@ -177,15 +278,17 @@ class WebsiteContoller extends Controller
             ], 404);
         }
 
-        // Fetch associated images or set a default image
+        // Fetch associated images — ImageKit URL prefer karo
         $images = DB::table('product_images')
             ->where('product_id', $productId)
-            ->pluck('file_path')
-            ->map(fn($path) => url('public/' . $path))
+            ->get(['file_path', 'imagekit_url'])
+            ->map(fn($img) => !empty($img->imagekit_url)
+                ? $img->imagekit_url
+                : url('uploads/' . $img->file_path))
             ->toArray();
 
         if (empty($images)) {
-            $images = [url('storage/default-image.jpg')];
+            $images = [url('public/5.png')];
         }
 
         // Return the product details as JSON
@@ -405,14 +508,19 @@ class WebsiteContoller extends Controller
     $collections = DB::table('collections')
         ->where('is_deleted', 0)
         ->where('name', 'LIKE', "%{$query}%")
-        ->get(['id', 'name', 'image_path']);
+        ->get(['id', 'name', 'image_path', 'imagekit_url', 'imagekit_url_desktop']);
 
     $collections = $collections->map(function($collection) {
+        $imgUrl = !empty($collection->imagekit_url_desktop)
+            ? $collection->imagekit_url_desktop
+            : (!empty($collection->imagekit_url)
+                ? $collection->imagekit_url
+                : ($collection->image_path ? url('uploads/' . $collection->image_path) : url('public/5.png')));
         return [
-            'id' => $collection->id,
-            'name' => $collection->name,
-            'image_path' => url('public/uploads/' . $collection->image_path),
-            'url' => route('collction.filter', [$collection->id]),
+            'id'         => $collection->id,
+            'name'       => $collection->name,
+            'image_path' => $imgUrl,
+            'url'        => route('collction.filter', [$collection->id]),
         ];
     });
 
@@ -483,7 +591,8 @@ class WebsiteContoller extends Controller
             'product_attributes.size_id',
             'product_attributes.color_id',
             'product_attributes.qty',
-            'product_attributes.image'
+            'product_attributes.image',
+            'product_attributes.imagekit_url as attr_imagekit_url'
         )
         ->where('product_id', $id)
         ->get();
@@ -521,7 +630,9 @@ class WebsiteContoller extends Controller
             'color' => $colorData,
             'size' => $sizeData,
             'qty' => $attribute->qty,
-            'image' => $attribute->image,
+            'image' => !empty($attribute->attr_imagekit_url)
+                ? $attribute->attr_imagekit_url
+                : (!empty($attribute->image) ? upload_url($attribute->image) : null),
         ];
     }
 
@@ -649,11 +760,15 @@ public function addToCart(Request $request)
         }
 
         // Retrieve updated cart data
-        $cartData = DB::table(table: 'cart')
+        $cartData = DB::table('cart')
             ->where('user_id', $userId)
             ->join('products', 'cart.product_id', '=', 'products.id')
             ->leftJoin('product_attributes', 'product_attributes.product_id', '=', 'cart.product_id')
-            ->leftJoin('product_images', 'product_images.product_id', '=', 'cart.product_id')
+            ->leftJoin(
+                DB::raw('(SELECT product_id, MIN(id) as min_id FROM product_images GROUP BY product_id) as pi_min'),
+                'pi_min.product_id', '=', 'cart.product_id'
+            )
+            ->leftJoin('product_images', 'product_images.id', '=', 'pi_min.min_id')
             ->select(
                 'cart.id as cart_item_id',
                 'cart.quantity',
@@ -663,12 +778,16 @@ public function addToCart(Request $request)
                 'products.id as product_id',
                 'product_attributes.price as price',
                 'product_attributes.mrp as mrp',
-                DB::raw('MIN(product_images.file_path) as file_path')
+                'product_images.file_path as file_path',
+                'product_images.imagekit_url as image_ik'
             )
-            ->groupBy('cart.id', 'cart.quantity', 'cart.size_id', 'cart.color_id', 'products.name', 'products.id', 'product_attributes.price', 'product_attributes.mrp')
+            ->groupBy('cart.id', 'cart.quantity', 'cart.size_id', 'cart.color_id', 'products.name', 'products.id', 'product_attributes.price', 'product_attributes.mrp', 'product_images.file_path', 'product_images.imagekit_url')
             ->get();
 
         $cartItems = $cartData->map(function ($item) {
+            $imageUrl = !empty($item->image_ik)
+                ? $item->image_ik
+                : (!empty($item->file_path) ? url('uploads/' . $item->file_path) : url('public/5.png'));
             return [
                 'id' => $item->cart_item_id,
                 'product_id' => $item->product_id,
@@ -678,7 +797,7 @@ public function addToCart(Request $request)
                 'price' => $item->price,
                 'size_id' => $item->size_id,
                 'color_id' => $item->color_id,
-                'image' => url('public/' . ($item->file_path ?? 'default-image.jpg'))
+                'image' => $imageUrl,
             ];
         });
 
@@ -909,22 +1028,66 @@ public function addToCart(Request $request)
 
     public function checkout()
     {
-        $cartData = getCartData();  // Assuming this function returns the cart data
-        $user_id = Session::get('user_id');
-
-        // Check if the user is logged in
-        if (!$user_id) {
-            return redirect()->route('login')->with('error', 'You need to log in to proceed with the checkout.');
-        }
+        $cartData = getCartData();
 
         // Check if the cart is empty
         if ($cartData->isEmpty()) {
-            return redirect()->route('login')->with('error', 'Your cart is empty. Please add products to your cart before proceeding.');
+            return redirect()->route('website.home')->with('error', 'Your cart is empty. Please add products to your cart before proceeding.');
         }
 
-        $users = DB::table('users')->where('id', $user_id)->first();
+        // Check if user is logged in or guest
+        $user_id = Session::get('user_id') ?? Session::get('temporary_user_id');
+        $users = null;
+        $lastAddress = null;
 
-        return view('website.pages.checkout', compact('users', 'cartData'));
+        if ($user_id) {
+            // Get user details if logged in
+            if (Session::get('user_id')) {
+                $users = DB::table('users')->where('id', $user_id)->first();
+            }
+            
+            // Get last used address (most recent address from addresses table)
+            $lastAddress = DB::table('addresses')
+                ->where('user_id', $user_id)
+                ->where('is_deleted', 0)
+                ->orderBy('id', 'desc')
+                ->first();
+        }
+
+        return view('website.pages.checkout', compact('users', 'cartData', 'lastAddress'));
+    }
+
+    // Get last address by phone number (for guest users)
+    public function getLastAddressByPhone(Request $request)
+    {
+        $phone = $request->input('phone');
+        
+        if (!$phone || strlen($phone) < 10) {
+            return response()->json(['success' => false, 'message' => 'Invalid phone number']);
+        }
+
+        // Get last address by phone number
+        $lastAddress = DB::table('addresses')
+            ->where('phone', $phone)
+            ->where('is_deleted', 0)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastAddress) {
+            return response()->json([
+                'success' => true,
+                'address' => [
+                    'name' => $lastAddress->name,
+                    'phone' => $lastAddress->phone,
+                    'address' => $lastAddress->address,
+                    'pincode' => $lastAddress->pincode,
+                    'city' => $lastAddress->city,
+                    'state' => $lastAddress->state,
+                ]
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No previous address found']);
     }
 
     public function getajaxdata(Request $request){
@@ -1043,85 +1206,132 @@ public function addToCart(Request $request)
     public function Searchfilter_product(Request $request, $slug = null)
     {
         try {
-            // Building the query with necessary joins
-            $query = DB::table('products')
-                ->join('product_attributes', 'products.id', '=', 'product_attributes.product_id')
-                ->leftJoin('product_tags', 'products.id', '=', 'product_tags.product_id') // Join on product_id
-                ->leftJoin('tags', 'product_tags.tag_id', '=', 'tags.id') // Join with tags to filter by tag
+            $searchTerm = $request->input('search', '');
+            $tagTerm = $request->input('tag', '');
+
+            // Use tag if search is empty
+            if (empty($searchTerm) && !empty($tagTerm)) {
+                $searchTerm = $tagTerm;
+            }
+
+            // Get search term for queries
+            $term = $searchTerm ?? $tagTerm;
+
+            // If no search term, show all products
+            if (empty($term)) {
+                $products = DB::table('products')
+                    ->leftJoin('product_attributes', 'products.id', '=', 'product_attributes.product_id')
+                    ->leftJoin('product_images', function($join) {
+                        $join->on('products.id', '=', 'product_images.product_id')
+                             ->whereRaw('product_images.id = (SELECT MIN(id) FROM product_images WHERE product_id = products.id)');
+                    })
+                    ->where('products.is_deleted', 0)
+                    ->select(
+                        'products.id',
+                        'products.name',
+                        'products.slug',
+                        'product_images.file_path as image',
+                        DB::raw('MIN(product_attributes.price) as price'),
+                        DB::raw('MIN(product_attributes.mrp) as mrp')
+                    )
+                    ->groupBy('products.id', 'products.name', 'products.slug', 'product_images.file_path')
+                    ->orderBy('products.id', 'DESC')
+                    ->paginate(20);
+
+                $brands = DB::table('brands')->where('is_deleted', 0)->limit(6)->get();
+                $categories = DB::table('categories')->where('is_deleted', 0)->limit(6)->get();
+
+                return view('website.pages.search', compact('products', 'brands', 'categories'))->with('search_term', '');
+            }
+
+            // Search with multiple words - split and search each
+            $searchWords = explode(' ', $term);
+            $searchWords = array_filter($searchWords);
+
+            // Comprehensive search across products with image
+            $products = DB::table('products')
+                ->leftJoin('product_attributes', 'products.id', '=', 'product_attributes.product_id')
+                ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+                ->leftJoin('sub_categories', 'products.subcategory', '=', 'sub_categories.id')
+                ->leftJoin('collections', 'products.collection_id', '=', 'collections.id')
+                ->leftJoin('product_tags', 'products.id', '=', 'product_tags.product_id')
+                ->leftJoin('tags', 'product_tags.tag_id', '=', 'tags.id')
+                ->leftJoin('product_images', function($join) {
+                    $join->on('products.id', '=', 'product_images.product_id')
+                         ->whereRaw('product_images.id = (SELECT MIN(id) FROM product_images WHERE product_id = products.id)');
+                })
                 ->where('products.is_deleted', 0)
+                ->where(function($q) use ($term, $searchWords) {
+                    // Search for complete term
+                    $q->where('products.name', 'like', '%' . $term . '%')
+                      ->orWhere('products.title', 'like', '%' . $term . '%')
+                      ->orWhere('products.description', 'like', '%' . $term . '%')
+                      ->orWhere('brands.name', 'like', '%' . $term . '%')
+                      ->orWhere('categories.name', 'like', '%' . $term . '%');
+
+                    // Also search for individual words
+                    foreach ($searchWords as $word) {
+                        if (strlen($word) > 2) {
+                            $q->orWhere('products.name', 'like', '%' . $word . '%');
+                        }
+                    }
+                })
                 ->select(
                     'products.id',
                     'products.name',
                     'products.slug',
+                    'product_images.file_path as image',
                     DB::raw('MIN(product_attributes.price) as price'),
                     DB::raw('MIN(product_attributes.mrp) as mrp')
                 )
-                ->groupBy('products.id', 'products.name', 'products.slug');
+                ->groupBy('products.id', 'products.name', 'products.slug', 'product_images.file_path')
+                ->orderBy('products.id', 'DESC')
+                ->paginate(20);
 
-            // Search by product name or tag name
-            if ($request->has('search') && !empty($request->search)) {
-                $searchTerm = $request->search;
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('products.name', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('tags.name', 'like', '%' . $searchTerm . '%');
-                });
-            }
+            // Search for related brands
+            $brands = DB::table('brands')
+                ->where('is_deleted', 0)
+                ->where(function($q) use ($term, $searchWords) {
+                    $q->where('name', 'like', '%' . $term . '%');
+                    foreach ($searchWords as $word) {
+                        if (strlen($word) > 2) {
+                            $q->orWhere('name', 'like', '%' . $word . '%');
+                        }
+                    }
+                })
+                ->limit(6)
+                ->get();
 
-            // Filter by tag name (exact match)
-            if ($request->has('tag') && !empty($request->tag)) {
-                $tagName = $request->tag;
-                $query->where('tags.name', $tagName);
-            }
+            // Search for related categories
+            $categories = DB::table('categories')
+                ->where('is_deleted', 0)
+                ->where(function($q) use ($term, $searchWords) {
+                    $q->where('name', 'like', '%' . $term . '%');
+                    foreach ($searchWords as $word) {
+                        if (strlen($word) > 2) {
+                            $q->orWhere('name', 'like', '%' . $word . '%');
+                        }
+                    }
+                })
+                ->limit(6)
+                ->get();
 
-            // Filter by category if provided
-            if ($request->has('category') && !empty($request->category)) {
-                $query->where('products.category_id', $request->category);
-            }
-
-            if ($request->has('sub_category') && !empty($request->sub_category)) {
-                $query->where('products.subcategory', $request->sub_category);
-            }
-            if ($request->has('brandId') && !empty($request->brandId)) {
-                $query->where('products.brand_id', $request->brandId);
-            }
-            if ($request->has('collectionID') && !empty($request->collectionID)) {
-                $query->where('products.collection_id', $request->collectionID);
-            }
-
-
-            // Filter by subcategory slug
-            if (!empty($slug)) {
-                $sub_category = DB::table('sub_categories')->where('slug', $slug)->first();
-                if (!$sub_category) {
-                    return response()->json(['error' => 'Subcategory not found'], 404);
-                }
-                $query->where('products.subcategory', $sub_category->id);
-            }
-
-            // Filter by price range
-            if ($request->has('min_price') && $request->min_price > 0) {
-                $query->where('product_attributes.price', '>=', (int)$request->min_price);
-            }
-            if ($request->has('max_price') && $request->max_price > 0) {
-                $query->where('product_attributes.price', '<=', (int)$request->max_price);
-            }
-
-            // Paginate results
-            $products = $query->paginate(12); // 12 items per page
-
-            if (!$request->ajax()) {
-                return view('website.pages.product.collectionFilter', compact('products'));
-            }
-
-            $html = '';
-            foreach ($products as $product) {
-                $html .= view('website.pages.product.partials.product', compact('product'))->render();
-            }
-            return response()->json(['html' => $html]); // Return JSON response for AJAX requests
-
+            // Return search page view
+            return view('website.pages.search', compact('products', 'brands', 'categories'))->with('search_term', $term);
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return response()->json(['error' => 'Something went wrong!'], 500);
+            \Log::error('Search Error: ' . $e->getMessage() . ' Line: ' . $e->getLine() . ' Trace: ' . $e->getTraceAsString());
+
+            // Return empty paginator instead of collection
+            $emptyProducts = DB::table('products')
+                ->where('id', 0) // Empty result
+                ->paginate(20);
+
+            return view('website.pages.search', [
+                'products' => $emptyProducts,
+                'brands' => collect([]),
+                'categories' => collect([])
+            ])->with('error', $e->getMessage());
         }
     }
 
@@ -1811,29 +2021,47 @@ public function storeOrder(Request $request)
         'cart_items.*.product_id' => 'required|integer',
         'cart_items.*.quantity' => 'required|integer|min:1',
         'cart_items.*.price' => 'required|numeric',
-        'shipping_address_id' => 'required|exists:addresses,id',
+        'shipping_address' => 'required|array',
+        'shipping_address.name' => 'required|string',
+        'shipping_address.phone' => 'required|string',
+        'shipping_address.address' => 'required|string',
+        'shipping_address.pincode' => 'required|string',
+        'shipping_address.city' => 'required|string',
+        'shipping_address.state' => 'required|string',
     ]);
 
-
-    // Handle billing address based on the billing option
-    if ($request->input('billing_option') == 'same_as_shipping') {
-        $validated['billing_address_id'] = $validated['shipping_address_id'];
-    } else {
-        $request->validate([
-            'billing_address_id' => 'required|exists:addresses,id',
-        ]);
-        $validated['billing_address_id'] = $request->input('billing_address_id');
-    }
     $userId = session('user_id') ?? session('temporary_user_id');
     if (!$userId) {
         if (!session()->has('temporary_user_id')) {
-            session(['temporary_user_id' => uniqid('temp_')]);
+            $tempUserId = uniqid('temp_');
+            session(['temporary_user_id' => $tempUserId]);
+            // Store in cookie for 30 days
+            cookie()->queue('temp_user_id', $tempUserId, 43200); // 30 days in minutes
         }
         $userId = session('temporary_user_id');
+    } else if (!session('user_id')) {
+        // Guest user - ensure cookie is set
+        cookie()->queue('temp_user_id', $userId, 43200); // 30 days
     }
 
     try {
         DB::beginTransaction();
+
+        // Save shipping address
+        $shippingAddressId = DB::table('addresses')->insertGetId([
+            'user_id' => $userId,
+            'name' => $request->shipping_address['name'],
+            'phone' => $request->shipping_address['phone'],
+            'address' => $request->shipping_address['address'],
+            'pincode' => $request->shipping_address['pincode'],
+            'city' => $request->shipping_address['city'],
+            'state' => $request->shipping_address['state'],
+            'address_type' => 2, // Shipping
+            'is_deleted' => 0,
+        ]);
+
+        // Use shipping address as billing address as well
+        $billingAddressId = $shippingAddressId;
 
         // Generate custom order ID
         $lastOrder = DB::table('orders')
@@ -1855,8 +2083,8 @@ public function storeOrder(Request $request)
             'payment_method' => $validated['payment_method'],
             'total_amount' => $request->total_price,
             'status' => 'pending',
-            'billing_address_id' => $validated['billing_address_id'],
-            'shipping_address_id' => $validated['shipping_address_id'],
+            'billing_address_id' => $billingAddressId,
+            'shipping_address_id' => $shippingAddressId,
             'date' => now()->format('d-m-Y H:i:s A'),
         ]);
 
@@ -1894,11 +2122,11 @@ public function storeOrder(Request $request)
             'order_success' => [
                 'order_id' => $newOrderId,
                 'total_price' => $request->total_price,
-                'address' => $validated,
+                'address' => $request->shipping_address,
                 'order_items' => $orderDetails,
-                'billing_address_id' => $validated['billing_address_id'],
-                'shipping_address_id' => $validated['shipping_address_id'],
-                'payment_method' => $validated['payment_method'],
+                'billing_address_id' => $billingAddressId,
+                'shipping_address_id' => $shippingAddressId,
+                'payment_method' => $request->payment_method,
                 'payment_id' => null,
             ],
         ]);
@@ -2531,7 +2759,7 @@ public function initiateRazorpayPayment(Request $request)
     try {
         // Get Razorpay credentials from database
         $settings = DB::table('settings')->first();
-        
+
         if (!$settings || !$settings->razorpay_enabled) {
             return response()->json([
                 'success' => false,
@@ -2543,17 +2771,21 @@ public function initiateRazorpayPayment(Request $request)
             'total_price' => 'required|numeric',
             'payment_method' => 'required|string',
             'cart_items' => 'required|array',
-            'shipping_address_id' => 'required|exists:addresses,id',
+            'shipping_address' => 'required|array',
+            'shipping_address.name' => 'required|string',
+            'shipping_address.phone' => 'required|string',
+            'shipping_address.address' => 'required|string',
+            'shipping_address.pincode' => 'required|string',
+            'shipping_address.city' => 'required|string',
+            'shipping_address.state' => 'required|string',
         ]);
 
         // Store order data in session for later use
         session([
             'razorpay_order_data' => [
                 'total_price' => $request->total_price,
-                'billing_option' => $request->billing_option,
-                'billing_address_id' => $request->billing_address_id,
+                'shipping_address' => $request->shipping_address,
                 'payment_method' => $request->payment_method,
-                'shipping_address_id' => $request->shipping_address_id,
                 'cart_items' => $request->cart_items,
             ]
         ]);
@@ -2612,6 +2844,19 @@ public function verifyRazorpayPayment(Request $request)
 
         // Create order
         $userId = session('user_id') ?? session('temporary_user_id');
+        
+        if (!$userId) {
+            if (!session()->has('temporary_user_id')) {
+                $tempUserId = uniqid('temp_');
+                session(['temporary_user_id' => $tempUserId]);
+                // Store in cookie for 30 days
+                cookie()->queue('temp_user_id', $tempUserId, 43200); // 30 days in minutes
+            }
+            $userId = session('temporary_user_id');
+        } else if (!session('user_id')) {
+            // Guest user - ensure cookie is set
+            cookie()->queue('temp_user_id', $userId, 43200); // 30 days
+        }
         if (!$userId) {
             if (!session()->has('temporary_user_id')) {
                 session(['temporary_user_id' => uniqid('temp_')]);
@@ -2620,6 +2865,22 @@ public function verifyRazorpayPayment(Request $request)
         }
 
         DB::beginTransaction();
+
+        // Save shipping address
+        $shippingAddressId = DB::table('addresses')->insertGetId([
+            'user_id' => $userId,
+            'name' => $orderData['shipping_address']['name'],
+            'phone' => $orderData['shipping_address']['phone'],
+            'address' => $orderData['shipping_address']['address'],
+            'pincode' => $orderData['shipping_address']['pincode'],
+            'city' => $orderData['shipping_address']['city'],
+            'state' => $orderData['shipping_address']['state'],
+            'address_type' => 2, // Shipping
+            'is_deleted' => 0,
+        ]);
+
+        // Use shipping address as billing address as well
+        $billingAddressId = $shippingAddressId;
 
         // Generate custom order ID
         $lastOrder = DB::table('orders')
@@ -2642,8 +2903,8 @@ public function verifyRazorpayPayment(Request $request)
             'payment_id' => $razorpayPaymentId,
             'total_amount' => $orderData['total_price'],
             'status' => 'paid',
-            'billing_address_id' => $orderData['billing_address_id'],
-            'shipping_address_id' => $orderData['shipping_address_id'],
+            'billing_address_id' => $billingAddressId,
+            'shipping_address_id' => $shippingAddressId,
             'date' => now()->format('d-m-Y H:i:s A'),
         ]);
 
@@ -2681,10 +2942,10 @@ public function verifyRazorpayPayment(Request $request)
             'order_success' => [
                 'order_id' => $newOrderId,
                 'total_price' => $orderData['total_price'],
-                'address' => $orderData,
+                'address' => $orderData['shipping_address'],
                 'order_items' => $orderDetails,
-                'billing_address_id' => $orderData['billing_address_id'],
-                'shipping_address_id' => $orderData['shipping_address_id'],
+                'billing_address_id' => $billingAddressId,
+                'shipping_address_id' => $shippingAddressId,
                 'payment_method' => 'Online',
                 'payment_id' => $razorpayPaymentId,
             ],

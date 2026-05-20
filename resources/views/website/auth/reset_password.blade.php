@@ -50,6 +50,29 @@
 @endsection
 @section('website.js')
 <script>
+function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("bi-eye");
+        icon.classList.add("bi-eye-slash");
+    } else {
+        input.type = "password";
+        icon.classList.remove("bi-eye-slash");
+        icon.classList.add("bi-eye");
+    }
+}
+
+document.getElementById('togglePassword').addEventListener('click', function() {
+    togglePasswordVisibility('password', 'eyeIcon');
+});
+
+document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+    togglePasswordVisibility('password_confirmation', 'eyeIconConfirm');
+});
+</script>
+<script>
     $('#passwordResetForm').on('submit', function(e) {
         e.preventDefault();
         let formData = $(this).serialize();

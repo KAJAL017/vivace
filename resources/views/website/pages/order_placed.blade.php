@@ -37,7 +37,7 @@
                                             <td>
                                                 <div class="cart-box">
                                                     <a href="{{ route('view.product',[$item['slug']]) }}">
-                                                        <img src="{{ path() }}/{{ Product_first_image($item['product_id']) }}" alt="">
+                                                        <img src="{{ Product_first_image($item['product_id']) }}" alt="">
                                                     </a>
                                                     <div>
                                                         <a href="{{ route('view.product',[$item['slug']]) }}">
@@ -95,29 +95,6 @@
                                 </li>
                             @else
                                 <li>No shipping address found.</li>
-                            @endif
-                        </ul>
-                    </div>
-
-                    <div class="summery-footer">
-                        <div class="sidebar-title">
-                            <h4>Billing Address</h4>
-                        </div>
-                        <ul>
-                            @php
-                                $billingAddress = DB::table('addresses')->find(session('order_success.billing_address_id'));
-                            @endphp
-                            @if($billingAddress)
-                                <li>
-                                    <h6><strong>Name:</strong> {{ $billingAddress->name }}</h6>
-                                    <h6><strong>Address:</strong> {{ $billingAddress->address }}</h6>
-                                    <h6><strong>Pin Code:</strong> {{ $billingAddress->pincode }}</h6>
-                                    <h6><strong>Phone:</strong> {{ $billingAddress->phone }}</h6>
-                                    <h6><strong>City:</strong> {{ $billingAddress->city }}</h6>
-                                    <h6><strong>State:</strong> {{ $billingAddress->state }}</h6>
-                                </li>
-                            @else
-                                <li>No billing address found.</li>
                             @endif
                         </ul>
                     </div>

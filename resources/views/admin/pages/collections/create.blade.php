@@ -1,16 +1,24 @@
 @php
     if (isset($collections)) {
-        $id = $collections->id;
-        $name = $collections->name;
+        $id              = $collections->id;
+        $name            = $collections->name;
         $sub_category_id = $collections->sub_category_id;
-        $image_path = $collections->image_path;
-        $update = true;
+        $image_path      = $collections->image_path;
+        $update          = true;
+        // Current image URL — ImageKit original ya local
+        $ikUrl = $collections->imagekit_url ?? '';
+        $ikDesktop = $collections->imagekit_url_desktop ?? '';
+        $currentImageUrl = ($ikDesktop !== '')
+            ? $ikDesktop
+            : (($ikUrl !== '')
+                ? $ikUrl
+                : ($image_path ? upload_url($image_path) : null));
+        $isImageKit = ($collections->uploaded_to_imagekit == 1);
     } else {
-        $id = '';
-        $name = '';
-        $sub_category_id = '';
-        $image_path = '';
+        $id = $name = $sub_category_id = $image_path = '';
         $update = false;
+        $currentImageUrl = null;
+        $isImageKit = false;
     }
 @endphp
 
@@ -362,21 +370,36 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <label for="collection_image" class="form-label">Upload Image</label>
+                                <label for="collection_image" class="form-label">
+                                    Upload Image
+                                    <small class="text-muted text-lowercase fw-normal ms-1">(JPG, PNG, WEBP, max 10MB — auto WebP convert)</small>
+                                </label>
                                 <input type="file" name="collection_image" class="form-control"
-                                    id="collection_image" {{ $update ? '' : 'required' }} accept="image/*">
-                                <small class="text-muted mt-2 d-block">Recommended size: 800x800px. Formats: JPG, PNG, WEBP</small>
-                                
-                                @if($update && $image_path)
-                                <div class="image-preview">
-                                    <span class="image-preview-label">Current Image</span>
-                                    <img src="{{ path() }}/uploads/{{ $image_path }}" alt="Collection Image" id="current-image">
+                                    id="collection_image" accept="image/*">
+
+                                {{-- Current image (edit mode) --}}
+                                @if($update && $currentImageUrl)
+                                <div class="mt-3" id="current-image-wrap">
+                                    <span class="image-preview-label d-flex align-items-center gap-2 mb-2">
+                                        Current Image:
+                                        @if($isImageKit)
+                                            <span style="background:#27ae60;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">☁ ImageKit · WebP</span>
+                                        @else
+                                            <span style="background:#6c757d;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">💾 Local</span>
+                                        @endif
+                                    </span>
+                                    <img src="{{ $currentImageUrl }}"
+                                         alt="Current Image"
+                                         id="current-image"
+                                         style="display:block; max-width:200px; max-height:200px; object-fit:contain; border-radius:8px; border:2px solid #e9ecef; background:#f8f9fa;">
                                 </div>
                                 @endif
-                                
-                                <div class="image-preview" id="new-image-preview" style="display: none;">
-                                    <span class="image-preview-label">New Image Preview</span>
-                                    <img src="" alt="Preview" id="preview-img">
+
+                                {{-- New file preview --}}
+                                <div class="image-preview mt-3" id="new-image-preview" style="display:none;">
+                                    <span class="image-preview-label">New Image Preview:</span>
+                                    <img src="" alt="Preview" id="preview-img"
+                                         style="max-width:180px; border-radius:8px; border:2px solid #e9ecef;">
                                 </div>
                             </div>
                         </div>
@@ -426,7 +449,7 @@
                 reader.onload = function(e) {
                     $('#preview-img').attr('src', e.target.result);
                     $('#new-image-preview').show();
-                    $('#current-image').parent().hide();
+                    $('#current-image-wrap').hide();
                 }
                 reader.readAsDataURL(file);
             }

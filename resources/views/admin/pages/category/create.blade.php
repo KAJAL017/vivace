@@ -1,16 +1,23 @@
 @php
     if (isset($categories)) {
-        $id = $categories->id;
-        $name = $categories->name;
-        $image = $categories->image;
+        $id             = $categories->id;
+        $name           = $categories->name;
+        $image          = $categories->image;
         $show_in_top_bar = $categories->show_in_top_bar;
-        $update = true;
+        $update         = true;
+        // Current image URL — ImageKit desktop ya local
+        $currentImageUrl = !empty($categories->imagekit_url_desktop)
+            ? $categories->imagekit_url_desktop
+            : (!empty($categories->imagekit_url)
+                ? $categories->imagekit_url
+                : ($image ? upload_url($image) : null));
+        $isImageKit = !empty($categories->uploaded_to_imagekit);
     } else {
-        $id = '';
-        $name = '';
-        $image = '';
+        $id = $name = $image = '';
         $show_in_top_bar = 0;
         $update = false;
+        $currentImageUrl = null;
+        $isImageKit = false;
     }
 @endphp
 
@@ -389,25 +396,40 @@
                     <div class="form-group">
                         <label class="form-label">
                             Upload Image
-                            <span class="hint">(Recommended size for best display)</span>
+                            <span class="hint">(Portrait recommended — 600×800px, WebP/JPG/PNG, max 10MB)</span>
                         </label>
-                        
+
                         <div class="image-upload-wrapper">
-                            <label for="imageInput" class="image-upload-area" id="uploadArea">
+                            <label for="imageInput" class="image-upload-area {{ $currentImageUrl ? 'has-image' : '' }}" id="uploadArea">
                                 <iconify-icon icon="solar:gallery-add-bold-duotone" class="upload-icon"></iconify-icon>
                                 <div class="upload-text">Click to upload category image</div>
-                                <div class="upload-hint">PNG, JPG, WEBP up to 2MB</div>
+                                <div class="upload-hint">PNG, JPG, WEBP up to 10MB · Will be auto-converted to WebP</div>
                             </label>
                             <input type="file" name="image" id="imageInput" class="d-none" accept="image/*">
-                            
+
+                            {{-- New file preview --}}
                             <div class="image-preview" id="imagePreview">
+                                <p class="current-image-label mt-2">New Image Preview:</p>
                                 <img src="" alt="Preview" class="preview-image" id="previewImg">
                             </div>
-                            
-                            @if($update && $image)
-                            <div class="current-image">
-                                <div class="current-image-label">Current Image:</div>
-                                <img src="{{ url('public/uploads/'.$image) }}" alt="{{ $name }}" class="preview-image">
+
+                            {{-- Current image (edit mode) --}}
+                            @if($update && $currentImageUrl)
+                            <div class="current-image mt-3">
+                                <div class="current-image-label d-flex align-items-center gap-2">
+                                    Current Image:
+                                    @if($isImageKit)
+                                        <span style="background:#27ae60;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">
+                                            ☁ ImageKit · WebP
+                                        </span>
+                                    @else
+                                        <span style="background:#6c757d;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">
+                                            💾 Local
+                                        </span>
+                                    @endif
+                                </div>
+                                <img src="{{ $currentImageUrl }}" alt="{{ $name }}" class="preview-image mt-1"
+                                     style="max-width:200px; max-height:267px; object-fit:cover; border-radius:8px;">
                             </div>
                             @endif
                         </div>

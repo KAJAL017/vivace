@@ -369,7 +369,7 @@
                             @if($update && $image)
                             <div class="current-image">
                                 <div class="current-image-label">Current Logo:</div>
-                                <img src="{{ url('public/uploads/'.$image) }}" alt="{{ $name }}" class="preview-image">
+                                <img src="{{ url('uploads/'.$image) }}" alt="{{ $name }}" class="preview-image">
                             </div>
                             @endif
                         </div>

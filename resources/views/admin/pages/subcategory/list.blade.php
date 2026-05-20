@@ -437,6 +437,58 @@
         font-weight: 500;
     }
     
+    /* Toggle Switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        transition: 0.4s;
+        border-radius: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    input:checked + .toggle-slider {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    }
+    
+    input:checked + .toggle-slider:before {
+        transform: translateX(30px);
+    }
+    
+    .toggle-slider:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
         .card-header-custom {
@@ -696,6 +748,58 @@
         
         // Initial bind
         bindDeleteButtons();
+        
+        // Toggle Status Handler
+        $(document).on('change', '.status-toggle', function() {
+            const checkbox = $(this);
+            const id = checkbox.data('id');
+            const type = checkbox.data('type');
+            const isActive = checkbox.is(':checked') ? 1 : 0;
+            
+            $.ajax({
+                url: "{{ route('toggle.status') }}",
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    type: type,
+                    is_active: isActive
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                        
+                        Toast.fire({
+                            icon: 'success',
+                            title: response.message
+                        });
+                    } else {
+                        checkbox.prop('checked', !isActive);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Failed to update status',
+                            confirmButtonColor: '#e74c3c'
+                        });
+                    }
+                },
+                error: function() {
+                    checkbox.prop('checked', !isActive);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update status',
+                        confirmButtonColor: '#e74c3c'
+                    });
+                }
+            });
+        });
     });
 </script>
 @endsection

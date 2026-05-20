@@ -391,8 +391,7 @@
                                 @endphp
                                 <div class="col-lg-4">
                                     <label for="product-categories" class="form-label">Product Category</label>
-                                    <select class="form-control" id="product-categories" name="category" data-choices
-                                        data-choices-groups data-placeholder="Select Categories">
+                                    <select class="form-control" id="product-categories" name="category" >
                                         <option value="">Choose a category</option>
                                         @foreach ($categories as $category)
                                             <option value="{{ $category->id }}" {{ (isset($product) && $product->category_id == $category->id) ? 'selected' : '' }}>{{ $category->name }}</option>
@@ -425,17 +424,8 @@
                                 
                                 <div class="col-lg-4">
                                     <div class="mb-0">
-                                        <label for="product_sku" class="form-label">SKU (Stock Keeping Unit)</label>
-                                        <input type="text" id="product_sku" class="form-control" name="sku"
-                                            placeholder="Enter SKU (e.g., PROD-001)" value="{{ $product->sku ?? '' }}">
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-4">
-                                    <div class="mb-0">
                                         <label for="product-brand" class="form-label">Brand</label>
-                                        <select class="form-control" id="product-categories" data-choices
-                                            data-choices-groups data-placeholder="Select Brand" name="brand">
+                                        <select class="form-control" id="product-brand-select" name="brand">
                                             <option value="">Choose a brand</option>
                                             @foreach ($brands as $brand)
                                                 <option value="{{ $brand->id }}" {{ (isset($product_brand_id) && $product_brand_id == $brand->id) ? 'selected' : '' }}>{{ $brand->name }}</option>
@@ -446,8 +436,7 @@
 
                                 <div class="col-lg-4">
                                     <label for="gender" class="form-label">Gender</label>
-                                    <select class="form-control" id="gender" data-choices data-choices-groups
-                                        data-placeholder="Select Gender" name="gender">
+                                    <select class="form-control" id="gender" name="gender">
                                         <option value="" selected disabled>Select Gender</option>
                                         <option value="Men" {{ (isset($product_gender) && $product_gender == 'Men') ? 'selected' : '' }}>Men</option>
                                         <option value="Women" {{ (isset($product_gender) && $product_gender == 'Women') ? 'selected' : '' }}>Women</option>
@@ -475,8 +464,7 @@
                             <div class="row g-4">
                                 <div class="col-lg-6">
                                     <label for="product-stock" class="form-label">Tags</label>
-                                    <select class="form-control" id="choices-multiple-remove-button" data-choices
-                                        data-choices-removeItem name="tags[]" multiple style="z-index: 999 !important">
+                                    <select class="form-control" id="choices-multiple-remove-button" name="tags[]" multiple style="z-index: 999 !important">
                                         @foreach ($tags as $tag)
                                             <option value="{{ $tag->id }}" {{ (isset($productTags) && in_array($tag->id, $productTags)) ? 'selected' : '' }}>{{ $tag->name }}</option>
                                         @endforeach
@@ -495,8 +483,7 @@
                                 @endphp
                                 <div class="col-lg-6">
                                     <label for="product-collection" class="form-label">Collections</label>
-                                    <select class="form-control" id="product-collection" name="collection" data-choices
-                                        data-choices-groups data-placeholder="Select Collection">
+                                    <select class="form-control" id="product-collection" name="collection" >
                                         <option value="">Choose a collection</option>
                                         @foreach ($collections as $collection)
                                             <option value="{{ $collection->id }}" {{ (isset($collection_id) && $collection_id == $collection->id) ? 'selected' : '' }}>{{ $collection->name }}</option>
@@ -612,9 +599,14 @@
                                     <label class="form-label">Existing Images</label>
                                     <div class="row g-3">
                                         @foreach ($product_images as $item)
+                                            @php
+                                                $editImgSrc = !empty($item->imagekit_url)
+                                                    ? $item->imagekit_url
+                                                    : upload_url($item->file_path);
+                                            @endphp
                                             <div class="col-lg-2 col-md-3 col-4" id="image-{{ $item->id }}">
                                                 <div class="position-relative">
-                                                    <img src="{{ url('public') }}/{{ $item->file_path }}" alt="Product Image"
+                                                    <img src="{{ $editImgSrc }}" alt="Product Image"
                                                         class="img-fluid rounded shadow-sm" style="width: 100%; height: 150px; object-fit: cover;">
                                                     <button class="btn btn-danger btn-sm delete-image position-absolute top-0 end-0 m-2" type="button"
                                                         data-id="{{ $item->id }}"
@@ -654,126 +646,126 @@
                                                     <input type="number" class="form-control" placeholder="0.00" name="mrp[]" value="{{ $attribute->mrp }}">
                                                 </div>
                                             </div>
-                                            <div class="col-lg-3">
-                                                <label for="price" class="form-label">Selling Price (₹)</label>
+                                            <div class="col-lg-4">
+                                                <label class="form-label">Selling Price (₹)</label>
                                                 <div class="input-group mb-3">
                                                     <input type="number" class="form-control" placeholder="0.00" name="price[]" value="{{ $attribute->price }}">
                                                 </div>
                                             </div>
-                                            <div class="col-lg-3">
-                                                <label for="size" class="form-label">Size</label>
-                                                <select class="form-control" data-choices data-choices-removeItem name="size[]">
+                                            <div class="col-lg-4">
+                                                <label class="form-label">Size</label>
+                                                <select class="form-control" name="size[]">
                                                     <option value="" disabled>Select Size</option>
                                                     @foreach ($sizes as $size)
                                                         <option value="{{ $size->id }}" {{ $size->id == $attribute->size_id ? 'selected' : '' }}>{{ $size->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="col-lg-3">
-                                                <label for="color" class="form-label">Color</label>
-                                                <select class="form-control" data-choices data-choices-removeItem name="color[]">
+                                            <div class="col-lg-4">
+                                                <label class="form-label">Color</label>
+                                                <select class="form-control" name="color[]">
                                                     <option value="" disabled>Select Color</option>
                                                     @foreach ($colors as $color)
                                                         <option value="{{ $color->id }}" {{ $color->id == $attribute->color_id ? 'selected' : '' }}>{{ $color->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="col-lg-3 mt-3">
-                                                <label for="qty" class="form-label">Quantity</label>
+                                            <div class="col-lg-4 mt-3">
+                                                <label class="form-label">Quantity</label>
                                                 <div class="input-group mb-3">
                                                     <input type="number" class="form-control" placeholder="0" name="qty[]" value="{{ $attribute->qty }}">
                                                 </div>
                                             </div>
-                                            <div class="col-lg-5 mt-3">
-                                                <label for="attr_image" class="form-label">Variant Image</label>
-                                                <div class="input-group mb-3">
-                                                    <input type="file" class="form-control" name="attr_image[]" accept="image/*">
+                                            <div class="col-lg-4 mt-3">
+                                                <label class="form-label">SKU</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" placeholder="Auto-generated" name="sku[]" value="{{ $attribute->sku ?? '' }}">
+                                                    <button class="btn btn-outline-secondary btn-gen-sku" type="button" title="Auto-generate SKU">
+                                                        <iconify-icon icon="solar:refresh-bold"></iconify-icon>
+                                                    </button>
                                                 </div>
+                                                <small class="text-muted" style="font-size:0.75rem;">VVC-BRAND-CAT-SIZE-COLOR-001</small>
+                                            </div>
+                                            <div class="col-lg-4 mt-3">
+                                                {{-- spacer --}}
+                                            </div>
+                                            <div class="col-lg-10 mt-3">
+                                                <label class="form-label">Variant Image</label>
+                                                <input type="file" class="form-control" name="attr_image[]" accept="image/*">
                                                 @if ($attribute->image)
                                                     <div class="mt-2">
-                                                        <img src="{{ url('public/' . $attribute->image) }}" alt="Variant Image" 
-                                                            class="rounded shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 2px solid #e9ecef;">
+                                                        @php
+                                                            $attrImgSrc = !empty($attribute->imagekit_url)
+                                                                ? $attribute->imagekit_url
+                                                                : upload_url($attribute->image);
+                                                        @endphp
+                                                        <img src="{{ $attrImgSrc }}" alt="Variant Image"
+                                                            class="rounded shadow-sm" style="width:80px;height:80px;object-fit:cover;border:2px solid #e9ecef;">
+                                                    </div>
                                                     </div>
                                                 @endif
                                             </div>
-                                            <div class="col-lg-2 mt-3">
-                                                <label class="form-label d-block">&nbsp;</label>
-                                                <div class="input-group">
-                                                    <button class="btn btn-add-row add-row w-100" type="button">
-                                                        <iconify-icon icon="solar:add-circle-bold" class="me-2"></iconify-icon>
-                                                        Add
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-2 mt-3">
-                                                <label class="form-label d-block">&nbsp;</label>
-                                                <div class="input-group">
-                                                    <button class="btn btn-remove-row remove-row w-100" type="button" data-id="{{ $attribute->id }}">
-                                                        <iconify-icon icon="solar:trash-bin-trash-bold" class="me-2"></iconify-icon>
-                                                        Remove
-                                                    </button>
-                                                </div>
+                                            <div class="col-lg-2 mt-3 d-flex align-items-end gap-2 flex-column">
+                                                <button class="btn btn-add-row add-row w-100" type="button">
+                                                    <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon> Add
+                                                </button>
+                                                <button class="btn btn-remove-row remove-row w-100" type="button" data-id="{{ $attribute->id }}">
+                                                    <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon> Remove
+                                                </button>
                                             </div>
                                         </div>
                                     @endforeach
                                 @else
-                                    <div class="row form-row inventory-row">
-                                        <div class="col-lg-3">
-                                            <label for="mrp" class="form-label">MRP (₹)</label>
-                                            <div class="input-group mb-3">
-                                                <input type="number" id="mrp" class="form-control"
-                                                    placeholder="0.00" name="mrp[]">
-                                            </div>
+                                    <div class="row form-row inventory-row g-3">
+                                        <div class="col-lg-4">
+                                            <label class="form-label">MRP (₹)</label>
+                                            <input type="number" id="mrp" class="form-control" placeholder="0.00" name="mrp[]">
                                         </div>
-                                        <div class="col-lg-3">
-                                            <label for="price" class="form-label">Selling Price (₹)</label>
-                                            <div class="input-group mb-3">
-                                                <input type="number" id="price" class="form-control"
-                                                    placeholder="0.00" name="price[]">
-                                            </div>
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Selling Price (₹)</label>
+                                            <input type="number" id="price" class="form-control" placeholder="0.00" name="price[]">
                                         </div>
-                                        <div class="col-lg-3">
-                                            <label for="size" class="form-label">Size</label>
-                                            <select class="form-control" id="choices-multiple-remove-button" data-choices
-                                                data-choices-removeItem name="size[]">
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Size</label>
+                                            <select class="form-control" name="size[]">
                                                 <option value="" selected disabled>Select Size</option>
                                                 @foreach ($sizes as $size)
                                                     <option value="{{ $size->id }}">{{ $size->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="col-lg-3">
-                                            <label for="color" class="form-label">Color</label>
-                                            <select class="form-control" id="choices-multiple-remove-button" data-choices
-                                                data-choices-removeItem name="color[]">
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Color</label>
+                                            <select class="form-control" name="color[]">
                                                 <option value="" selected disabled>Select Color</option>
                                                 @foreach ($colors as $color)
                                                     <option value="{{ $color->id }}">{{ $color->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="col-lg-3 mt-3">
-                                            <label for="qty" class="form-label">Quantity</label>
-                                            <div class="input-group mb-3">
-                                                <input type="number" id="qty" class="form-control"
-                                                    placeholder="0" name="qty[]">
-                                            </div>
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Quantity</label>
+                                            <input type="number" id="qty" class="form-control" placeholder="0" name="qty[]">
                                         </div>
-                                        <div class="col-lg-7 mt-3">
-                                            <label for="attr_image" class="form-label">Variant Image</label>
-                                            <div class="input-group mb-3">
-                                                <input type="file" id="attr_image" class="form-control"
-                                                    name="attr_image[]" accept="image/*">
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-2 mt-3">
-                                            <label class="form-label d-block">&nbsp;</label>
+                                        <div class="col-lg-4">
+                                            <label class="form-label">SKU</label>
                                             <div class="input-group">
-                                                <button class="btn btn-add-row add-row w-100" type="button">
-                                                    <iconify-icon icon="solar:add-circle-bold" class="me-2"></iconify-icon>
-                                                    Add Variant
+                                                <input type="text" class="form-control" placeholder="Auto-generated" name="sku[]">
+                                                <button class="btn btn-outline-secondary btn-gen-sku" type="button" title="Auto-generate SKU">
+                                                    <iconify-icon icon="solar:refresh-bold"></iconify-icon>
                                                 </button>
                                             </div>
+                                            <small class="text-muted" style="font-size:0.75rem;">VVC-BRAND-CAT-SIZE-COLOR-001</small>
+                                        </div>
+                                        <div class="col-lg-10">
+                                            <label class="form-label">Variant Image</label>
+                                            <input type="file" id="attr_image" class="form-control" name="attr_image[]" accept="image/*">
+                                        </div>
+                                        <div class="col-lg-2 d-flex align-items-end">
+                                            <button class="btn btn-add-row add-row w-100" type="button">
+                                                <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+                                                Add Variant
+                                            </button>
                                         </div>
                                     </div>
                                 @endif
@@ -959,22 +951,61 @@
             $(document).on('click', '.add-row', function() {
                 var newRow = `
                 <hr class="inventory-row-divider">
-                <div class="row form-row inventory-row">
-                    <div class="col-lg-3">
-                        <label for="mrp" class="form-label">MRP (₹)</label>
-                        <div class="input-group mb-3">
-                            <input type="number" class="form-control" placeholder="0.00" name="mrp[]">
-                        </div>
+                <div class="row form-row inventory-row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label">MRP (₹)</label>
+                        <input type="number" class="form-control" placeholder="0.00" name="mrp[]">
                     </div>
-                    <div class="col-lg-3">
-                        <label for="price" class="form-label">Selling Price (₹)</label>
-                        <div class="input-group mb-3">
-                            <input type="number" class="form-control" placeholder="0.00" name="price[]">
-                        </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Selling Price (₹)</label>
+                        <input type="number" class="form-control" placeholder="0.00" name="price[]">
                     </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Size</label>
+                        <select class="form-control" name="size[]">
+                            <option value="" selected disabled>Select Size</option>
+                            @foreach ($sizes as $size)
+                                <option value="{{ $size->id }}">{{ $size->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Color</label>
+                        <select class="form-control" name="color[]">
+                            <option value="" selected disabled>Select Color</option>
+                            @foreach ($colors as $color)
+                                <option value="{{ $color->id }}">{{ $color->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" class="form-control" placeholder="0" name="qty[]">
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">SKU</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Auto-generated" name="sku[]">
+                            <button class="btn btn-outline-secondary btn-gen-sku" type="button" title="Auto-generate SKU">
+                                <iconify-icon icon="solar:refresh-bold"></iconify-icon>
+                            </button>
+                        </div>
+                        <small class="text-muted" style="font-size:0.75rem;">VVC-BRAND-CAT-SIZE-COLOR-001</small>
+                    </div>
+                    <div class="col-lg-10">
+                        <label class="form-label">Variant Image</label>
+                        <input type="file" class="form-control" name="attr_image[]" accept="image/*">
+                    </div>
+                    <div class="col-lg-2 d-flex align-items-end">
+                        <button class="btn btn-remove-row remove-row w-100" type="button">
+                            <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+                            Remove
+                        </button>
+                    </div>
+                </div>`;
                     <div class="col-lg-3">
                         <label for="size" class="form-label">Size</label>
-                        <select class="form-control" data-choices data-choices-removeItem name="size[]">
+                        <select class="form-control" name="size[]">
                             <option value="" selected disabled>Select Size</option>
                             @foreach ($sizes as $size)
                                 <option value="{{ $size->id }}">{{ $size->name }}</option>
@@ -983,7 +1014,7 @@
                     </div>
                     <div class="col-lg-3">
                         <label for="color" class="form-label">Color</label>
-                        <select class="form-control" data-choices data-choices-removeItem name="color[]">
+                        <select class="form-control" name="color[]">
                             <option value="" selected disabled>Select Color</option>
                             @foreach ($colors as $color)
                                 <option value="{{ $color->id }}">{{ $color->name }}</option>
@@ -1019,6 +1050,62 @@
                 $(this).closest('.form-row').remove();
             });
         });
+    </script>
+
+    <script>
+    // ===== AUTO SKU GENERATOR =====
+    function slugify(str) {
+        if (!str) return 'XX';
+        return str.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
+    }
+
+    function generateSKU(rowEl) {
+        var brandText = $('#product-brand-select option:selected').text().trim();
+        var brandCode = slugify(brandText);
+
+        var catEl = $('[name="category"]');
+        var catText = catEl.find('option:selected').text().trim();
+        var catCode = slugify(catText);
+
+        var sizeText = rowEl.find('[name="size[]"] option:selected').text().trim();
+        var sizeCode = sizeText && sizeText !== 'Select Size' ? slugify(sizeText) : 'SZ';
+
+        var colorText = rowEl.find('[name="color[]"] option:selected').text().trim();
+        var colorCode = colorText && colorText !== 'Select Color' ? slugify(colorText) : 'CL';
+
+        var rowIndex = rowEl.closest('#form-rows').find('.inventory-row').index(rowEl) + 1;
+        var seq = String(rowIndex).padStart(3, '0');
+
+        return 'VVC-' + brandCode + '-' + catCode + '-' + sizeCode + '-' + colorCode + '-' + seq;
+    }
+
+    function updateSKU(changedEl) {
+        var row = $(changedEl).closest('.inventory-row');
+        var skuInput = row.find('[name="sku[]"]');
+        var current = skuInput.val();
+        if (current === '' || current.startsWith('VVC-')) {
+            skuInput.val(generateSKU(row));
+        }
+    }
+
+    $(document).ready(function() {
+        $(document).on('change', '[name="size[]"], [name="color[]"]', function() {
+            updateSKU(this);
+        });
+        $(document).on('change', '[name="brand"], [name="category"]', function() {
+            $('.inventory-row').each(function() {
+                var skuInput = $(this).find('[name="sku[]"]');
+                var current = skuInput.val();
+                if (current === '' || current.startsWith('VVC-')) {
+                    skuInput.val(generateSKU($(this)));
+                }
+            });
+        });
+        $(document).on('click', '.btn-gen-sku', function() {
+            var row = $(this).closest('.inventory-row');
+            row.find('[name="sku[]"]').val(generateSKU(row));
+        });
+    });
     </script>
 
     <script>
@@ -1269,4 +1356,54 @@
             });
         });
     </script>
+
+    <script>
+    // ===== SELECT2 INIT =====
+    $(document).ready(function(){
+        // Static selects
+        $('#product-categories, #product-brand-select, #gender, #product-collection, #choices-multiple-remove-button').each(function(){
+            $(this).select2({
+                placeholder: $(this).find('option:first').text() || 'Select...',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+
+        // Inventory row selects
+        function initRowSelects(row) {
+            row.find('select[name="size[]"], select[name="color[]"]').each(function(){
+                if (!$(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2({
+                        placeholder: $(this).find('option:first').text() || 'Select...',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $(this).closest('.inventory-row')
+                    });
+                }
+            });
+        }
+
+        $('.inventory-row').each(function(){ initRowSelects($(this)); });
+
+        $(document).on('click', '.add-row', function(){
+            setTimeout(function(){
+                initRowSelects($('.inventory-row').last());
+            }, 100);
+        });
+
+        // SKU trigger on select2 change
+        $(document).on('select2:select', 'select[name="size[]"], select[name="color[]"]', function(){
+            updateSKU(this);
+        });
+        $(document).on('select2:select', '#product-brand-select, #product-categories', function(){
+            $('.inventory-row').each(function(){
+                var skuInput = $(this).find('[name="sku[]"]');
+                if(skuInput.val() === '' || skuInput.val().startsWith('VVC-')){
+                    skuInput.val(generateSKU($(this)));
+                }
+            });
+        });
+    });
+    </script>
 @endsection
+

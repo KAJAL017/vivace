@@ -602,23 +602,6 @@
                         </div>
                     </div>
                     
-                    <!-- Billing Address -->
-                    <div class="address-section">
-                        <div class="address-title">
-                            <iconify-icon icon="solar:bill-list-bold"></iconify-icon>
-                            Billing Address
-                        </div>
-                        <div class="address-content">
-                            <p><strong>{{ getAddressData($order->billing_address_id)->name ?? 'N/A' }}</strong></p>
-                            <p>{{ getAddressData($order->billing_address_id)->address ?? 'N/A' }}</p>
-                            <p>{{ getAddressData($order->billing_address_id)->city ?? 'N/A' }}, {{ getAddressData($order->billing_address_id)->state ?? 'N/A' }} - {{ getAddressData($order->billing_address_id)->pincode ?? 'N/A' }}</p>
-                            <p>
-                                <iconify-icon icon="solar:phone-bold"></iconify-icon>
-                                {{ getAddressData($order->billing_address_id)->phone ?? 'N/A' }}
-                            </p>
-                        </div>
-                    </div>
-                    
                     @if ($order->is_confirm == 0 && $order->is_cancel == 0)
                     <div class="address-section">
                         <button id="pushToShiprocket" class="btn-action-primary">

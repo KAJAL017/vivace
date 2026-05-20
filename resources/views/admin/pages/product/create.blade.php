@@ -363,8 +363,7 @@
                                 @endphp
                                 <div class="col-lg-4">
                                     <label for="product-categories" class="form-label">Product Category</label>
-                                    <select class="form-control" id="product-categories" name="category" data-choices
-                                        data-choices-groups data-placeholder="Select Categories">
+                                    <select class="form-control select2-field" id="product-categories" name="category">
                                         <option value="">Choose a category</option>
                                         @foreach ($categories as $category)
                                             <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -397,17 +396,8 @@
                                 
                                 <div class="col-lg-4">
                                     <div class="mb-0">
-                                        <label for="product_sku" class="form-label">SKU (Stock Keeping Unit)</label>
-                                        <input type="text" id="product_sku" class="form-control" name="sku"
-                                            placeholder="Enter SKU (e.g., PROD-001)">
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-4">
-                                    <div class="mb-0">
                                         <label for="product-brand" class="form-label">Brand</label>
-                                        <select class="form-control" id="product-categories" data-choices
-                                            data-choices-groups data-placeholder="Select Brand" name="brand">
+                                        <select class="form-control" id="product-brand-select" name="brand">
                                             <option value="">Choose a brand</option>
                                             @foreach ($brands as $brand)
                                                 <option value="{{ $brand->id }}">{{ $brand->name }}</option>
@@ -418,8 +408,7 @@
 
                                 <div class="col-lg-4">
                                     <label for="gender" class="form-label">Gender</label>
-                                    <select class="form-control" id="gender" data-choices data-choices-groups
-                                        data-placeholder="Select Gender" name="gender">
+                                    <select class="form-control select2-field" id="gender" name="gender">
                                         <option value="" selected disabled>Select Gender</option>
                                         <option value="Men">Men</option>
                                         <option value="Women">Women</option>
@@ -447,8 +436,7 @@
                             <div class="row g-4">
                                 <div class="col-lg-6">
                                     <label for="product-stock" class="form-label">Tags</label>
-                                    <select class="form-control" id="choices-multiple-remove-button" data-choices
-                                        data-choices-removeItem name="tags[]" multiple style="z-index: 999 !important">
+                                    <select class="form-control select2-field" id="choices-multiple-remove-button" name="tags[]" multiple>
                                         @foreach ($tags as $tag)
                                             <option value="{{ $tag->id }}">{{ $tag->name }}</option>
                                         @endforeach
@@ -467,8 +455,7 @@
                                 @endphp
                                 <div class="col-lg-6">
                                     <label for="product-collection" class="form-label">Collections</label>
-                                    <select class="form-control" id="product-collection" name="collection" data-choices
-                                        data-choices-groups data-placeholder="Select Collection">
+                                    <select class="form-control select2-field" id="product-collection" name="collection">
                                         <option value="">Choose a collection</option>
                                         @foreach ($collections as $collection)
                                             <option value="{{ $collection->id }}">{{ $collection->name }}</option>
@@ -592,63 +579,61 @@
                         </div>
                         <div class="card-body">
                             <div id="form-rows">
-                                <div class="row form-row inventory-row">
-                                    <div class="col-lg-3">
-                                        <label for="mrp" class="form-label">MRP (₹)</label>
-                                        <div class="input-group mb-3">
-                                            <input type="number" id="mrp" class="form-control"
-                                                placeholder="0.00" name="mrp[]">
-                                        </div>
+                                <div class="row form-row inventory-row g-3">
+                                    {{-- Row 1: MRP | Price | Size --}}
+                                    <div class="col-lg-4">
+                                        <label class="form-label">MRP (₹)</label>
+                                        <input type="number" id="mrp" class="form-control" placeholder="0.00" name="mrp[]">
                                     </div>
-                                    <div class="col-lg-3">
-                                        <label for="price" class="form-label">Selling Price (₹)</label>
-                                        <div class="input-group mb-3">
-                                            <input type="number" id="price" class="form-control"
-                                                placeholder="0.00" name="price[]">
-                                        </div>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Selling Price (₹)</label>
+                                        <input type="number" id="price" class="form-control" placeholder="0.00" name="price[]">
                                     </div>
-                                    <div class="col-lg-3">
-                                        <label for="size" class="form-label">Size</label>
-                                        <select class="form-control" id="choices-multiple-remove-button" data-choices
-                                            data-choices-removeItem name="size[]">
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Size</label>
+                                        <select class="form-control select2-field" name="size[]">
                                             <option value="" selected disabled>Select Size</option>
                                             @foreach ($sizes as $size)
                                                 <option value="{{ $size->id }}">{{ $size->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-lg-3">
-                                        <label for="color" class="form-label">Color</label>
-                                        <select class="form-control" id="choices-multiple-remove-button" data-choices
-                                            data-choices-removeItem name="color[]">
+
+                                    {{-- Row 2: Color | Quantity | SKU --}}
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Color</label>
+                                        <select class="form-control select2-field" name="color[]">
                                             <option value="" selected disabled>Select Color</option>
                                             @foreach ($colors as $color)
                                                 <option value="{{ $color->id }}">{{ $color->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-lg-3 mt-3">
-                                        <label for="qty" class="form-label">Quantity</label>
-                                        <div class="input-group mb-3">
-                                            <input type="number" id="qty" class="form-control"
-                                                placeholder="0" name="qty[]">
-                                        </div>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Quantity</label>
+                                        <input type="number" id="qty" class="form-control" placeholder="0" name="qty[]">
                                     </div>
-                                    <div class="col-lg-7 mt-3">
-                                        <label for="attr_image" class="form-label">Variant Image</label>
-                                        <div class="input-group mb-3">
-                                            <input type="file" id="attr_image" class="form-control"
-                                                name="attr_image[]" accept="image/*">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-2 mt-3">
-                                        <label class="form-label d-block">&nbsp;</label>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">SKU</label>
                                         <div class="input-group">
-                                            <button class="btn btn-add-row add-row w-100" type="button">
-                                                <iconify-icon icon="solar:add-circle-bold" class="me-2"></iconify-icon>
-                                                Add Variant
+                                            <input type="text" class="form-control" placeholder="Auto-generated" name="sku[]">
+                                            <button class="btn btn-outline-secondary btn-gen-sku" type="button" title="Auto-generate SKU">
+                                                <iconify-icon icon="solar:refresh-bold"></iconify-icon>
                                             </button>
                                         </div>
+                                        <small class="text-muted" style="font-size:0.75rem;">VVC-BRAND-CAT-SIZE-COLOR-001</small>
+                                    </div>
+
+                                    {{-- Row 3: Image (full) + Add Variant button --}}
+                                    <div class="col-lg-10">
+                                        <label class="form-label">Variant Image</label>
+                                        <input type="file" id="attr_image" class="form-control" name="attr_image[]" accept="image/*">
+                                    </div>
+                                    <div class="col-lg-2 d-flex align-items-end">
+                                        <button class="btn btn-add-row add-row w-100" type="button">
+                                            <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+                                            Add Variant
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -833,57 +818,56 @@
             $(document).on('click', '.add-row', function() {
                 var newRow = `
                 <hr class="inventory-row-divider">
-                <div class="row form-row inventory-row">
-                    <div class="col-lg-3">
-                        <label for="mrp" class="form-label">MRP (₹)</label>
-                        <div class="input-group mb-3">
-                            <input type="number" class="form-control" placeholder="0.00" name="mrp[]">
-                        </div>
+                <div class="row form-row inventory-row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label">MRP (₹)</label>
+                        <input type="number" class="form-control" placeholder="0.00" name="mrp[]">
                     </div>
-                    <div class="col-lg-3">
-                        <label for="price" class="form-label">Selling Price (₹)</label>
-                        <div class="input-group mb-3">
-                            <input type="number" class="form-control" placeholder="0.00" name="price[]">
-                        </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Selling Price (₹)</label>
+                        <input type="number" class="form-control" placeholder="0.00" name="price[]">
                     </div>
-                    <div class="col-lg-3">
-                        <label for="size" class="form-label">Size</label>
-                        <select class="form-control" data-choices data-choices-removeItem name="size[]">
+                    <div class="col-lg-4">
+                        <label class="form-label">Size</label>
+                        <select class="form-control select2-field" name="size[]">
                             <option value="" selected disabled>Select Size</option>
                             @foreach ($sizes as $size)
                                 <option value="{{ $size->id }}">{{ $size->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-lg-3">
-                        <label for="color" class="form-label">Color</label>
-                        <select class="form-control" data-choices data-choices-removeItem name="color[]">
+                    <div class="col-lg-4">
+                        <label class="form-label">Color</label>
+                        <select class="form-control select2-field" name="color[]">
                             <option value="" selected disabled>Select Color</option>
                             @foreach ($colors as $color)
                                 <option value="{{ $color->id }}">{{ $color->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-lg-3 mt-3">
-                        <label for="qty" class="form-label">Quantity</label>
-                        <div class="input-group mb-3">
-                            <input type="number" class="form-control" placeholder="0" name="qty[]">
-                        </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" class="form-control" placeholder="0" name="qty[]">
                     </div>
-                    <div class="col-lg-7 mt-3">
-                        <label for="attr_image" class="form-label">Variant Image</label>
-                        <div class="input-group mb-3">
-                            <input type="file" class="form-control" name="attr_image[]" accept="image/*">
-                        </div>
-                    </div>
-                    <div class="col-lg-2 mt-3">
-                        <label class="form-label d-block">&nbsp;</label>
+                    <div class="col-lg-4">
+                        <label class="form-label">SKU</label>
                         <div class="input-group">
-                            <button class="btn btn-remove-row remove-row w-100" type="button">
-                                <iconify-icon icon="solar:trash-bin-trash-bold" class="me-2"></iconify-icon>
-                                Remove
+                            <input type="text" class="form-control" placeholder="Auto-generated" name="sku[]">
+                            <button class="btn btn-outline-secondary btn-gen-sku" type="button" title="Auto-generate SKU">
+                                <iconify-icon icon="solar:refresh-bold"></iconify-icon>
                             </button>
                         </div>
+                        <small class="text-muted" style="font-size:0.75rem;">VVC-BRAND-CAT-SIZE-COLOR-001</small>
+                    </div>
+                    <div class="col-lg-10">
+                        <label class="form-label">Variant Image</label>
+                        <input type="file" class="form-control" name="attr_image[]" accept="image/*">
+                    </div>
+                    <div class="col-lg-2 d-flex align-items-end">
+                        <button class="btn btn-remove-row remove-row w-100" type="button">
+                            <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+                            Remove
+                        </button>
                     </div>
                 </div>`;
                 $('#form-rows').append(newRow);
@@ -910,6 +894,78 @@
             const slug = generateSlug(productNameInput.value);
             productUrlInput.value = slug;
         });
+    </script>
+
+    <script>
+    // ===== AUTO SKU GENERATOR =====
+    // Format: VVC-{BRAND}-{CAT}-{SIZE}-{COLOR}-{SEQ}
+    // e.g.  : VVC-NIK-MEN-XL-RED-001
+
+    function slugify(str) {
+        if (!str) return 'XX';
+        return str.toUpperCase()
+                  .replace(/[^A-Z0-9]/g, '')
+                  .substring(0, 4);
+    }
+
+    function generateSKU(rowEl) {
+        // Brand
+        var brandText = $('#product-brand-select option:selected').text().trim();
+        var brandCode = slugify(brandText);
+
+        // Category
+        var catEl = $('[name="category"]');
+        var catText = catEl.find('option:selected').text().trim();
+        var catCode = slugify(catText);
+
+        // Size from this row
+        var sizeText = rowEl.find('[name="size[]"] option:selected').text().trim();
+        var sizeCode = sizeText && sizeText !== 'Select Size' ? slugify(sizeText) : 'SZ';
+
+        // Color from this row
+        var colorText = rowEl.find('[name="color[]"] option:selected').text().trim();
+        var colorCode = colorText && colorText !== 'Select Color' ? slugify(colorText) : 'CL';
+
+        // Sequence — row index
+        var rowIndex = rowEl.closest('#form-rows').find('.inventory-row').index(rowEl) + 1;
+        var seq = String(rowIndex).padStart(3, '0');
+
+        return 'VVC-' + brandCode + '-' + catCode + '-' + sizeCode + '-' + colorCode + '-' + seq;
+    }
+
+    function updateSKU(changedEl) {
+        var row = $(changedEl).closest('.inventory-row');
+        var skuInput = row.find('[name="sku[]"]');
+        // Only auto-fill if empty or was previously auto-generated (starts with VVC-)
+        var current = skuInput.val();
+        if (current === '' || current.startsWith('VVC-')) {
+            skuInput.val(generateSKU(row));
+        }
+    }
+
+    $(document).ready(function() {
+        // Trigger on size/color change in any row
+        $(document).on('change', '[name="size[]"], [name="color[]"]', function() {
+            updateSKU(this);
+        });
+
+        // Also trigger when brand or category changes (update all rows)
+        $(document).on('change', '[name="brand"], [name="category"]', function() {
+            $('.inventory-row').each(function() {
+                var skuInput = $(this).find('[name="sku[]"]');
+                var current = skuInput.val();
+                if (current === '' || current.startsWith('VVC-')) {
+                    skuInput.val(generateSKU($(this)));
+                }
+            });
+        });
+
+        // Add "Generate" button click next to SKU field
+        $(document).on('click', '.btn-gen-sku', function() {
+            var row = $(this).closest('.inventory-row');
+            row.find('[name="sku[]"]').val(generateSKU(row));
+        });
+    });
     </script>
 
     <script>
@@ -1037,4 +1093,57 @@
             });
         });
     </script>
+
+    <script>
+    // ===== SELECT2 INIT for all selects =====
+    $(document).ready(function(){
+        // Init all static selects
+        $('.select2-field, #product-categories, #product-brand-select, #gender, #product-collection, #choices-multiple-remove-button').each(function(){
+            $(this).select2({
+                placeholder: $(this).find('option:first').text() || 'Select...',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+
+        // Init selects inside inventory rows (existing)
+        function initRowSelects(row) {
+            row.find('select[name="size[]"], select[name="color[]"]').each(function(){
+                if (!$(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2({
+                        placeholder: $(this).find('option:first').text() || 'Select...',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $(this).closest('.inventory-row')
+                    });
+                }
+            });
+        }
+
+        // Init existing rows
+        $('.inventory-row').each(function(){ initRowSelects($(this)); });
+
+        // Init new rows added dynamically
+        $(document).on('click', '.add-row', function(){
+            setTimeout(function(){
+                var lastRow = $('.inventory-row').last();
+                initRowSelects(lastRow);
+            }, 100);
+        });
+
+        // Re-trigger SKU on select2 change
+        $(document).on('select2:select', 'select[name="size[]"], select[name="color[]"]', function(){
+            updateSKU(this);
+        });
+        $(document).on('select2:select', '#product-brand-select, select[name="category"]', function(){
+            $('.inventory-row').each(function(){
+                var skuInput = $(this).find('[name="sku[]"]');
+                if(skuInput.val() === '' || skuInput.val().startsWith('VVC-')){
+                    skuInput.val(generateSKU($(this)));
+                }
+            });
+        });
+    });
+    </script>
 @endsection
+

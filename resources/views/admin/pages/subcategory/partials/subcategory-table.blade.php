@@ -5,6 +5,7 @@
                 <th>#</th>
                 <th>Subcategory Name</th>
                 <th>Parent Category</th>
+                <th>Status</th>
                 <th>Top Bar</th>
                 <th class="text-center">Actions</th>
             </tr>
@@ -18,6 +19,13 @@
                     </td>
                     <td>
                         <span class="category-badge">{{ $sub_category->categoryname }}</span>
+                    </td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="status-toggle" data-id="{{ $sub_category->id }}" data-type="subcategory" 
+                                   {{ $sub_category->is_active == 1 ? 'checked' : '' }}>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </td>
                     <td>
                         @if($sub_category->show_in_top_bar == 1)

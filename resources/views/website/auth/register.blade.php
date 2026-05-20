@@ -88,10 +88,13 @@
                                 <span id="emailError" class="validation-error"></span>
                             </div>
                             <div class="col-12">
-                                <div class="form-floating">
+                                <div class="form-floating position-relative">
                                     <input class="form-control" id="floatingInputValue2" name="password" type="password"
-                                        placeholder="Password">
+                                        placeholder="Password" style="padding-right: 3rem;">
                                     <label for="floatingInputValue2">Enter Your Password</label>
+                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none" style="padding: 0.375rem 0.75rem; z-index: 5;" onclick="togglePasswordVisibility('floatingInputValue2', 'registerPasswordIcon')">
+                                        <i id="registerPasswordIcon" class="fa fa-eye-slash"></i>
+                                    </button>
                                 </div>
                                 <span id="passwordError" class="validation-error"></span>
                             </div>
@@ -126,6 +129,21 @@
 </section>
 @endsection
 @section('website.js')
+<script>
+function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    }
+}
+</script>
 <script>
     $(document).on('submit', '#RegisterData', function(e) {
         e.preventDefault();

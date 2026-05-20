@@ -230,14 +230,45 @@
         font-size: 0.9375rem;
     }
     
-    /* Responsive */
+    /* Toggle Switch */
+    .toggle-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .toggle-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .form-switch .form-check-input {
+        width: 2.5em;
+        height: 1.3em;
+        cursor: pointer;
+    }
+    .form-switch .form-check-input:checked {
+        background-color: #27ae60;
+        border-color: #27ae60;
+    }
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 20px;
+    }
+    .status-badge.active   { background: #d4edda; color: #155724; }
+    .status-badge.inactive { background: #f8d7da; color: #721c24; }
+    .banner-item.is-inactive { opacity: 0.55; }
+
     @media (max-width: 768px) {
         .banner-grid {
             grid-template-columns: 1fr;
             padding: 1rem;
             gap: 1.5rem;
         }
-        
         .banner-image-container {
             height: 180px;
         }
@@ -258,7 +289,7 @@
         </div>
         <div class="col-xl-6 col-md-6">
             <div class="stat-card">
-                <h3 class="stat-value">{{ count($banners->where('index_number', '!=', null)) }}</h3>
+                <h3 class="stat-value">{{ $banners->where('is_active', 1)->count() }}</h3>
                 <p class="stat-label">Active Banners</p>
             </div>
         </div>
@@ -274,17 +305,44 @@
         @if(count($banners) > 0)
             <div class="banner-grid">
                 @foreach ($banners as $key => $banner)
-                <div class="banner-item" data-id="{{ $banner->id }}">
+                <div class="banner-item {{ $banner->is_active ? '' : 'is-inactive' }}" data-id="{{ $banner->id }}">
                     <div class="banner-image-container">
-                        <img src="{{ url('public/uploads') }}/{{ $banner->banner }}" alt="Banner {{ $key + 1 }}" class="banner-image">
+                        @php
+                            // Desktop preview ya original ImageKit URL ya local
+                            $imageUrl = !empty($banner->imagekit_url_desktop)
+                                ? $banner->imagekit_url_desktop
+                                : (!empty($banner->imagekit_url)
+                                    ? $banner->imagekit_url
+                                    : url('uploads/' . $banner->banner));
+                        @endphp
+                        <img src="{{ $imageUrl }}" alt="Banner {{ $key + 1 }}" class="banner-image">
                         @if($banner->index_number)
                             <div class="banner-index">
                                 <iconify-icon icon="solar:sort-bold"></iconify-icon>
                                 Order: {{ $banner->index_number }}
                             </div>
                         @endif
+                        @if($banner->uploaded_to_imagekit)
+                            <div style="position:absolute;top:10px;right:10px;background:#27ae60;color:white;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.2);">
+                                ☁ ImageKit · WebP
+                            </div>
+                        @endif
                     </div>
                     <div class="banner-info">
+                        {{-- Active / Inactive Toggle --}}
+                        <div class="toggle-wrap">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input toggle-active-btn"
+                                       type="checkbox"
+                                       role="switch"
+                                       id="toggle_{{ $banner->id }}"
+                                       {{ $banner->is_active ? 'checked' : '' }}>
+                            </div>
+                            <span class="status-badge {{ $banner->is_active ? 'active' : 'inactive' }}" id="badge_{{ $banner->id }}">
+                                {{ $banner->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </div>
+
                         @if($banner->url)
                             <div class="banner-url">
                                 <iconify-icon icon="solar:link-bold"></iconify-icon>
@@ -319,19 +377,50 @@
 @section('admin-js')
 <script>
     $(document).ready(function() {
-        // Set CSRF token in AJAX headers
         $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
 
-        var deleteUrl = "{{ route('banner.destroy', ['id' => ':id']) }}";
+        var deleteUrl      = "{{ route('banner.destroy', ['id' => ':id']) }}";
+        var toggleUrl      = "{{ route('banner.toggle.active') }}";
 
+        // ── Toggle Active / Inactive ──────────────────────────────────────
+        $(document).on('change', '.toggle-active-btn', function() {
+            var checkbox  = $(this);
+            var item      = checkbox.closest('.banner-item');
+            var id        = item.data('id');
+            var badge     = $('#badge_' + id);
+
+            $.ajax({
+                url:    toggleUrl,
+                method: 'POST',
+                data:   { id: id },
+                success: function(res) {
+                    if (res.success) {
+                        if (res.is_active) {
+                            badge.text('Active').removeClass('inactive').addClass('active');
+                            item.removeClass('is-inactive');
+                            checkbox.prop('checked', true);
+                        } else {
+                            badge.text('Inactive').removeClass('active').addClass('inactive');
+                            item.addClass('is-inactive');
+                            checkbox.prop('checked', false);
+                        }
+                    }
+                },
+                error: function() {
+                    // Revert toggle on error
+                    checkbox.prop('checked', !checkbox.prop('checked'));
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Could not update status.', confirmButtonColor: '#e74c3c' });
+                }
+            });
+        });
+
+        // ── Delete ────────────────────────────────────────────────────────
         $(document).on('click', '.delete-btn', function() {
             var item = $(this).closest('.banner-item');
-            var id = item.data('id');
-            var url = deleteUrl.replace(':id', id);
+            var id   = item.data('id');
+            var url  = deleteUrl.replace(':id', id);
 
             Swal.fire({
                 title: "Delete Banner?",
@@ -357,21 +446,12 @@
                             }).then(() => {
                                 item.fadeOut(300, function() {
                                     $(this).remove();
-                                    
-                                    // Check if no banners left
-                                    if ($('.banner-item').length === 0) {
-                                        location.reload();
-                                    }
+                                    if ($('.banner-item').length === 0) location.reload();
                                 });
                             });
                         },
-                        error: function(response) {
-                            Swal.fire({
-                                title: "Error!",
-                                text: "Failed to delete banner",
-                                icon: "error",
-                                confirmButtonColor: '#e74c3c'
-                            });
+                        error: function() {
+                            Swal.fire({ title: "Error!", text: "Failed to delete banner", icon: "error", confirmButtonColor: '#e74c3c' });
                         }
                     });
                 }

@@ -13,7 +13,7 @@
                 <tr data-id="{{ $brand->id }}">
                     <td>{{ ($brands->currentPage() - 1) * $brands->perPage() + $key + 1 }}</td>
                     <td>
-                        <img src="{{ url('public/uploads/'.$brand->image) }}" alt="{{ $brand->name }}" class="brand-logo">
+                        <img src="{{ url('uploads/'.$brand->image) }}" alt="{{ $brand->name }}" class="brand-logo">
                     </td>
                     <td>
                         <span class="brand-name">{{ $brand->name }}</span>

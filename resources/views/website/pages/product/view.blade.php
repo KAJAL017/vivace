@@ -49,9 +49,34 @@
                                 </style>
                                 <div class="swiper-wrapper ratio3_5">
                                     @foreach ($product_images as $image)
-                                        <div class="swiper-slide img-slide"> <img loading="lazy" class="bg-img "
-                                                src="{{ url('public/' . $image->file_path) }}"
-                                                style="background-size: contain !important" alt="">
+                                        @php
+                                            $hasIK = !empty($image->imagekit_url);
+                                            $imgDesktop = $image->imagekit_url_desktop ?? null;
+                                            $imgTablet  = $image->imagekit_url_tablet  ?? null;
+                                            $imgMobile  = $image->imagekit_url_mobile  ?? null;
+                                            $imgSrc = $hasIK
+                                                ? ($imgDesktop ?? $image->imagekit_url)
+                                                : upload_url($image->file_path);
+                                        @endphp
+                                        <div class="swiper-slide img-slide">
+                                            @if($hasIK && $imgMobile && $imgTablet && $imgDesktop)
+                                                <picture>
+                                                    <source media="(max-width: 575px)"  srcset="{{ $imgMobile }}"  type="image/webp">
+                                                    <source media="(max-width: 991px)"  srcset="{{ $imgTablet }}"  type="image/webp">
+                                                    <source                              srcset="{{ $imgDesktop }}" type="image/webp">
+                                                    <img loading="lazy" class="bg-img product-zoom-trigger"
+                                                        src="{{ $imgDesktop }}"
+                                                        style="background-size: contain !important; cursor: zoom-in;"
+                                                        alt=""
+                                                        data-image="{{ $imgDesktop }}">
+                                                </picture>
+                                            @else
+                                                <img loading="lazy" class="bg-img product-zoom-trigger"
+                                                    src="{{ $imgSrc }}"
+                                                    style="background-size: contain !important; cursor: zoom-in;"
+                                                    alt=""
+                                                    data-image="{{ $imgSrc }}">
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -61,8 +86,14 @@
                             <div class="swiper product-slider-1">
                                 <div class="swiper-wrapper">
                                     @foreach ($product_images as $image)
+                                        @php
+                                            $hasIK2  = !empty($image->imagekit_url);
+                                            $imgSrc2 = $hasIK2
+                                                ? ($image->imagekit_url_mobile ?? $image->imagekit_url)
+                                                : upload_url($image->file_path);
+                                        @endphp
                                         <div class="swiper-slide"> <img loading="lazy" class="img-fluid"
-                                                src="{{ url('public/' . $image->file_path) }}" alt="">
+                                                src="{{ $imgSrc2 }}" alt="">
                                         </div>
                                     @endforeach
                                 </div>
@@ -206,8 +237,8 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
     let selectedColor = document.querySelector('.color-option.active')?.getAttribute('data-color-id') || 'N/A';
 
     // Collect product images
-    let imageLinks = `{{ url('public/' . $product_images->first()->file_path) }}`; // Display first image
-    let allImages = @json($product_images->pluck('file_path')->map(fn($path) => url('public/' . $path)));
+    let imageLinks = `{{ !empty($product_images->first()->imagekit_url) ? $product_images->first()->imagekit_url : upload_url($product_images->first()->file_path) }}`;
+    let allImages = @json($product_images->map(fn($img) => !empty($img->imagekit_url) ? $img->imagekit_url : upload_url($img->file_path)));
 
     let imageText = allImages.map((img, index) => `Image ${index + 1}: ${img}`).join('\n');
 
@@ -617,15 +648,14 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
                                             class="label-2 wishlist-icon" href="javascript:void(0)" tabindex="0"><i
                                                 class="iconsax" data-icon="heart" aria-hidden="true"
                                                 data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i></a></div> --}}
-                                    <div class="product-image"><a class="pro-first"
-                                            href="{{ route('view.product', [$product->slug]) }}"> <img loading="lazy"
-                                                class="bg-img"
-                                                src="{{ path() }}/{{ Product_first_image($product->id) }}"
-                                                alt="product"></a><a class="pro-sec"
-                                            href="{{ route('view.product', [$product->slug]) }}"> <img loading="lazy"
-                                                class="bg-img"
-                                                src="{{ path() }}/{{ get_second_image($product->id) }}"
-                                                alt="product"></a></div>
+                                    <div class="product-image">
+                                        <a class="pro-first" href="{{ route('view.product', [$product->slug]) }}">
+                                            <img loading="lazy" class="bg-img" src="{{ Product_first_image($product->id) }}" alt="product">
+                                        </a>
+                                        <a class="pro-sec" href="{{ route('view.product', [$product->slug]) }}">
+                                            <img loading="lazy" class="bg-img" src="{{ get_second_image($product->id) }}" alt="product">
+                                        </a>
+                                    </div>
                                     {{-- <div class="cart-info-icon"> <a href="#" data-bs-toggle="modal"
                                             data-bs-target="#addtocart" tabindex="0"><i class="iconsax"
                                                 data-icon="basket-2" aria-hidden="true" data-bs-toggle="tooltip"
@@ -670,6 +700,20 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
             </div>
         </div>
     </section>
+
+    <!-- Image Zoom Modal -->
+    <div class="modal fade" id="imageZoomModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content" style="background: #000;">
+                <div class="modal-header" style="border: none; padding: 10px 20px;">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 0; position: relative; overflow: hidden; min-height: 70vh; display: flex; align-items: center; justify-content: center;">
+                    <img id="zoomImage" src="" alt="Product Image" style="max-width: 100%; max-height: 80vh; object-fit: contain; cursor: zoom-in; transition: transform 0.3s ease;">
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('website.js')
 
@@ -688,6 +732,54 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
                 .catch(err => {
                     console.error('Failed to copy link: ', err);
                 });
+        });
+
+        // Image Zoom Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const zoomTriggers = document.querySelectorAll('.product-zoom-trigger');
+            const zoomModal = new bootstrap.Modal(document.getElementById('imageZoomModal'));
+            const zoomImage = document.getElementById('zoomImage');
+            let isZoomed = false;
+
+            // Open modal on image click
+            zoomTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function() {
+                    const imageSrc = this.getAttribute('data-image');
+                    zoomImage.src = imageSrc;
+                    zoomImage.style.transform = 'scale(1)';
+                    isZoomed = false;
+                    zoomModal.show();
+                });
+            });
+
+            // Zoom in/out on modal image click
+            zoomImage.addEventListener('click', function() {
+                if (!isZoomed) {
+                    this.style.transform = 'scale(2)';
+                    this.style.cursor = 'zoom-out';
+                    isZoomed = true;
+                } else {
+                    this.style.transform = 'scale(1)';
+                    this.style.cursor = 'zoom-in';
+                    isZoomed = false;
+                }
+            });
+
+            // Reset zoom when modal closes
+            document.getElementById('imageZoomModal').addEventListener('hidden.bs.modal', function() {
+                zoomImage.style.transform = 'scale(1)';
+                isZoomed = false;
+            });
+
+            // Pan zoomed image with mouse move
+            zoomImage.addEventListener('mousemove', function(e) {
+                if (isZoomed) {
+                    const rect = this.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    this.style.transformOrigin = `${x}% ${y}%`;
+                }
+            });
         });
     </script>
 

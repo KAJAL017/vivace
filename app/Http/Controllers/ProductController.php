@@ -10,8 +10,16 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Services\ImageKitService;
+
 class ProductController extends Controller
 {
+    protected $imagekitService;
+
+    public function __construct(ImageKitService $imagekitService)
+    {
+        $this->imagekitService = $imagekitService;
+    }
 
     public function index(Request $request)
     {
@@ -135,7 +143,6 @@ class ProductController extends Controller
             $productId = DB::table('products')->insertGetId([
                 'name' => $request->product_name,
                  'slug' => \Illuminate\Support\Str::slug($request->input('product_name')),
-                'sku' => $request->sku,
                 'category_id' => $request->category,
                 'subcategory' => $request->subcategory,
                 'collection_id' => $request->collection,
@@ -153,20 +160,8 @@ class ProductController extends Controller
             ]);
 
             if ($request->hasFile('product_images')) {
-                $images = $request->file('product_images'); // This will be an array of files
-
-                // Loop through each file and process it
-                foreach ($images as $image) {
-                    $imageName = time() . '_' . $image->getClientOriginalName();
-                    $destinationPath = public_path('uploads/product_images');
-                    $image->move($destinationPath, $imageName);
-
-                    // Save file information in the database along with the product_id
-                    DB::table('product_images')->insert([
-                        'product_id' => $productId, // Store product_id
-                        'file_name' => $imageName,
-                        'file_path' => 'uploads/product_images/' . $imageName, // Update path based on where it's stored
-                    ]);
+                foreach ($request->file('product_images') as $image) {
+                    $this->saveProductImage($image, $productId);
                 }
             }
 
@@ -184,11 +179,24 @@ class ProductController extends Controller
             if ($request->has('mrp')) {
                 foreach ($request->mrp as $key => $mrp) {
                     $attrImagePath = null;
+                    $imagekitFileId = null;
+                    $imagekitUrl = null;
+                    $uploadedToImagekit = 0;
+                    
                     if ($request->hasFile('attr_image.' . $key)) {
                         $attrImage = $request->file('attr_image.' . $key);
-                        $attrImageName = Str::random(10) . '.' . $attrImage->getClientOriginalExtension();
-                        $attrImage->move(public_path('products'), $attrImageName);
-                        $attrImagePath = 'products/' . $attrImageName;
+                        
+                        // Upload to ImageKit with fallback
+                        $uploadResult = $this->imagekitService->uploadWithFallback(
+                            $attrImage,
+                            'uploads/products/attributes',
+                            'products/attributes'
+                        );
+                        
+                        $attrImagePath = $uploadResult['file_path'];
+                        $imagekitFileId = $uploadResult['imagekit_file_id'];
+                        $imagekitUrl = $uploadResult['imagekit_url'];
+                        $uploadedToImagekit = $uploadResult['uploaded_to_imagekit'] ? 1 : 0;
                     }
 
                     DB::table('product_attributes')->insert([
@@ -198,7 +206,11 @@ class ProductController extends Controller
                         'size_id' => $request->size[$key],
                         'color_id' => $request->color[$key],
                         'qty' => $request->qty[$key],
+                        'sku' => $request->sku[$key] ?? null,
                         'image' => $attrImagePath,
+                        'imagekit_file_id' => $imagekitFileId,
+                        'imagekit_url' => $imagekitUrl,
+                        'uploaded_to_imagekit' => $uploadedToImagekit,
                         'date'=>date('d-m-Y')
                     ]);
                 }
@@ -230,6 +242,31 @@ class ProductController extends Controller
         return null;
     }
 
+    /**
+     * Upload a product image to ImageKit with responsive sizes, save to DB.
+     */
+    private function saveProductImage($file, $productId): void
+    {
+        $uploadResult = $this->imagekitService->uploadWithFallback(
+            $file,
+            'uploads/product_images',
+            'products/product_images',
+            ImageKitService::PRODUCT_SIZES
+        );
+
+        DB::table('product_images')->insert([
+            'product_id'           => $productId,
+            'file_name'            => $uploadResult['file_name'],
+            'file_path'            => $uploadResult['file_path'],
+            'imagekit_file_id'     => $uploadResult['imagekit_file_id'],
+            'imagekit_url'         => $uploadResult['imagekit_url'],
+            'imagekit_url_desktop' => $uploadResult['imagekit_url_desktop'],
+            'imagekit_url_tablet'  => $uploadResult['imagekit_url_tablet'],
+            'imagekit_url_mobile'  => $uploadResult['imagekit_url_mobile'],
+            'uploaded_to_imagekit' => $uploadResult['uploaded_to_imagekit'] ? 1 : 0,
+        ]);
+    }
+
     public function image_upload($id)
     {
         $data = $id;
@@ -244,20 +281,8 @@ class ProductController extends Controller
             'product_id' => 'required|exists:products,id', // Validate the product_id
         ]);
 
-        // Check if the request has files
         if ($request->hasFile('file')) {
-            $image = $request->file('file');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $destinationPath = public_path('uploads/product_images');
-            $image->move($destinationPath, $imageName);
-
-            // Save file information in the database along with the product_id
-            DB::table('product_images')->insert([
-                'product_id' => $request->input(key: 'product_id'), // Store product_id
-                'file_name' => $imageName,
-                'file_path' => 'uploads/product_images/' . $imageName, // Update path based on where it's stored
-            ]);
-
+            $this->saveProductImage($request->file('file'), $request->input('product_id'));
             return response()->json(['success' => 'Image uploaded successfully']);
         }
 
@@ -476,20 +501,8 @@ public function getSubcategories($categoryId)
             $product = DB::table('products')->where('id', $productId)->first();
 
                        if ($request->hasFile('product_images')) {
-                $images = $request->file('product_images'); // This will be an array of files
-
-                // Loop through each file and process it
-                foreach ($images as $image) {
-                    $imageName = time() . '_' . $image->getClientOriginalName();
-                    $destinationPath = public_path('uploads/product_images');
-                    $image->move($destinationPath, $imageName);
-
-                    // Save file information in the database along with the product_id
-                    DB::table('product_images')->insert([
-                        'product_id' => $productId, // Store product_id
-                        'file_name' => $imageName,
-                        'file_path' => 'uploads/product_images/' . $imageName, // Update path based on where it's stored
-                    ]);
+                foreach ($request->file('product_images') as $image) {
+                    $this->saveProductImage($image, $productId);
                 }
             }
         $attrImagePath = "";
@@ -497,7 +510,6 @@ public function getSubcategories($categoryId)
             DB::table('products')->where('id', $productId)->update([
                  'name' => $request->product_name,
                  'slug' => \Illuminate\Support\Str::slug($request->input('product_name')),
-                'sku' => $request->sku,
                 'category_id' => $request->category,
                 'subcategory' => $request->subcategory,
                 'collection_id' => $request->collection,
@@ -540,22 +552,32 @@ public function getSubcategories($categoryId)
             // Update product attributes
             if ($request->has('mrp')) {
                 foreach ($request->mrp as $key => $mrp) {
-                    $attrImagePath = null;
+                    $updateData = [
+                        'mrp' => $mrp,
+                        'price' => $request->price[$key],
+                        'qty' => $request->qty[$key],
+                        'sku' => $request->sku[$key] ?? null,
+                    ];
+                    
                     if ($request->hasFile('attr_image.' . $key)) {
                         $attrImage = $request->file('attr_image.' . $key);
-                        $attrImageName = Str::random(10) . '.' . $attrImage->getClientOriginalExtension();
-                        $attrImage->move(public_path('products'), $attrImageName);
-                        $attrImagePath = 'products/' . $attrImageName;
+                        
+                        // Upload to ImageKit with fallback
+                        $uploadResult = $this->imagekitService->uploadWithFallback(
+                            $attrImage,
+                            'uploads/products/attributes',
+                            'products/attributes'
+                        );
+                        
+                        $updateData['image'] = $uploadResult['file_path'];
+                        $updateData['imagekit_file_id'] = $uploadResult['imagekit_file_id'];
+                        $updateData['imagekit_url'] = $uploadResult['imagekit_url'];
+                        $updateData['uploaded_to_imagekit'] = $uploadResult['uploaded_to_imagekit'] ? 1 : 0;
                     }
 
                     DB::table('product_attributes')->updateOrInsert(
                         ['product_id' => $productId, 'size_id' => $request->size[$key], 'color_id' => $request->color[$key]],
-                        [
-                            'mrp' => $mrp,
-                            'price' => $request->price[$key],
-                            'qty' => $request->qty[$key],
-                            'image' => $attrImagePath ?? DB::raw('image')
-                        ]
+                        $updateData
                     );
                 }
             }
@@ -616,6 +638,94 @@ public function getSubcategories($categoryId)
     DB::table('product_attributes')->where('product_id', $id)->delete();
 
     return response()->json(['status' => 'success', 'message' => 'Product deleted successfully']);
+    }
+    
+    /**
+     * Bulk delete products
+     */
+    public function bulkDelete(Request $request)
+    {
+        try {
+            $productIds = $request->input('product_ids', []);
+            
+            if (empty($productIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No products selected'
+                ], 400);
+            }
+            
+            DB::beginTransaction();
+            
+            // Delete product attributes
+            DB::table('product_attributes')
+                ->whereIn('product_id', $productIds)
+                ->delete();
+            
+            // Delete product images records
+            DB::table('product_images')
+                ->whereIn('product_id', $productIds)
+                ->delete();
+            
+            // Delete products
+            $deletedCount = DB::table('products')
+                ->whereIn('id', $productIds)
+                ->delete();
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Products deleted successfully',
+                'deleted_count' => $deletedCount
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete products: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Bulk move products to out of stock
+     */
+    public function bulkOutOfStock(Request $request)
+    {
+        try {
+            $productIds = $request->input('product_ids', []);
+            
+            if (empty($productIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No products selected'
+                ], 400);
+            }
+            
+            DB::beginTransaction();
+            
+            // Set all product attributes qty to 0 for selected products
+            $updatedCount = DB::table('product_attributes')
+                ->whereIn('product_id', $productIds)
+                ->update(['qty' => 0]);
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Products moved to out of stock successfully',
+                'updated_count' => count($productIds)
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update products: ' . $e->getMessage()
+            ], 500);
+        }
     }
     
     public function updateStock(Request $request)
@@ -735,3 +845,4 @@ public function saveSeoData(Request $request)
     }
 
 }
+

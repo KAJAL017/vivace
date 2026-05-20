@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Services\ImageKitService;
 
 class ExtraBanners extends Controller
 {
@@ -70,39 +71,71 @@ class ExtraBanners extends Controller
         // Get the ID from the request
         $id = $request->id;
         $imagePath = null;
+        $imagekitFileId = null;
+        $imagekitUrl = null;
+        $uploadedToImagekit = false;
 
         // If a new image is uploaded
         if ($request->hasFile('banner')) {
-            // Get the new image file name
-            $imageName = time() . '_' . $request->file('banner')->getClientOriginalName();
-            $request->file('banner')->move(public_path('uploads/extrabanners'), $imageName);
-            $imagePath = 'extrabanners/' . $imageName;
+            $imagekitService = new ImageKitService();
+            
+            // Try to upload to ImageKit with fallback to local
+            $uploadResult = $imagekitService->uploadWithFallback(
+                $request->file('banner'),
+                'uploads/extrabanners',
+                'extrabanners'
+            );
+
+            $imagePath = $uploadResult['file_path'];
+            $uploadedToImagekit = $uploadResult['uploaded_to_imagekit'];
+            
+            if ($uploadedToImagekit) {
+                $imagekitFileId = $uploadResult['imagekit_file_id'];
+                $imagekitUrl = $uploadResult['imagekit_url'];
+            }
+
+            // If updating, delete the old image
+            if ($id) {
+                $existingBanner = DB::table($tableName)->where('id', $id)->first();
+                if ($existingBanner) {
+                    // Delete from ImageKit if it was stored there
+                    if (!empty($existingBanner->imagekit_file_id) && $imagekitService->isEnabled()) {
+                        $imagekitService->deleteImage($existingBanner->imagekit_file_id);
+                    }
+                    
+                    // Delete from local storage if it exists
+                    $localPath = 'uploads/' . $existingBanner->banner;
+                    if (!empty($existingBanner->banner) && file_exists(public_path($localPath))) {
+                        unlink(public_path($localPath));
+                    }
+                }
+            }
         } else {
             // If no new image is uploaded, use the current image path if updating
             if ($id) {
                 $existingBanner = DB::table($tableName)->where('id', $id)->first();
                 if ($existingBanner) {
-                    $imagePath = $existingBanner->banner; // Keep the old banner if no new file is uploaded
+                    $imagePath = $existingBanner->banner;
+                    $imagekitFileId = $existingBanner->imagekit_file_id ?? null;
+                    $imagekitUrl = $existingBanner->imagekit_url ?? null;
+                    $uploadedToImagekit = $existingBanner->uploaded_to_imagekit ?? false;
                 }
             }
         }
 
+        // Prepare data for insert/update
+        $data = [
+            'banner' => $imagePath,
+            'link' => $request->link,
+            'imagekit_file_id' => $imagekitFileId,
+            'imagekit_url' => $imagekitUrl,
+            'uploaded_to_imagekit' => $uploadedToImagekit ? 1 : 0,
+        ];
+
         // Check if the banner already exists (i.e., it's an update scenario)
         if ($id) {
-            // Retrieve the existing banner record
-            $existingBanner = DB::table($tableName)->where('id', $id)->first();
-
-            // If there is an existing banner and a new image was uploaded, delete the old image
-            if ($existingBanner && $imagePath && file_exists(public_path('uploads/' . $existingBanner->banner))) {
-                // Delete the old image if it exists
-                unlink(public_path('uploads/' . $existingBanner->banner));
-            }
-
-            // Update the banner data with the new image path (or keep the existing image if no new file)
-            DB::table($tableName)->where('id', $id)->update([
-                'banner' => $imagePath,
-                'link' => $request->link, // Update other fields as necessary
-            ]);
+            // Update the banner data
+            DB::table($tableName)->where('id', $id)->update($data);
 
             return response()->json([
                 'status' => 'success',
@@ -110,10 +143,7 @@ class ExtraBanners extends Controller
             ], 200);
         } else {
             // Insert new banner data if no ID is provided (new record)
-            DB::table($tableName)->insert([
-                'banner' => $imagePath,
-                'link' => $request->link,
-            ]);
+            DB::table($tableName)->insert($data);
 
             return response()->json([
                 'status' => 'success',

@@ -13,6 +13,7 @@
             border-color: #dc3545;
         }
     </style>
+
     <section class="section-b-space pt-0">
         <div class="heading-banner">
             <div class="custom-container container">
@@ -30,144 +31,41 @@
             </div>
         </div>
     </section>
-    @php
-        $userId = session('user_id');
-        $billing_addresses = DB::table('addresses')
-            ->where(['user_id' => $userId])
-            ->where(['address_type' => 1])
-            ->where(['is_deleted' => 0])
-            ->get();
-        $shipping_addresses = DB::table('addresses')
-            ->where(['user_id' => $userId])
-            ->where(['address_type' => 2])
-            ->where(['is_deleted' => 0])
-            ->get();
-    @endphp
     <section class="section-b-space pt-0">
         <div class="custom-container container">
             <div class="row">
                 <div class="col-xxl-9 col-lg-8">
                     <div class="left-sidebar-checkout sticky">
+                        <!-- Shipping Address Form -->
                         <div class="address-option">
                             <div class="address-title">
-                                <h4>Shipping Address</h4><a href="#" data-bs-toggle="modal"
-                                    data-bs-target="#add-address" title="add product" tabindex="0">+ Add New Address</a>
+                                <h4>Shipping Address</h4>
                             </div>
-                            <div class="row">
-                                @foreach ($shipping_addresses as $key => $address)
-                                    <div class="col-xxl-4">
-                                        <label for="address-shipping-{{ $key }}">
-                                            <span class="delivery-address-box">
-                                                <span class="form-check">
-                                                    <input class="custom-radio" id="address-shipping-{{ $key }}"
-                                                        value="{{ $address->id }}" type="radio" name="shipping_address"
-                                                        {{ $loop->first ? 'checked="checked"' : '' }}>
-                                                </span>
-                                                <span class="address-detail">
-                                                    <span class="address">
-                                                        <span class="address-title">{{ $address->name }}</span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">Address:</span>
-                                                            {{ $address->address }}
-                                                        </span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">Pin Code:</span>
-                                                            {{ $address->pincode }}
-                                                        </span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">Phone:</span> {{ $address->phone }}
-                                                        </span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">City:</span> {{ $address->city }}
-                                                        </span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">State:</span> {{ $address->state }}
-                                                        </span>
-                                                    </span>
-                                                </span>
-                                            </span>
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 20px;">
-                            <div style="border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
-                                <label style="display: block; padding: 10px; cursor: pointer;">
-                                    <input type="radio" name="billing_option" class="billing_option"
-                                        value="same_as_shipping" style="margin-right: 10px;" checked>
-                                    Same as shipping address
-                                </label>
-                                <label style="display: block; padding: 10px; cursor: pointer;">
-                                    <input type="radio" name="billing_option" class="billing_option"
-                                        value="different_address" style="margin-right: 10px;">
-                                    Use a different billing address
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="address-option" id="billing-address" style="display: none;">
-                            <div class="address-title">
-                                <h4>Billing Address </h4><a href="#" data-bs-toggle="modal"
-                                    data-bs-target="#add-address" title="add product" tabindex="0">+ Add New Address</a>
-                            </div>
-                            <div class="row gy-3">
-                                @foreach ($billing_addresses as $key => $address)
-                                    <div class="col-xxl-4">
-                                        <label for="address-billing-{{ $key }}">
-                                            <span class="delivery-address-box">
-                                                <span class="form-check">
-                                                    <input class="custom-radio" id="address-billing-{{ $key }}"
-                                                        value="{{ $address->id }}" type="radio" name="billing_address"
-                                                        {{ $loop->first ? 'checked="checked"' : '' }}>
-                                                </span>
-                                                <span class="address-detail">
-                                                    <span class="address">
-                                                        <span class="address-title">{{ $address->name }}</span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">Address:</span>
-                                                            {{ $address->address }}
-                                                        </span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">Pin Code:</span>
-                                                            {{ $address->pincode }}
-                                                        </span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">Phone:</span> {{ $address->phone }}
-                                                        </span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">City:</span> {{ $address->city }}
-                                                        </span>
-                                                    </span>
-                                                    <span class="address">
-                                                        <span class="address-home">
-                                                            <span class="address-tag">State:</span> {{ $address->state }}
-                                                        </span>
-                                                    </span>
-                                                </span>
-                                            </span>
-                                        </label>
-                                    </div>
-                                @endforeach
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="shipping_name" name="shipping_name" placeholder="Enter your full name" value="{{ $lastAddress->name ?? '' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="shipping_phone" name="shipping_phone" placeholder="Enter your phone number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ $lastAddress->phone ?? '' }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="shipping_address" name="shipping_address" rows="2" placeholder="Enter your complete address">{{ $lastAddress->address ?? '' }}</textarea>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Pincode <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="shipping_pincode" name="shipping_pincode" placeholder="Enter pincode" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ $lastAddress->pincode ?? '' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">City <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="shipping_city" name="shipping_city" placeholder="Enter city" value="{{ $lastAddress->city ?? '' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">State <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="shipping_state" name="shipping_state" placeholder="Enter state" value="{{ $lastAddress->state ?? '' }}">
+                                </div>
                             </div>
                         </div>
 
@@ -179,41 +77,41 @@
                                     $codEnabled = $settings && $settings->cod_enabled == 1;
                                     $razorpayEnabled = $settings && $settings->razorpay_enabled == 1;
                                 @endphp
-                                
+
                                 @if($codEnabled)
                                 <div class="col-sm-6">
-                                    <div class="payment-box"> 
-                                        <input class="custom-radio me-2" id="cod" type="radio" 
-                                               {{ !$razorpayEnabled ? 'checked="checked"' : '' }} 
-                                               name="payment_method" value="Cod"> 
-                                        <label for="cod">Cash on Delivery</label> 
+                                    <div class="payment-box">
+                                        <input class="custom-radio me-2" id="cod" type="radio"
+                                               {{ !$razorpayEnabled ? 'checked="checked"' : '' }}
+                                               name="payment_method" value="Cod">
+                                        <label for="cod">Cash on Delivery</label>
                                     </div>
                                 </div>
                                 @else
                                 <div class="col-sm-6">
-                                    <div class="payment-box disabled" style="opacity: 0.5; cursor: not-allowed;"> 
-                                        <input class="custom-radio me-2" id="cod" type="radio" 
-                                               name="payment_method" value="Cod" disabled> 
-                                        <label for="cod" style="cursor: not-allowed;">Cash on Delivery (Not Available)</label> 
+                                    <div class="payment-box disabled" style="opacity: 0.5; cursor: not-allowed;">
+                                        <input class="custom-radio me-2" id="cod" type="radio"
+                                               name="payment_method" value="Cod" disabled>
+                                        <label for="cod" style="cursor: not-allowed;">Cash on Delivery (Not Available)</label>
                                     </div>
                                 </div>
                                 @endif
-                                
+
                                 @if($razorpayEnabled)
                                 <div class="col-sm-6">
-                                    <div class="payment-box"> 
-                                        <input class="custom-radio me-2" id="online" type="radio" 
-                                               {{ $razorpayEnabled && !$codEnabled ? 'checked="checked"' : '' }} 
-                                               name="payment_method" value="Online"> 
-                                        <label for="online">Razorpay</label> 
+                                    <div class="payment-box">
+                                        <input class="custom-radio me-2" id="online" type="radio"
+                                               {{ $razorpayEnabled && !$codEnabled ? 'checked="checked"' : '' }}
+                                               name="payment_method" value="Online">
+                                        <label for="online">Razorpay</label>
                                     </div>
                                 </div>
                                 @else
                                 <div class="col-sm-6">
-                                    <div class="payment-box disabled" style="opacity: 0.5; cursor: not-allowed;"> 
-                                        <input class="custom-radio me-2" id="online" type="radio" 
-                                               name="payment_method" value="Online" disabled> 
-                                        <label for="online" style="cursor: not-allowed;">Razorpay (Not Available)</label> 
+                                    <div class="payment-box disabled" style="opacity: 0.5; cursor: not-allowed;">
+                                        <input class="custom-radio me-2" id="online" type="radio"
+                                               name="payment_method" value="Online" disabled>
+                                        <label for="online" style="cursor: not-allowed;">Razorpay (Not Available)</label>
                                     </div>
                                 </div>
                                 @endif
@@ -256,21 +154,12 @@
 
                             <div class="summary-total">
                                 @php
-                                    // Get selected shipping address city
-                                    $selectedShippingCity = '';
-                                    if ($shipping_addresses->isNotEmpty()) {
-                                        $selectedShippingCity = strtolower(trim($shipping_addresses->first()->city));
-                                    }
-                                    
-                                    // Calculate shipping charge
+                                    // Default shipping charge is 0 until user enters city
                                     $shippingCharge = 0;
-                                    if ($selectedShippingCity !== 'srinagar') {
-                                        $shippingCharge = 150;
-                                    }
-                                    
+
                                     // Calculate GST (5%)
                                     $gstAmount = ($subtotal * 5) / 100;
-                                    
+
                                     // Calculate total
                                     $total = $subtotal + $gstAmount + $shippingCharge;
                                 @endphp
@@ -306,261 +195,134 @@
             </div>
         </div>
     </section>
-    
-    <!-- Add Address Modal -->
-    <div class="reviews-modal modal theme-modal fade" id="add-address" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4>Add New Address</h4>
-                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body pt-0">
-                    <form id="addAddressForm">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label">Name <span class="text-danger">*</span></label>
-                                    <input class="form-control" type="text" name="name" id="name"
-                                        placeholder="Enter your name">
-                                    <span class="text-danger error-message" id="name_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label">Email <span class="text-danger">*</span></label>
-                                    <input class="form-control" type="email" name="email" id="email"
-                                        placeholder="john.smith@example.com">
-                                    <span class="text-danger error-message" id="email_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label">Phone <span class="text-danger">*</span></label>
-                                    <input class="form-control" type="text" name="phone" id="phone"
-                                        placeholder="Enter your Number" maxlength="10">
-                                    <span class="text-danger error-message" id="phone_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label">Address <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" name="address" id="address" cols="30" rows="5"
-                                        placeholder="Write your Address..."></textarea>
-                                    <span class="text-danger error-message" id="address_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label">Pincode <span class="text-danger">*</span></label>
-                                    <input class="form-control" type="text" name="pincode" id="pincode"
-                                        placeholder="Enter your Pincode" maxlength="6">
-                                    <span class="text-danger error-message" id="pincode_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label">City <span class="text-danger">*</span></label>
-                                    <input class="form-control" type="text" name="city" id="city"
-                                        placeholder="Enter your City">
-                                    <span class="text-danger error-message" id="city_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label">State <span class="text-danger">*</span></label>
-                                    <input class="form-control" type="text" name="state" id="state"
-                                        placeholder="Enter your State">
-                                    <span class="text-danger error-message" id="state_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label">Address Type <span class="text-danger">*</span></label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="address_type"
-                                            id="billing_address" value="1" checked>
-                                        <label class="form-check-label" for="billing_address">Billing Address</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="address_type"
-                                            id="shipping_address" value="2">
-                                        <label class="form-check-label" for="shipping_address">Shipping Address</label>
-                                    </div>
-                                    <span class="text-danger error-message" id="address_type_error"></span>
-                                </div>
-                            </div>
-                            <button class="btn btn-submit" type="submit" id="submitAddress">Submit</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 @section('website.js')
     <script>
-        // Function to update shipping charge based on selected city
-        function updateShippingCharge() {
-            const selectedShippingAddress = document.querySelector('input[name="shipping_address"]:checked');
-            if (!selectedShippingAddress) return;
-            
-            // Get the city from the selected address label
-            const addressLabel = selectedShippingAddress.closest('label');
-            let city = '';
-            
-            // Find all address spans and look for the one with City tag
-            const addressSpans = addressLabel.querySelectorAll('.address');
-            addressSpans.forEach(function(span) {
-                const addressHome = span.querySelector('.address-home');
-                if (addressHome) {
-                    const addressTag = addressHome.querySelector('.address-tag');
-                    if (addressTag && addressTag.textContent.trim() === 'City:') {
-                        // Get the city text (everything after the tag)
-                        const fullText = addressHome.textContent.trim();
-                        city = fullText.replace('City:', '').trim().toLowerCase();
-                    }
+        // Function to validate address fields
+        function validateAddressFields(prefix) {
+            let isValid = true;
+            const requiredFields = ['name', 'phone', 'address', 'pincode', 'city', 'state'];
+
+            requiredFields.forEach(field => {
+                const input = document.getElementById(prefix + '_' + field);
+                if (input && input.value.trim() === '') {
+                    input.classList.add('border-danger');
+                    isValid = false;
+                } else if (input) {
+                    input.classList.remove('border-danger');
                 }
             });
-            
-            console.log('Selected City:', city); // Debug log
-            
+
+            return isValid;
+        }
+
+        // Function to update shipping charge based on city input
+        function updateShippingCharge() {
+            const cityInput = document.getElementById('shipping_city');
+            if (!cityInput || !cityInput.value.trim()) return;
+
+            const city = cityInput.value.trim().toLowerCase();
+            console.log('City:', city);
+
             // Calculate shipping charge
             let shippingCharge = 0;
             if (city !== 'srinagar') {
                 shippingCharge = 150;
             }
-            
+
             // Get subtotal
             const subtotalText = document.getElementById('subtotal-amount').textContent.replace('₹', '').replace(',', '');
             const subtotal = parseFloat(subtotalText);
-            
+
             // Calculate GST (5%)
             const gstAmount = (subtotal * 5) / 100;
-            
+
             // Calculate total
             const total = subtotal + gstAmount + shippingCharge;
-            
+
             // Update UI
             document.getElementById('shipping-amount').textContent = '₹' + shippingCharge.toFixed(2);
             document.getElementById('gst-amount').textContent = '₹' + gstAmount.toFixed(2);
             document.getElementById('total-amount').textContent = '₹' + total.toFixed(2);
             document.getElementById('total_price').value = total.toFixed(2);
         }
-        
-        // Add event listeners to shipping address radio buttons
-        document.querySelectorAll('input[name="shipping_address"]').forEach(function(radio) {
-            radio.addEventListener('change', updateShippingCharge);
-        });
-        
-        // Toggle billing address visibility
-        document.querySelectorAll('.billing_option').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                const billingAddress = document.getElementById('billing-address');
-                if (this.value === 'different_address') {
-                    billingAddress.style.display = 'block';
-                } else {
-                    billingAddress.style.display = 'none';
-                }
-            });
+
+        // Add event listener to shipping city input
+        document.getElementById('shipping_city').addEventListener('input', updateShippingCharge);
+
+        // Fetch last address when phone number is entered (10 digits)
+        document.getElementById('shipping_phone').addEventListener('input', function() {
+            const phone = this.value.trim();
+            
+            // When phone number is 10 digits, fetch last address
+            if (phone.length === 10) {
+                fetch('{{ route("get.last.address.by.phone") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ phone: phone })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.address) {
+                        // Fill all fields with last address
+                        document.getElementById('shipping_name').value = data.address.name || '';
+                        document.getElementById('shipping_address').value = data.address.address || '';
+                        document.getElementById('shipping_pincode').value = data.address.pincode || '';
+                        document.getElementById('shipping_city').value = data.address.city || '';
+                        document.getElementById('shipping_state').value = data.address.state || '';
+                        
+                        // Trigger shipping charge calculation
+                        updateShippingCharge();
+                        
+                        // Show success message
+                        console.log('Previous address loaded successfully!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching address:', error);
+                });
+            }
         });
 
-        // Add Address Form Submission
-        document.getElementById('addAddressForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Clear previous errors
-            document.querySelectorAll('.error-message').forEach(function(el) {
-                el.textContent = '';
-            });
-            document.querySelectorAll('.form-control').forEach(function(el) {
-                el.classList.remove('error');
-            });
-            
-            const formData = new FormData(this);
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            fetch('{{ route("user.address.store") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => {
-                return response.json().then(data => {
-                    return {
-                        status: response.status,
-                        ok: response.ok,
-                        data: data
-                    };
-                });
-            })
-            .then(result => {
-                if (result.ok && result.data.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('add-address'));
-                    modal.hide();
-                    document.getElementById('addAddressForm').reset();
-                    location.reload();
-                } else if (result.data.errors) {
-                    // Display validation errors below each input
-                    Object.keys(result.data.errors).forEach(function(key) {
-                        const errorElement = document.getElementById(key + '_error');
-                        const inputElement = document.getElementById(key);
-                        if (errorElement) {
-                            errorElement.textContent = result.data.errors[key][0];
-                        }
-                        if (inputElement) {
-                            inputElement.classList.add('error');
-                        }
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        // Calculate shipping charge on page load if city is already filled
+        document.addEventListener('DOMContentLoaded', function() {
+            const cityInput = document.getElementById('shipping_city');
+            if (cityInput && cityInput.value.trim() !== '') {
+                updateShippingCharge();
+            }
         });
 
         // Place Order Button
         document.getElementById('placeOrderBtn').addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             // Disable button to prevent double submission
             const btn = this;
             btn.disabled = true;
             btn.textContent = 'Processing...';
-            
-            // Get billing option
-            const billingOption = document.querySelector('input[name="billing_option"]:checked').value;
-            let billingAddressId = null;
-            
-            if (billingOption === 'different_address') {
-                const billingAddressRadio = document.querySelector('input[name="billing_address"]:checked');
-                if (!billingAddressRadio) {
-                    btn.disabled = false;
-                    btn.textContent = 'Place Order';
-                    return;
-                }
-                billingAddressId = billingAddressRadio.value;
-            } else {
-                const shippingAddressRadio = document.querySelector('input[name="shipping_address"]:checked');
-                if (!shippingAddressRadio) {
-                    btn.disabled = false;
-                    btn.textContent = 'Place Order';
-                    return;
-                }
-                billingAddressId = shippingAddressRadio.value;
-            }
-            
-            // Get shipping address
-            const shippingAddressRadio = document.querySelector('input[name="shipping_address"]:checked');
-            if (!shippingAddressRadio) {
+
+            // Validate shipping address
+            if (!validateAddressFields('shipping')) {
                 btn.disabled = false;
                 btn.textContent = 'Place Order';
+                Swal.fire('Error', 'Please fill all required shipping address fields', 'error');
                 return;
             }
-            
+
+            // Get shipping address data (used for both shipping and billing)
+            const shippingData = {
+                name: document.getElementById('shipping_name').value.trim(),
+                phone: document.getElementById('shipping_phone').value.trim(),
+                address: document.getElementById('shipping_address').value.trim(),
+                pincode: document.getElementById('shipping_pincode').value.trim(),
+                city: document.getElementById('shipping_city').value.trim(),
+                state: document.getElementById('shipping_state').value.trim()
+            };
+
             // Get payment method
             const paymentMethodRadio = document.querySelector('input[name="payment_method"]:checked');
             if (!paymentMethodRadio) {
@@ -568,7 +330,7 @@
                 btn.textContent = 'Place Order';
                 return;
             }
-            
+
             // Collect cart items
             const cartItems = [];
             document.querySelectorAll('.cart-listing ul li').forEach(function(item) {
@@ -577,7 +339,7 @@
                 const price = item.getAttribute('data-price');
                 const color = item.getAttribute('data-color');
                 const size = item.getAttribute('data-size');
-                
+
                 if (productId && quantity && price) {
                     cartItems.push({
                         product_id: productId,
@@ -588,25 +350,23 @@
                     });
                 }
             });
-            
+
             if (cartItems.length === 0) {
                 btn.disabled = false;
                 btn.textContent = 'Place Order';
                 return;
             }
-            
+
             // Prepare form data
             const formData = {
                 total_price: document.getElementById('total_price').value,
-                billing_option: billingOption,
-                billing_address_id: billingAddressId,
+                shipping_address: shippingData,
                 payment_method: paymentMethodRadio.value,
-                shipping_address_id: shippingAddressRadio.value,
                 cart_items: cartItems
             };
-            
+
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
+
             // Process order based on payment method
             if (paymentMethodRadio.value === 'Online') {
                 // Razorpay payment

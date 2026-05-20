@@ -748,6 +748,198 @@
         });
     });
     
+    // Bulk Delete Functionality
+    let selectedProducts = [];
+    
+    // Select All Checkbox
+    $(document).on('change', '#selectAll', function() {
+        const isChecked = $(this).is(':checked');
+        $('.product-checkbox').prop('checked', isChecked);
+        updateSelectedProducts();
+    });
+    
+    // Individual Checkbox
+    $(document).on('change', '.product-checkbox', function() {
+        updateSelectedProducts();
+        
+        // Update "Select All" checkbox state
+        const totalCheckboxes = $('.product-checkbox').length;
+        const checkedCheckboxes = $('.product-checkbox:checked').length;
+        $('#selectAll').prop('checked', totalCheckboxes === checkedCheckboxes);
+    });
+    
+    // Update Selected Products Array
+    function updateSelectedProducts() {
+        selectedProducts = [];
+        $('.product-checkbox:checked').each(function() {
+            selectedProducts.push($(this).val());
+        });
+        
+        // Show/Hide bulk actions bar
+        if (selectedProducts.length > 0) {
+            $('#bulkActionsBar').css('display', 'flex');
+            $('#selectedCount').text(selectedProducts.length);
+        } else {
+            $('#bulkActionsBar').hide();
+        }
+    }
+    
+    // Deselect All Button
+    $(document).on('click', '#deselectAllBtn', function() {
+        $('.product-checkbox, #selectAll').prop('checked', false);
+        updateSelectedProducts();
+    });
+    
+    // Bulk Delete Button
+    $(document).on('click', '#bulkDeleteBtn', function() {
+        if (selectedProducts.length === 0) {
+            Swal.fire({
+                title: 'No Products Selected',
+                text: 'Please select at least one product to delete',
+                icon: 'warning',
+                confirmButtonColor: '#f39c12'
+            });
+            return;
+        }
+        
+        Swal.fire({
+            title: `Delete ${selectedProducts.length} Product(s)?`,
+            text: "This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: '#e74c3c',
+            cancelButtonColor: '#95a5a6',
+            confirmButtonText: 'Yes, Delete All',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('product.bulk.delete') }}",
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        product_ids: selectedProducts
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Deleting...',
+                            text: 'Please wait',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: `${response.deleted_count} product(s) deleted successfully`,
+                                icon: "success",
+                                confirmButtonColor: '#27ae60',
+                                timer: 2000
+                            }).then(() => {
+                                selectedProducts = [];
+                                $('#selectAll').prop('checked', false);
+                                applyFilters(); // Reload with current filters
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Error!",
+                                text: response.message || "Failed to delete products",
+                                icon: "error",
+                                confirmButtonColor: '#e74c3c'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            title: "Error!",
+                            text: "Failed to delete products",
+                            icon: "error",
+                            confirmButtonColor: '#e74c3c'
+                        });
+                    }
+                });
+            }
+        });
+    });
+    
+    // Bulk Out of Stock Button
+    $(document).on('click', '#bulkOutOfStockBtn', function() {
+        if (selectedProducts.length === 0) {
+            Swal.fire({
+                title: 'No Products Selected',
+                text: 'Please select at least one product',
+                icon: 'warning',
+                confirmButtonColor: '#f39c12'
+            });
+            return;
+        }
+        
+        Swal.fire({
+            title: `Move ${selectedProducts.length} Product(s) to Out of Stock?`,
+            text: "This will set all stock quantities to 0",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: '#f39c12',
+            cancelButtonColor: '#95a5a6',
+            confirmButtonText: 'Yes, Move to Out of Stock',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('product.bulk.outofstock') }}",
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        product_ids: selectedProducts
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Please wait',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Success!",
+                                text: `${response.updated_count} product(s) moved to out of stock`,
+                                icon: "success",
+                                confirmButtonColor: '#27ae60',
+                                timer: 2000
+                            }).then(() => {
+                                selectedProducts = [];
+                                $('#selectAll').prop('checked', false);
+                                applyFilters(); // Reload with current filters
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Error!",
+                                text: response.message || "Failed to update products",
+                                icon: "error",
+                                confirmButtonColor: '#e74c3c'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            title: "Error!",
+                            text: "Failed to update products",
+                            icon: "error",
+                            confirmButtonColor: '#e74c3c'
+                        });
+                    }
+                });
+            }
+        });
+    });
+    
     // Stock Modal Functions
     let currentProductId = null;
     

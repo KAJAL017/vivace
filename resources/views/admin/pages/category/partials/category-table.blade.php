@@ -5,6 +5,7 @@
                 <th>#</th>
                 <th>Image</th>
                 <th>Category Name</th>
+                <th>Status</th>
                 <th>Top Bar</th>
                 <th class="text-center">Actions</th>
             </tr>
@@ -14,10 +15,29 @@
                 <tr data-id="{{ $category->id }}">
                     <td>{{ ($categories->currentPage() - 1) * $categories->perPage() + $key + 1 }}</td>
                     <td>
-                        <img src="{{ url('public/uploads/'.$category->image) }}" alt="{{ $category->name }}" class="category-image">
+                        @php
+                            $catImgUrl = !empty($category->imagekit_url_desktop)
+                                ? $category->imagekit_url_desktop
+                                : (!empty($category->imagekit_url)
+                                    ? $category->imagekit_url
+                                    : upload_url($category->image));
+                        @endphp
+                        <div style="position:relative; display:inline-block;">
+                            <img src="{{ $catImgUrl }}" alt="{{ $category->name }}" class="category-image">
+                            @if(!empty($category->uploaded_to_imagekit))
+                                <span style="position:absolute;top:-4px;right:-4px;background:#27ae60;color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;line-height:1.4;">IK</span>
+                            @endif
+                        </div>
                     </td>
                     <td>
                         <span class="category-name">{{ $category->name }}</span>
+                    </td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="status-toggle" data-id="{{ $category->id }}" data-type="category" 
+                                   {{ $category->is_active == 1 ? 'checked' : '' }}>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </td>
                     <td>
                         @if($category->show_in_top_bar == 1)

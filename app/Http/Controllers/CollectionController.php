@@ -4,171 +4,161 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Services\ImageKitService;
 
 class CollectionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $query = DB::table('collections')
-            ->select('collections.*','sub_categories.name as categoryname')
-            ->leftJoin('sub_categories','sub_categories.id','collections.sub_category_id')
-            ->where('collections.is_deleted',0);
-        
-        // Search filter
+            ->select('collections.*', 'sub_categories.name as categoryname')
+            ->leftJoin('sub_categories', 'sub_categories.id', 'collections.sub_category_id')
+            ->where('collections.is_deleted', 0);
+
         if ($request->has('search') && $request->search != '') {
             $query->where('collections.name', 'like', '%' . $request->search . '%');
         }
-        
-        // Subcategory filter
         if ($request->has('subcategory') && $request->subcategory != '') {
             $query->where('collections.sub_category_id', $request->subcategory);
         }
-        
-        $collections = $query->orderBy('collections.id','DESC')->paginate(10);
-        
-        // Get all subcategories for filter dropdown
+
+        $collections = $query->orderBy('collections.id', 'DESC')->paginate(10);
+
         $subcategories = DB::table('sub_categories')
             ->where('is_deleted', 0)
             ->orderBy('name', 'ASC')
             ->get();
 
-        // Check if it's an AJAX request
         if ($request->ajax()) {
-            $tableHtml = view('admin.pages.collections.partials.collection-table', compact('collections'))->render();
+            $tableHtml      = view('admin.pages.collections.partials.collection-table', compact('collections'))->render();
             $paginationHtml = view('admin.pages.collections.partials.pagination', compact('collections'))->render();
-            
-            return response()->json([
-                'table' => $tableHtml,
-                'pagination' => $paginationHtml
-            ]);
+            return response()->json(['table' => $tableHtml, 'pagination' => $paginationHtml]);
         }
 
         return view('admin.pages.collections.list', compact('collections', 'subcategories'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('admin.pages.collections.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-public function store(Request $request)
-{
-    $request->validate([
-        'collection_name' => 'required|string|max:255',
-        'sub_category' => 'required|integer',
-        'collection_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,heic|max:2048',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'collection_name'  => 'required|string|max:255',
+            'sub_category'     => 'required|integer',
+            'collection_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,heic|max:10240',
+        ]);
 
-    try {
-        $imagePath = null;
+        try {
+            // Fetch existing record for update
+            $oldCollection      = $request->id ? DB::table('collections')->where('id', $request->id)->first() : null;
+            $oldImagePath       = $oldCollection->image_path          ?? null;
+            $oldImagekitFileId  = $oldCollection->imagekit_file_id    ?? null;
 
-        // Check if image is uploaded
-        if ($request->hasFile('collection_image')) {
-            $imageName = time() . '_' . $request->file('collection_image')->getClientOriginalName();
-            $request->file('collection_image')->move(public_path('uploads/collection'), $imageName);
-            $imagePath = 'collection/' . $imageName;
-        }
+            // Defaults — preserve existing on update
+            $imagePath          = $oldImagePath;
+            $imagekitFileId     = $oldImagekitFileId;
+            $imagekitUrl        = $oldCollection->imagekit_url         ?? null;
+            $imagekitUrlDesktop = $oldCollection->imagekit_url_desktop ?? null;
+            $imagekitUrlTablet  = $oldCollection->imagekit_url_tablet  ?? null;
+            $imagekitUrlMobile  = $oldCollection->imagekit_url_mobile  ?? null;
+            $uploadedToImagekit = $oldCollection->uploaded_to_imagekit ?? 0;
 
-        // Check if it's an update or create operation
-        if ($request->id) {
-            $data = [
-                'name' => $request->collection_name,
-                'sub_category_id' => $request->sub_category,
-            ];
+            if ($request->hasFile('collection_image')) {
+                $imagekitService = new ImageKitService();
 
-            // Only update image if a new one is uploaded
-            if ($imagePath) {
-                $data['image_path'] = $imagePath;
+                $uploadResult = $imagekitService->uploadWithFallback(
+                    $request->file('collection_image'),
+                    'uploads/collection',
+                    'collections',
+                    ImageKitService::COLLECTION_SIZES
+                );
+
+                Log::info('Collection image upload result', $uploadResult);
+
+                $uploadedToImagekit = $uploadResult['uploaded_to_imagekit'];
+
+                if ($uploadedToImagekit) {
+                    $imagePath          = $uploadResult['file_path'];
+                    $imagekitFileId     = $uploadResult['imagekit_file_id'];
+                    $imagekitUrl        = $uploadResult['imagekit_url'];
+                    $imagekitUrlDesktop = $uploadResult['imagekit_url_desktop'];
+                    $imagekitUrlTablet  = $uploadResult['imagekit_url_tablet'];
+                    $imagekitUrlMobile  = $uploadResult['imagekit_url_mobile'];
+                } else {
+                    // Local fallback
+                    $imagePath          = $uploadResult['file_path'];
+                    $imagekitFileId     = null;
+                    $imagekitUrl        = null;
+                    $imagekitUrlDesktop = null;
+                    $imagekitUrlTablet  = null;
+                    $imagekitUrlMobile  = null;
+                }
+
+                // Delete old image
+                if ($oldImagePath) {
+                    if ($oldImagekitFileId && $imagekitService->isEnabled()) {
+                        $imagekitService->deleteImage($oldImagekitFileId);
+                    }
+                    $localPath = public_path('uploads/' . $oldImagePath);
+                    if (file_exists($localPath)) {
+                        unlink($localPath);
+                    }
+                }
             }
 
-            DB::table('collections')->where('id', $request->id)->update($data);
+            $data = [
+                'name'                  => $request->collection_name,
+                'sub_category_id'       => $request->sub_category,
+                'image_path'            => $imagePath,
+                'imagekit_file_id'      => $imagekitFileId,
+                'imagekit_url'          => $imagekitUrl,
+                'imagekit_url_desktop'  => $imagekitUrlDesktop,
+                'imagekit_url_tablet'   => $imagekitUrlTablet,
+                'imagekit_url_mobile'   => $imagekitUrlMobile,
+                'uploaded_to_imagekit'  => $uploadedToImagekit ? 1 : 0,
+            ];
 
-            $message = 'Collection updated successfully.';
-        } else {
-            // Insert a new collection
-            DB::table('collections')->insert([
-                'name' => $request->collection_name,
-                'sub_category_id' => $request->sub_category,
-                'image_path' => $imagePath,
-            ]);
+            if ($request->id) {
+                DB::table('collections')->where('id', $request->id)->update($data);
+                $message = 'Collection updated successfully.';
+            } else {
+                DB::table('collections')->insert($data);
+                $message = 'Collection added successfully.';
+            }
 
-            $message = 'Collection added successfully.';
+            return response()->json(['status' => 'success', 'message' => $message]);
+
+        } catch (\Exception $e) {
+            Log::error('Collection store error', ['message' => $e->getMessage()]);
+            return response()->json(['status' => 'error', 'message' => 'Something went wrong. Please try again.']);
         }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => $message,
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Something went wrong. Please try again later.',
-        ]);
     }
-}
 
-
-
-
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
-        $collections = DB::table('collections')->where('id',$id)->first();
-        if($collections){
-           return view('admin.pages.collections.create',compact('collections'));
-        }else{
-            return redirect()->route('collections.index')->with('error','Something Error');
+        $collections = DB::table('collections')->where('id', $id)->first();
+        if ($collections) {
+            return view('admin.pages.collections.create', compact('collections'));
         }
+        return redirect()->route('collections.index')->with('error', 'Something Error');
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(Request $request, string $id)
-    // {
-    //     $request->validate([
-    //         'collection_name' => 'required|string|max:255',
-    //     ]);
-
-    //     DB::table('collections')->where('id', $request->collection_id)->update([
-    //         'name' => $request->collection_name,
-    //         'updated_at' => now()
-    //     ]);
-
-    //     return response()->json(['success' => true, 'message' => 'Collection updated successfully!']);
-    // }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $collections = DB::table('collections')->where('id',$id)->first();
+        $collections = DB::table('collections')->where('id', $id)->first();
         if ($collections) {
-            DB::table('collections')->where('id',$id)->update(['is_deleted'=>1]);
-            return response()->json(['success' => true, 'message' => 'Category deleted successfully.']);
+            DB::table('collections')->where('id', $id)->update(['is_deleted' => 1]);
+            return response()->json(['success' => true, 'message' => 'Collection deleted successfully.']);
         }
-
-        return response()->json(['success' => false, 'message' => 'Category not found.']);
+        return response()->json(['success' => false, 'message' => 'Collection not found.']);
     }
 }

@@ -255,7 +255,13 @@
                         
                         @if($banner)
                             <div class="image-preview" id="imagePreview">
-                                <img src="{{ url('public/uploads') }}/{{ $banner }}" alt="Current Banner" id="previewImage">
+                                @php
+                                    // Use ImageKit URL if available, otherwise use local path
+                                    $imageUrl = !empty($banners->imagekit_url) 
+                                        ? $banners->imagekit_url 
+                                        : upload_url($banner);
+                                @endphp
+                                <img src="{{ $imageUrl }}" alt="Current Banner" id="previewImage">
                             </div>
                         @else
                             <div class="image-preview d-none" id="imagePreview">

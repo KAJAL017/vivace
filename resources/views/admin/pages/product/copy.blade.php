@@ -329,9 +329,10 @@
 
                                             @if ($attribute->image)
                                                 <div class="mt-3">
-                                                    <img src="{{ url('public/' . $attribute->image) }}"
+                                                    <img src="{{ !empty($attribute->imagekit_url) ? $attribute->imagekit_url : upload_url($attribute->image) }}"
                                                         alt="Attribute Image" width="80px" class="rounded shadow-sm"
                                                         style="border: 1px solid #ddd; padding: 5px;">
+                                                </div>
                                                 </div>
                                             @endif
 

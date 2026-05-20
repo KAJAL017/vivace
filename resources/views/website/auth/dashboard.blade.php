@@ -285,7 +285,7 @@
                                                             <div class="product-box">
                                                                 <a
                                                                     href="{{ route('view.product', [get_product_data($item->product_id)->slug]) }}">
-                                                                    <img src="{{ path() }}/{{ Product_first_image($item->product_id) }}"
+                                                                    <img src="{{ Product_first_image($item->product_id) }}"
                                                                         alt="Product Image">
                                                                 </a>
                                                                 <div class="order-wrap">
@@ -516,12 +516,7 @@
                                     <label class="form-label">Address Type</label>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="address_type"
-                                            id="billing_address" value="1" checked>
-                                        <label class="form-check-label" for="billing_address">Billing Address</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="address_type"
-                                            id="shipping_address" value="2">
+                                            id="shipping_address" value="2" checked>
                                         <label class="form-check-label" for="shipping_address">Shipping Address</label>
                                     </div>
                                 </div>
@@ -603,12 +598,7 @@
                                     <label class="form-label">Address Type</label>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="address_type"
-                                            id="billing_address" value="1">
-                                        <label class="form-check-label" for="billing_address">Billing Address</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="address_type"
-                                            id="shipping_address" value="2">
+                                            id="shipping_address" value="2" checked>
                                         <label class="form-check-label" for="shipping_address">Shipping Address</label>
                                     </div>
                                 </div>

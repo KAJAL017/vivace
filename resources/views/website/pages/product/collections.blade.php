@@ -47,9 +47,17 @@
             <div class="col-xl-12 col-lg-12 col-12">
                 <div class="row gy-4 ratio_square" id="collection-list">
                     @foreach ($collections as $collection)
+                        @php
+                            $colImgSrc = !empty($collection->imagekit_url_desktop)
+                                ? $collection->imagekit_url_desktop
+                                : (!empty($collection->imagekit_url)
+                                    ? $collection->imagekit_url
+                                    : ($collection->image_path ? url('uploads/' . $collection->image_path) : url('public/5.png')));
+                        @endphp
                         <div class="col-md-4 col-sm-6 col-12 collection-item">
-                            <a class="banner mb-0 p-left bg-size" href="{{ route('collction.filter', [$collection->id]) }}" style="background-image: url('{{ url('public/uploads') }}/{{ $collection->image_path }}'); background-size: cover; background-position: center; background-repeat: no-repeat; display: block;">
-                                <img loading="lazy"  class="bg-img" src="{{ url('public/uploads') }}/{{ $collection->image_path }}" alt="banner-img" style="display: none;">
+                            <a class="banner mb-0 p-left bg-size" href="{{ route('collction.filter', [$collection->id]) }}"
+                                style="background-image: url('{{ $colImgSrc }}'); background-size: cover; background-position: center; background-repeat: no-repeat; display: block;">
+                                <img loading="lazy" class="bg-img" src="{{ $colImgSrc }}" alt="{{ $collection->name }}" style="display: none;">
                                 <div class="banner-contain w-auto">
                                     <h4>{{ $collection->name }}</h4>
                                 </div>

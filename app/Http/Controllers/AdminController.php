@@ -329,29 +329,100 @@ class AdminController extends Controller
 
         $settings = DB::table('settings')->first();
 
+        $data = [
+            'razorpay_key_id' => $request->razorpay_key_id,
+            'razorpay_key_secret' => $request->razorpay_key_secret,
+            'razorpay_enabled' => $request->has('razorpay_enabled') ? 1 : 0,
+            'cod_enabled' => $request->has('cod_enabled') ? 1 : 0,
+            'google_analytics_id' => $request->google_analytics_id ?? '',
+            'google_analytics_api_key' => $request->google_analytics_api_key ?? '',
+            'imagekit_public_key' => $request->imagekit_public_key ?? '',
+            'imagekit_private_key' => $request->imagekit_private_key ?? '',
+            'imagekit_url_endpoint' => $request->imagekit_url_endpoint ?? '',
+            'imagekit_enabled' => $request->has('imagekit_enabled') ? 1 : 0,
+        ];
+
         if($settings){
-            DB::table('settings')->update([
-                'razorpay_key_id' => $request->razorpay_key_id,
-                'razorpay_key_secret' => $request->razorpay_key_secret,
-                'razorpay_enabled' => $request->has('razorpay_enabled') ? 1 : 0,
-                'cod_enabled' => $request->has('cod_enabled') ? 1 : 0,
-                'updated_at' => now(),
-            ]);
+            $data['updated_at'] = now();
+            DB::table('settings')->update($data);
         } else {
-            DB::table('settings')->insert([
-                'razorpay_key_id' => $request->razorpay_key_id,
-                'razorpay_key_secret' => $request->razorpay_key_secret,
-                'razorpay_enabled' => $request->has('razorpay_enabled') ? 1 : 0,
-                'cod_enabled' => $request->has('cod_enabled') ? 1 : 0,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $data['created_at'] = now();
+            $data['updated_at'] = now();
+            DB::table('settings')->insert($data);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Settings updated successfully!',
         ]);
+     }
+     
+     /**
+      * Toggle active/inactive status for categories, subcategories, and collections
+      */
+     public function toggleStatus(Request $request)
+     {
+         try {
+             $id = $request->input('id');
+             $type = $request->input('type');
+             $isActive = $request->input('is_active');
+             
+             // Validate inputs
+             if (!$id || !$type || !in_array($isActive, [0, 1])) {
+                 return response()->json([
+                     'success' => false,
+                     'message' => 'Invalid parameters'
+                 ], 400);
+             }
+             
+             // Determine table name based on type
+             $table = '';
+             $itemName = '';
+             
+             switch ($type) {
+                 case 'category':
+                     $table = 'categories';
+                     $itemName = 'Category';
+                     break;
+                 case 'subcategory':
+                     $table = 'sub_categories';
+                     $itemName = 'Subcategory';
+                     break;
+                 case 'collection':
+                     $table = 'collections';
+                     $itemName = 'Collection';
+                     break;
+                 default:
+                     return response()->json([
+                         'success' => false,
+                         'message' => 'Invalid type'
+                     ], 400);
+             }
+             
+             // Update status
+             $updated = DB::table($table)
+                 ->where('id', $id)
+                 ->update(['is_active' => $isActive]);
+             
+             if ($updated) {
+                 $status = $isActive == 1 ? 'activated' : 'deactivated';
+                 return response()->json([
+                     'success' => true,
+                     'message' => "{$itemName} {$status} successfully"
+                 ]);
+             } else {
+                 return response()->json([
+                     'success' => false,
+                     'message' => 'Failed to update status'
+                 ], 500);
+             }
+             
+         } catch (\Exception $e) {
+             return response()->json([
+                 'success' => false,
+                 'message' => 'An error occurred: ' . $e->getMessage()
+             ], 500);
+         }
      }
 }
 

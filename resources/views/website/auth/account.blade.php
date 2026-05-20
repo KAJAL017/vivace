@@ -60,8 +60,7 @@
 
                     {{-- <a href="#orders" data-bs-toggle="tab">Orders <i class="far fa-file-alt"></i></a> --}}
                     {{-- <a href="#download" data-bs-toggle="tab">Download Invoice <i class="far fa-arrow-to-bottom"></i></a> --}}
-                    <a href="#address" data-bs-toggle="tab">Your Address <i class="far fa-map-marker-alt"></i></a>
-                    <a href="#account-info" data-bs-toggle="tab">Account Details <i class="fa fa-user"
+                                        <a href="#account-info" data-bs-toggle="tab">Account Details <i class="fa fa-user"
                             aria-hidden="true"></i></a>
                     <a href="{{ route('logout') }}">Logout <i class="fa fa-sign-out" aria-hidden="true"></i></a>
                 </div>
@@ -174,39 +173,7 @@
 
                     <div class="tab-pane fade active show" id="address">
                         <div class="myaccount-content address">
-                            <p>The following addresses will be used on the checkout page by default.</p>
-                            <div class="row learts-mb-n30">
-                                <div class="col-md-8 col-12 learts-mb-30" style="padding: 20px;">
-                                    <h4 class="title d-flex justify-content-between align-items-center"
-                                        style="font-size: 18px; font-weight: 600; color: #333;">
-                                        Billing Address
-                                        <a href="#" class="edit-link text-primary"
-                                            style="font-size: 14px; text-decoration: none; color: #007bff; font-weight: 600; transition: color 0.3s ease;">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                    </h4>
-                                    <div class="billing-address-box"
-                                        style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-top: 10px;">
-                                        <address style="font-size: 16px; line-height: 1.6; color: #333;">
-                                            <p style="margin-bottom: 10px;"><strong
-                                                    style="font-weight: bold; color: #007bff;">{{ $user->street_address }}</strong>
-                                            </p>
-                                            <p style="margin-bottom: 10px;"><strong
-                                                    style="font-weight: bold; color: #007bff;">{{ $user->landmark }}</strong>
-                                            </p>
-                                            <p style="margin-bottom: 10px;">{{ $user->district }} - {{ $user->pincode }}
-                                                <br>
-                                                {{ $user->state }}, {{ $user->country }}
-                                            </p>
-                                            <p style="margin-bottom: 10px;">Mobile: <span
-                                                    style="font-size: 14px; color: #555;">+91
-                                                    {{ $user->mobile_no }}</span></p>
-                                        </address>
-                                    </div>
-                                </div>
-
-
-                            </div>
+                            <p>No shipping address found. Please add your address during checkout.</p>
                         </div>
                     </div>
                     <!-- Single Tab Content End -->
@@ -234,16 +201,30 @@
                                                 <div class="row learts-mb-n30">
                                                     <div class="col-12 learts-mb-30">
                                                         <label for="current-pwd">Current password</label>
-                                                        <input type="password" id="current-pwd"
-                                                            value="{{ $user->password }}">
+                                                        <div class="position-relative">
+                                                            <input type="password" id="current-pwd" value="{{ $user->password }}">
+                                                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none" style="padding: 0.375rem 0.75rem;" onclick="togglePasswordVisibility('current-pwd', 'currentPwdIcon')">
+                                                                <i id="currentPwdIcon" class="fa fa-eye-slash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     <div class="col-12 learts-mb-30">
                                                         <label for="new-pwd">New password</label>
-                                                        <input type="password" id="new-pwd">
+                                                        <div class="position-relative">
+                                                            <input type="password" id="new-pwd">
+                                                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none" style="padding: 0.375rem 0.75rem;" onclick="togglePasswordVisibility('new-pwd', 'newPwdIcon')">
+                                                                <i id="newPwdIcon" class="fa fa-eye-slash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     <div class="col-12 learts-mb-30">
                                                         <label for="confirm-pwd">Confirm new password</label>
-                                                        <input type="password" id="confirm-pwd">
+                                                        <div class="position-relative">
+                                                            <input type="password" id="confirm-pwd">
+                                                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none" style="padding: 0.375rem 0.75rem;" onclick="togglePasswordVisibility('confirm-pwd', 'confirmPwdIcon')">
+                                                                <i id="confirmPwdIcon" class="fa fa-eye-slash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </fieldset>
@@ -269,7 +250,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editAddressModalLabel">Edit Billing Address</h5>
+                <h5 class="modal-title" id="editAddressModalLabel">Edit Shipping Address</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -344,7 +325,7 @@
                         // Close the modal if the address was updated successfully
                         $('#editAddressModal').modal('hide');
                         // Optionally show a success message
-                        alert('Billing address updated successfully!');
+                        alert('Shipping address updated successfully!');
                     } else {
                         // Show an error message if update fails
                         alert('Failed to update address. Please try again.');
@@ -375,6 +356,20 @@
             this.classList.add('fa-eye');
         }
     });
+
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        }
+    }
 </script>
 
 <script>

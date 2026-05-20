@@ -1,6 +1,16 @@
+@extends('website.main.app')
+@section('title', 'Search' . (isset($search_term) && $search_term ? ' - ' . $search_term : ''))
 
+<style>
+.breadcrumb {
+    --bs-breadcrumb-divider: "/";
+}
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "/";
+}
+</style>
 
-
+@section('website.content')
 <section class="section-b-space pt-0">
     <div class="heading-banner">
       <div class="custom-container container">
@@ -10,182 +20,180 @@
           </div>
           <div class="col-sm-6">
             <ul class="breadcrumb float-end">
-              <li class="breadcrumb-item"> <a href="index.html">Home </a></li>
-              <li class="breadcrumb-item active"> <a href="#">Search</a></li>
+              <li class="breadcrumb-item"> <a href="{{ route('website.home') }}">Home / </a></li>
+              <li class=" active"> <a href="#">Search{{ isset($search_term) && $search_term ? ' / ' . $search_term : '' }}</a></li>
             </ul>
           </div>
         </div>
       </div>
     </div>
   </section>
+
   <section class="section-b-space pt-0">
     <div class="custom-container container">
       <div class="row gy-4">
         <div class="col-12 m-auto">
           <div class="title-1">
-            <p class="justify-content-center">Use Search<span></span></p>
+            <p class="justify-content-center">Search Results<span></span></p>
             <h3 class="text-center">Search For Products</h3>
           </div>
         </div>
         <div class="col-lg-5 col-sm-8 m-auto">
-          <div class="main-search-box">
-            <div>
-              <input type="search" name="text" placeholder="Search Here..."><i class="iconsax" data-icon="search-normal-2"></i>
+          <form action="{{ route('search-product') }}" method="GET" id="search-form">
+            <div class="main-search-box">
+              <div>
+                <input type="search" name="search" id="search-input-page" placeholder="Search Here..." value="{{ request('search', '') }}"><i class="iconsax search-icon-btn" data-icon="search-normal-2"></i>
+              </div>
+              <button class="btn btn_black sm" type="submit">Search</button>
             </div>
-            <button class="btn btn_black sm" type="button">Search</button>
-          </div>
+          </form>
         </div>
+
+        {{-- Search Results --}}
         <div class="col-12">
-          <div class="row ratio1_3 gy-4 search-item">
-            <div class="col-lg-3 col-md-4 col-6">
-              <div class="product-box-3">
-                <div class="img-wrapper">
-                  <div class="label-block"><span class="lable-1">NEW</span><a class="label-2 wishlist-icon" href="javascript:void(0)" tabindex="0"><i class="iconsax" data-icon="heart" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i></a></div>
-                  <div class="product-image"><a class="pro-first" href="product.html"> <img class="bg-img" src="../assets/images/product/product-3/14.jpg" alt="product"></a><a class="pro-sec" href="product.html"> <img class="bg-img" src="../assets/images/product/product-3/18.jpg" alt="product"></a></div>
-                  <div class="cart-info-icon"> <a href="#" data-bs-toggle="modal" data-bs-target="#addtocart" tabindex="0"><i class="iconsax" data-icon="basket-2" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to cart"> </i></a><a href="compare.html" tabindex="0"><i class="iconsax" data-icon="arrow-up-down" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Compare"></i></a><a href="#" data-bs-toggle="modal" data-bs-target="#quick-view" tabindex="0"><i class="iconsax" data-icon="eye" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Quick View"></i></a></div>
-                  <div class="countdown">
-                    <ul class="clockdiv10">
-                      <li>
-                        <div class="timer">
-                          <div class="days"></div>
-                        </div><span class="title">Days</span>
-                      </li>
-                      <li class="dot"> <span>:</span></li>
-                      <li>
-                        <div class="timer">
-                          <div class="hours"></div>
-                        </div><span class="title">Hours</span>
-                      </li>
-                      <li class="dot"> <span>:</span></li>
-                      <li>
-                        <div class="timer">
-                          <div class="minutes"></div>
-                        </div><span class="title">Min</span>
-                      </li>
-                      <li class="dot"> <span>:</span></li>
-                      <li>
-                        <div class="timer">
-                          <div class="seconds"></div>
-                        </div><span class="title">Sec</span>
-                      </li>
-                    </ul>
-                  </div>
+            @if(isset($error))
+                <div class="alert alert-danger">Error: {{ $error }}</div>
+            @endif
+
+            @if(isset($search_term) && $search_term && $products->isEmpty())
+                <div class="text-center py-4">
+                    <h5>No results found for "{{ $search_term }}"</h5>
+                    <p>Try different keywords or browse our products below</p>
                 </div>
-                <div class="product-detail">
-                  <ul class="rating">
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star-half-stroke"></i></li>
-                    <li><i class="fa-regular fa-star"></i></li>
-                    <li>4.3</li>
-                  </ul><a href="product.html">
-                    <h6>Greciilooks Women's Stylish Top</h6></a>
-                  <p>$100.00
-                    <del>$140.00</del><span>-20%</span>
-                  </p>
+            @endif
+
+            <div class="row gy-4" id="search-results">
+                @forelse($products as $product)
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="product-box-3">
+                            <div class="img-wrapper">
+                                <div class="label-block">
+                                    <a class="label-2 wishlist-icon" href="javascript:void(0)" tabindex="0">
+                                        <i class="iconsax" data-icon="heart" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i>
+                                    </a>
+                                </div>
+                                <div class="product-image">
+                                    <a class="pro-first" href="{{ route('view.product', $product->slug) }}">
+                                        <img class="bg-img" src="{{ Product_first_image($product->id) }}" alt="{{ $product->name }}">
+                                    </a>
+                                </div>
+                                <div class="cart-info-icon">
+                                    <a href="javascript:void(0)" onclick="addToCart({{ $product->id }})" data-bs-toggle="tooltip" data-bs-title="Add to cart">
+                                        <i class="iconsax" data-icon="basket-2"></i>
+                                    </a>
+                                    <a href="{{ route('view.product', $product->slug) }}" data-bs-toggle="tooltip" data-bs-title="Quick View">
+                                        <i class="iconsax" data-icon="eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="product-detail">
+                                <a href="{{ route('view.product', $product->slug) }}">
+                                    <h6>{{ $product->name }}</h6>
+                                </a>
+                                @php
+                                    $minPrice = $product->price ?? 0;
+                                    $minMrp = $product->mrp ?? 0;
+                                    $discount = 0;
+                                    if($minMrp > 0 && $minPrice > 0) {
+                                        $discount = round((($minMrp - $minPrice) / $minMrp) * 100);
+                                    }
+                                @endphp
+                                <p>₹{{ number_format($minPrice, 2) }}
+                                    @if($minMrp > $minPrice)
+                                    <del>₹{{ number_format($minMrp, 2) }}</del>
+                                    @if($discount > 0)
+                                    <span>-{{ $discount }}%</span>
+                                    @endif
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    @if(!isset($search_term) || !$search_term)
+                    <div class="col-12 text-center py-5">
+                        <p style="font-size: 1.2rem; color: #7f8c8d;">No products available</p>
+                    </div>
+                    @endif
+                @endforelse
+
+                {{-- Pagination --}}
+                @if(is_object($products) && method_exists($products, 'hasPages') && $products->hasPages())
+                <div class="col-12">
+                    <div class="pagination-wrap mt-0 my-5 mt-3">
+                        {{ $products->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
+                    </div>
                 </div>
-              </div>
+                @endif
             </div>
-            <div class="col-lg-3 col-md-4 col-6">
-              <div class="product-box-3">
-                <div class="img-wrapper">
-                  <div class="label-block"><span class="lable-1">NEW</span><a class="label-2 wishlist-icon" href="javascript:void(0)" tabindex="0"><i class="iconsax" data-icon="heart" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i></a></div>
-                  <div class="product-image"><a class="pro-first" href="product.html"> <img class="bg-img" src="../assets/images/product/product-3/15.jpg" alt="product"></a><a class="pro-sec" href="product.html"> <img class="bg-img" src="../assets/images/product/product-3/13.jpg" alt="product"></a></div>
-                  <div class="cart-info-icon"> <a href="#" data-bs-toggle="modal" data-bs-target="#addtocart" tabindex="0"><i class="iconsax" data-icon="basket-2" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to cart"> </i></a><a href="compare.html" tabindex="0"><i class="iconsax" data-icon="arrow-up-down" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Compare"></i></a><a href="#" data-bs-toggle="modal" data-bs-target="#quick-view" tabindex="0"><i class="iconsax" data-icon="eye" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Quick View"></i></a></div>
-                </div>
-                <div class="product-detail">
-                  <ul class="rating">
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-regular fa-star"></i></li>
-                    <li>4.3</li>
-                  </ul><a href="product.html">
-                    <h6>Wide Linen-Blend Trousers</h6></a>
-                  <p>$100.00
-                    <del>$18.00 </del>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-6">
-              <div class="product-box-3">
-                <div class="img-wrapper">
-                  <div class="label-block"><span class="lable-1">NEW</span><a class="label-2 wishlist-icon" href="javascript:void(0)" tabindex="0"><i class="iconsax" data-icon="heart" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i></a></div>
-                  <div class="product-image"><a class="pro-first" href="product.html"> <img class="bg-img" src="../assets/images/product/product-3/16.jpg" alt="product"></a><a class="pro-sec" href="product.html"> <img class="bg-img" src="../assets/images/product/product-3/11.jpg" alt="product"></a></div>
-                  <div class="cart-info-icon"> <a href="#" data-bs-toggle="modal" data-bs-target="#addtocart" tabindex="0"><i class="iconsax" data-icon="basket-2" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to cart"> </i></a><a href="compare.html" tabindex="0"><i class="iconsax" data-icon="arrow-up-down" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Compare"></i></a><a href="#" data-bs-toggle="modal" data-bs-target="#quick-view" tabindex="0"><i class="iconsax" data-icon="eye" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Quick View"></i></a></div>
-                </div>
-                <div class="product-detail">
-                  <ul class="rating">
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li>4.3</li>
-                  </ul><a href="product.html">
-                    <h6>Long Sleeve Rounded T-Shirt</h6></a>
-                  <p>$12.30
-                    <del>$140.00</del><span>-20%</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-6">
-              <div class="product-box-3">
-                <div class="img-wrapper">
-                  <div class="label-block"><span class="lable-1">NEW</span><a class="label-2 wishlist-icon" href="javascript:void(0)" tabindex="0"><i class="iconsax" data-icon="heart" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i></a></div>
-                  <div class="product-image"><a class="pro-first" href="product.html"> <img class="bg-img" src="../assets/images/product/product-3/17.jpg" alt="product"></a><a class="pro-sec" href="product.html"> <img class="bg-img" src="../assets/images/product/product-3/12.jpg" alt="product"></a></div>
-                  <div class="cart-info-icon"> <a href="#" data-bs-toggle="modal" data-bs-target="#addtocart" tabindex="0"><i class="iconsax" data-icon="basket-2" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to cart"> </i></a><a href="compare.html" tabindex="0"><i class="iconsax" data-icon="arrow-up-down" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Compare"></i></a><a href="#" data-bs-toggle="modal" data-bs-target="#quick-view" tabindex="0"><i class="iconsax" data-icon="eye" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Quick View"></i></a></div>
-                  <div class="countdown">
-                    <ul class="clockdiv11">
-                      <li>
-                        <div class="timer">
-                          <div class="days"></div>
-                        </div><span class="title">Days</span>
-                      </li>
-                      <li class="dot"> <span>:</span></li>
-                      <li>
-                        <div class="timer">
-                          <div class="hours"></div>
-                        </div><span class="title">Hours</span>
-                      </li>
-                      <li class="dot"> <span>:</span></li>
-                      <li>
-                        <div class="timer">
-                          <div class="minutes"></div>
-                        </div><span class="title">Min</span>
-                      </li>
-                      <li class="dot"> <span>:</span></li>
-                      <li>
-                        <div class="timer">
-                          <div class="seconds"></div>
-                        </div><span class="title">Sec</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="product-detail">
-                  <ul class="rating">
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star"></i></li>
-                    <li><i class="fa-solid fa-star-half-stroke"></i></li>
-                    <li>4.3</li>
-                  </ul><a href="product.html">
-                    <h6>Blue lined White T-Shirt</h6></a>
-                  <p>$190.00
-                    <del>$210.00</del>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
+
+        {{-- Search by Brands --}}
+        @if(isset($brands) && $brands->count() > 0)
+        <div class="col-12 mt-4">
+            <h5>Related Brands</h5>
+            <div class="row gy-3">
+                @foreach($brands as $brand)
+                <div class="col-lg-2 col-md-3 col-4">
+                    <a href="{{ route('filter.product.brand', $brand->id) }}" class="brand-box text-center p-3 border rounded">
+                        <img src="{{ $brand->image ? upload_url($brand->image) : asset('website/assets/images/brand/no-image.png') }}" alt="{{ $brand->name }}" class="img-fluid" style="max-height: 50px;">
+                        <p class="mt-2 mb-0">{{ $brand->name }}</p>
+                    </a>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        {{-- Search by Categories --}}
+        @if(isset($categories) && $categories->count() > 0)
+        <div class="col-12 mt-4">
+            <h5>Related Categories</h5>
+            <div class="row gy-3">
+                @foreach($categories as $category)
+                <div class="col-lg-2 col-md-3 col-4">
+                    <a href="{{ route('filter.product.category', $category->id) }}" class="category-box text-center p-3 border rounded">
+                        <img src="{{ $category->image ? url($category->image) : asset('website/assets/images/category/no-image.png') }}" alt="{{ $category->name }}" class="img-fluid" style="max-height: 50px;">
+                        <p class="mt-2 mb-0">{{ $category->name }}</p>
+                    </a>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
       </div>
     </div>
   </section>
+@endsection
 
+@section('website.js')
+<script>
+    // Handle search form submission
+    document.getElementById('search-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const searchTerm = document.getElementById('search-input-page').value.trim();
+        if (searchTerm) {
+            window.location.href = '{{ route("search-product") }}?search=' + encodeURIComponent(searchTerm);
+        }
+    });
+
+    // Handle search icon click
+    document.querySelector('.search-icon-btn').addEventListener('click', function() {
+        const searchTerm = document.getElementById('search-input-page').value.trim();
+        if (searchTerm) {
+            window.location.href = '{{ route("search-product") }}?search=' + encodeURIComponent(searchTerm);
+        }
+    });
+
+    // Handle Enter key in search input
+    document.getElementById('search-input-page').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const searchTerm = this.value.trim();
+            if (searchTerm) {
+                window.location.href = '{{ route("search-product") }}?search=' + encodeURIComponent(searchTerm);
+            }
+        }
+    });
+</script>
+@endsection

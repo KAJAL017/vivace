@@ -16,6 +16,7 @@ use App\Http\Controllers\SizeController;
 use App\Http\Controllers\Subcategories;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ReelController;
 use App\Http\Controllers\WebsiteContoller;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,8 @@ Route::delete('admin/tag/delete/{id}', action: [TagController::class, 'destroy']
 
 Route::resource('admin/product', controller: ProductController::class);
 Route::post('admin/product/update-stock', [ProductController::class, 'updateStock'])->name('product.update.stock');
+Route::post('admin/product/bulk-delete', [ProductController::class, 'bulkDelete'])->name('product.bulk.delete');
+Route::post('admin/product/bulk-outofstock', [ProductController::class, 'bulkOutOfStock'])->name('product.bulk.outofstock');
 Route::delete('admin/product/delete/{id}',action: [ProductController::class, 'destroy'])->name('product.destroy');
 Route::get('admin/product/copy/{id}',action: [ProductController::class, 'ProductCopy'])->name('product.copy');
 Route::get('admin/product/image_upload/{id}', [ProductController::class,'image_upload'])->name('product.image.upload');
@@ -73,8 +76,12 @@ Route::delete('admin/coupon/delete/{id}', action: [CouponController::class, 'des
 Route::resource('admin/collections', CollectionController::class);
 Route::delete('admin/collections/delete/{id}', action: [CollectionController::class, 'destroy'])->name('collections.destroy');
 
+Route::resource('admin/reels', ReelController::class);
+Route::post('admin/reels/toggle-active', [ReelController::class, 'toggleActive'])->name('reels.toggle.active');
+
 Route::resource('admin/banner', BannerController::class);
 Route::delete('admin/banner/delete/{id}', action: [BannerController::class, 'destroy'])->name('banner.destroy');
+Route::post('admin/banner/toggle-active', [BannerController::class, 'toggleActive'])->name('banner.toggle.active');
 Route::delete('admin/manual/order/delete/{id}', action: [OrderController::class, 'manualdestroy'])->name('manual.order.destroy');
 
 Route::resource('admin/invoice', InvoiceController::class);
@@ -98,6 +105,7 @@ Route::get('admin/orders/{custom_order_id}', [OrderController::class, 'latestOrd
 Route::get('admin/contacts',[AdminController::class,'contacts'])->name('admin.contact');
 Route::get('admin/settings',[AdminController::class,'settings'])->name('admin.settings');
 Route::post('admin/settings/update',[AdminController::class,'updateSettings'])->name('admin.settings.update');
+Route::post('admin/toggle-status',[AdminController::class,'toggleStatus'])->name('toggle.status');
 Route::get('admin/manual/orders',[OrderController::class,'ManualOrder'])->name('ManualOrder');
 Route::get('admin/manual/ongoing/orders',[OrderController::class,'ManualOngoingOrder'])->name('ManualOrder.OngoingOrder');
 
@@ -116,6 +124,8 @@ Route::get('/',[WebsiteContoller::class,'home'])->name('website.home');
 Route::get('/product/view',[WebsiteContoller::class,'view_product'])->name('view.product');
 Route::get('/login',[WebsiteContoller::class,'login'])->name('login');
 Route::post('/login/process', [WebsiteContoller::class, 'login_process'])->name('login.process');
+Route::post('/login/otp/send', [WebsiteContoller::class, 'sendLoginOtp'])->name('login.otp.send');
+Route::post('/login/otp/verify', [WebsiteContoller::class, 'verifyLoginOtp'])->name('login.otp.verify');
 Route::get('/logout', [WebsiteContoller::class, 'logout'])->name('logout');
 Route::get('/register',[WebsiteContoller::class,'register'])->name('website.auth.register');
 Route::post('/signup', [WebsiteContoller::class, 'store'])->name('signup.store');
@@ -166,6 +176,7 @@ Route::get('collections/category/{slug}', [WebsiteContoller::class, 'filter_prod
 
 Route::get('checkout',[WebsiteContoller::class,'checkout'])->name('check-out');
 Route::post('user/update-address', [WebsiteContoller::class, 'updateAddress'])->name('user.update.address');
+Route::post('get-last-address-by-phone', [WebsiteContoller::class, 'getLastAddressByPhone'])->name('get.last.address.by.phone');
 Route::get('order/placed',[WebsiteContoller::class,'order_placed'])->name('order.placed');
 Route::post('/store-order', [WebsiteContoller::class, 'storeOrder'])->name('store.order');
 

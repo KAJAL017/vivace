@@ -82,7 +82,11 @@ function CartProductData()
         ->where('user_id', $userId)
         ->join('products', 'cart.product_id', '=', 'products.id')
         ->leftJoin('product_attributes', 'product_attributes.product_id', '=', 'cart.product_id')
-        ->leftJoin('product_images', 'product_images.product_id', '=', 'cart.product_id')
+        ->leftJoin(
+            DB::raw('(SELECT product_id, MIN(id) as min_id FROM product_images GROUP BY product_id) as pi_min'),
+            'pi_min.product_id', '=', 'cart.product_id'
+        )
+        ->leftJoin('product_images', 'product_images.id', '=', 'pi_min.min_id')
         ->select(
             'cart.id as cart_item_id',
             'cart.quantity',
@@ -93,12 +97,16 @@ function CartProductData()
             'products.id as product_id',
             'product_attributes.price as price',
             'product_attributes.mrp as mrp',
-            DB::raw('MIN(product_images.file_path) as image')
+            'product_images.file_path as image',
+            'product_images.imagekit_url as image_ik'
         )
-        ->groupBy('cart.id', 'cart.quantity', 'cart.size_id', 'cart.color_id', 'products.name','products.slug', 'products.id', 'product_attributes.price', 'product_attributes.mrp')
+        ->groupBy('cart.id', 'cart.quantity', 'cart.size_id', 'cart.color_id', 'products.name', 'products.slug', 'products.id', 'product_attributes.price', 'product_attributes.mrp', 'product_images.file_path', 'product_images.imagekit_url')
         ->get();
 
     return $cartItems->map(function ($item) {
+        $imageUrl = !empty($item->image_ik)
+            ? $item->image_ik
+            : (!empty($item->image) ? url('uploads/' . $item->image) : url('public/5.png'));
         return [
             'cart_item' => [
                 'id' => $item->cart_item_id,
@@ -112,7 +120,7 @@ function CartProductData()
                 'slug' => $item->slug,
                 'price' => $item->price,
                 'mrp' => $item->mrp,
-                'image' => url('public/' . ($item->image ?? 'default-image.jpg')),
+                'image' => $imageUrl,
             ],
         ];
     })->toArray();
@@ -148,19 +156,27 @@ function WishlistProductData() {
                      ->where('product_attributes.size_id', '=', $SizeID)
                      ->where('product_attributes.color_id', '=', $ColorID);
             })
-            ->leftJoin('product_images', 'product_images.product_id', '=', 'products.id')
+            ->leftJoin(
+                DB::raw('(SELECT product_id, MIN(id) as min_id FROM product_images GROUP BY product_id) as pi_min'),
+                'pi_min.product_id', '=', 'products.id'
+            )
+            ->leftJoin('product_images', 'product_images.id', '=', 'pi_min.min_id')
             ->where('products.id', $ProductID)
             ->select(
                 'products.id as product_id',
                 'products.name',
                 'product_attributes.price',
                 'product_attributes.mrp',
-                DB::raw('MIN(product_images.file_path) as image_path') // Fetch the first image
+                'product_images.file_path as image_path',
+                'product_images.imagekit_url as image_ik'
             )
-            ->groupBy('products.id', 'products.name', 'product_attributes.price', 'product_attributes.mrp')
             ->first();
 
         if ($product) {
+            $imageUrl = !empty($product->image_ik)
+                ? $product->image_ik
+                : (!empty($product->image_path) ? url('uploads/' . $product->image_path) : url('public/5.png'));
+
             $productData[] = [
                 'wishlist_item' => [
                     'id' => $wishlistItem->id,
@@ -172,7 +188,7 @@ function WishlistProductData() {
                     'name' => $product->name,
                     'price' => $product->price,
                     'mrp' => $product->mrp,
-                    'image' => url('public/' . ($product->image_path ?? 'default-image.jpg')) // Handle missing image
+                    'image' => $imageUrl,
                 ]
             ];
         }
@@ -199,6 +215,16 @@ function invoice_assets(){
 function path(){
     $path = url('public');
    return $path;
+}
+
+/**
+ * Get correct URL for uploaded files.
+ * Works correctly regardless of APP_URL having /public or not.
+ * Usage: upload_url('banners/file.jpg') or upload_url('collection/file.jpg')
+ */
+function upload_url($path = '') {
+    // APP_URL already has /public — so just use url() directly
+    return url('uploads/' . ltrim($path, '/'));
 }
 function website_assets(){
     $path = url('public/website_assets');
@@ -228,30 +254,79 @@ function get_designation($id){
 
 }
 function get_second_image($productId){
-    // Get the second image for the given product
     $result = DB::table('product_images')
         ->where('product_id', $productId)
-        ->orderBy('id') // Order images by ID or another column that determines the image order
-        ->skip(1) // Skip the first image
-        ->take(1) // Take the second image
+        ->orderBy('id')
+        ->skip(1)->take(1)
         ->first();
 
-    // Check if an image is found
     if($result) {
-        return $result->file_path; // Return the file path of the second image
-    } else {
-        return ''; // Return empty string if no second image is found
+        if (!empty($result->imagekit_url)) {
+            return $result->imagekit_url;
+        }
+        return url('uploads/' . $result->file_path);
     }
+    // Fallback to first image
+    return Product_first_image($productId);
 }
 
 function Product_first_image($id){
-    $result = DB::table('product_images')->where(['product_id'=>$id])->first();
+    $result = DB::table('product_images')->where(['product_id'=>$id])->orderBy('id','asc')->first();
     if($result){
-         return $result->file_path;
-    }else{
-        return  '';
+        // ImageKit desktop URL prefer karo (800px WebP), fallback chain
+        if (!empty($result->imagekit_url_desktop)) {
+            return $result->imagekit_url_desktop;
+        }
+        if (!empty($result->imagekit_url)) {
+            return $result->imagekit_url;
+        }
+        return url('uploads/' . $result->file_path);
     }
+    return url('public/5.png');
+}
 
+/**
+ * Get responsive image data for a product — returns array with desktop/tablet/mobile/src
+ * Use this for <picture> tags with srcset
+ */
+function product_responsive_image($id) {
+    $result = DB::table('product_images')->where(['product_id'=>$id])->orderBy('id','asc')->first();
+    if (!$result) {
+        $fallback = url('public/5.png');
+        return ['src'=>$fallback,'desktop'=>null,'tablet'=>null,'mobile'=>null,'has_ik'=>false];
+    }
+    $hasIK = !empty($result->imagekit_url);
+    return [
+        'src'     => $hasIK
+            ? ($result->imagekit_url_desktop ?? $result->imagekit_url)
+            : url('uploads/' . $result->file_path),
+        'desktop' => $result->imagekit_url_desktop ?? null,
+        'tablet'  => $result->imagekit_url_tablet  ?? null,
+        'mobile'  => $result->imagekit_url_mobile  ?? null,
+        'has_ik'  => $hasIK && !empty($result->imagekit_url_desktop),
+    ];
+}
+
+/**
+ * Get second image responsive data
+ */
+function product_second_image($id) {
+    $result = DB::table('product_images')
+        ->where('product_id', $id)
+        ->orderBy('id')
+        ->skip(1)->take(1)
+        ->first();
+    if (!$result) return product_responsive_image($id); // fallback to first
+    $hasIK = !empty($result->imagekit_url);
+    return [
+        'src'     => $hasIK
+            ? ($result->imagekit_url_desktop ?? $result->imagekit_url)
+            : url('uploads/' . $result->file_path),
+        'desktop' => $result->imagekit_url_desktop ?? null,
+        'tablet'  => $result->imagekit_url_tablet  ?? null,
+        'mobile'  => $result->imagekit_url_mobile  ?? null,
+        'has_ik'  => $hasIK && !empty($result->imagekit_url_desktop),
+    ];
 }
 function get_category($id){
     $result = DB::table('consumable_category')->where(['id'=>$id])->first();

@@ -102,11 +102,16 @@
   background-color: rgba(var(--star-yellow), 1)
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   background-color: rgba(var(--light-white), 1);
   color: rgba(var(--theme-font-color), 1);
   font-size: 14px;
   padding-right: 0 !important;
+  overflow-x: hidden;
   position: relative
 }
 
@@ -308,7 +313,8 @@ section {
   padding-top: calc(30px + 3.125vw)
 }
 .main-banner{
-  padding: 5px;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 .section-b-space {
   padding-bottom: calc(30px + 3.125vw)

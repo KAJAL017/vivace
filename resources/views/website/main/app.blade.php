@@ -35,7 +35,17 @@
     <link rel="stylesheet" type="text/css" href="{{ website_assets() }}/assets/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <style>
+   
+   <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9F3B2KQVCS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9F3B2KQVCS');
+</script>
+   <style>
         /* Spinner container */
         #spinner {
             display: none;
@@ -110,6 +120,22 @@
         }
     </style>
     @yield('website-css')
+
+    {{-- Google Analytics --}}
+    @php
+        $settings = DB::table('settings')->first();
+        $ga_id = $settings->google_analytics_id ?? '';
+    @endphp
+    @if($ga_id)
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $ga_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ $ga_id }}');
+    </script>
+    @endif
 
 </head>
 
@@ -513,78 +539,13 @@
             <div class="container">
                 <h3>What are you trying to find?</h3>
                 <div class="search-box">
-                    <input type="search" id="search-input" name="search" placeholder="I'm looking for…">
-                    <i class="iconsax" data-icon="search-normal-2" id="search-icon" style="cursor: pointer;"></i>
+                    <form id="header-search-form" onsubmit="return false;">
+                        <input type="search" id="search-input" name="search" placeholder="I'm looking for…" autocomplete="off">
+                        <button type="submit" id="search-icon" style="background: none; border: none; cursor: pointer; padding: 0;">
+                            <i class="iconsax" data-icon="search-normal-2"></i>
+                        </button>
+                    </form>
                 </div>
-                <h4>Search By Tags</h4>
-                @php
-                    $tags = DB::table('tags')->where('is_deleted', 0)->orderBy('id', 'DESC')->get();
-                @endphp
-                <ul class="rapid-search">
-                    @foreach ($tags as $tag)
-                        <li>
-                            <a href="javascript:void(0);" class="tag-filter" data-tag="{{ $tag->name }}">
-                                <i class="iconsax" data-icon="search-normal-2"></i>#{{ $tag->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-                <h4>Search By Categories</h4>
-                @php
-                    $categories = DB::table('categories')->where('is_deleted', 0)->orderBy('id', 'DESC')->get();
-                @endphp
-                <ul class="rapid-search">
-                    @foreach ($categories as $category)
-                        <li>
-                            <a href="javascript:void(0);" class="category-filter"
-                                data-category="{{ $category->id }}">
-                                <i class="iconsax" data-icon="search-normal-2"></i>{{ $category->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-                <h4>Search By Sub Categories</h4>
-                @php
-                    $sub_categories = DB::table('sub_categories')->where('is_deleted', 0)->orderBy('id', 'DESC')->get();
-                @endphp
-                <ul class="rapid-search">
-                    @foreach ($sub_categories as $sub_category)
-                        <li>
-                            <a href="javascript:void(0);" class="sub_category-filter"
-                                data-category="{{ $sub_category->id }}">
-                                <i class="iconsax" data-icon="search-normal-2"></i>{{ $sub_category->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-                <h4>Search By Brands</h4>
-                @php
-                    $brands = DB::table('brands')->where('is_deleted', 0)->orderBy('id', 'DESC')->get();
-                @endphp
-                <ul class="rapid-search">
-                    @foreach ($brands as $brand)
-                        <li>
-                            <a href="javascript:void(0);" class="brand-filter"
-                                data-brand="{{ $brand->id }}">
-                                <i class="iconsax" data-icon="search-normal-2"></i>{{ $brand->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-                <h4>Search By Collections</h4>
-                @php
-                    $collections = DB::table('collections')->where('is_deleted', 0)->orderBy('id', 'DESC')->get();
-                @endphp
-                <ul class="rapid-search">
-                    @foreach ($collections as $collectio)
-                        <li>
-                            <a href="javascript:void(0);" class="collection-filter"
-                                data-collection="{{ $collectio->id }}">
-                                <i class="iconsax" data-icon="search-normal-2"></i>{{ $collectio->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
             </div>
         </div>
     </div>
@@ -657,14 +618,7 @@
 
     <script>
         $(document).ready(function() {
-            $(document).ajaxStart(function() {
-                $('#spinner').show();
-            });
-            $(document).ajaxStop(function() {
-                $('#spinner').hide();
-            });
-
-
+            // Global AJAX spinner removed - using button loaders instead
         });
     </script>
 
@@ -852,83 +806,66 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search-input');
             const searchIcon = document.getElementById('search-icon');
+            const searchForm = document.getElementById('header-search-form');
 
             // Function to handle search action
             function performSearch() {
                 const query = searchInput.value.trim();
                 if (query) {
-                    const url = `{{ route('search-product') }}?search=${encodeURIComponent(query)}`;
-                    window.location.href = url;
+                    // Close the offcanvas first
+                    const offcanvasEl = document.getElementById('offcanvasTop');
+                    const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                    if (offcanvas) {
+                        offcanvas.hide();
+                    }
+                    // Then redirect to search page
+                    window.location.href = '{{ route("search-product") }}?search=' + encodeURIComponent(query);
                 } else {
-                    alert('Please enter a search term.');
+                    // Show visual feedback instead of alert
+                    searchInput.style.borderColor = 'red';
+                    searchInput.placeholder = 'Please enter a search term';
+                    setTimeout(function() {
+                        searchInput.style.borderColor = '';
+                        searchInput.placeholder = "I'm looking for…";
+                    }, 2000);
                 }
             }
 
-            // Trigger search on 'Enter' key press
-            searchInput.addEventListener('keypress', function(event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault(); // Prevent default form submission
+            // Handle form submit (for Enter key)
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
                     performSearch();
-                }
-            });
+                });
+            }
 
-            // Trigger search on magnifying glass icon click
-            searchIcon.addEventListener('click', function() {
-                performSearch();
-            });
+            // Handle search icon click
+            if (searchIcon) {
+                searchIcon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    performSearch();
+                });
+            }
 
-            // Add click event listeners for category filters
-            document.querySelectorAll('.category-filter').forEach(function(element) {
-                element.addEventListener('click', function() {
-                    const categoryId = this.dataset.category;
-                    if (categoryId) {
-                        const url =
-                            `{{ route('search-product') }}?category=${encodeURIComponent(categoryId)}`;
-                        window.location.href = url;
+            // Also handle Enter key directly on input
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        performSearch();
                     }
                 });
-            });
+            }
+        });
 
-            // Add click event listeners for subcategory filters
-            document.querySelectorAll('.sub_category-filter').forEach(function(element) {
-                element.addEventListener('click', function() {
-                    const subCategoryId = this.dataset.category;
-                    if (subCategoryId) {
-                        const url =
-                            `{{ route('search-product') }}?sub_category=${encodeURIComponent(subCategoryId)}`;
-                        window.location.href = url;
-                    }
-                });
-            });
-            document.querySelectorAll('.brand-filter').forEach(function(element) {
-                element.addEventListener('click', function() {
-                    const brandId = this.dataset.brand;
-                    if (brandId) {
-                        const url =
-                            `{{ route('search-product') }}?brandId=${encodeURIComponent(brandId)}`;
-                        window.location.href = url;
-                    }
-                });
-            });
-            document.querySelectorAll('.collection-filter').forEach(function(element) {
-                element.addEventListener('click', function() {
-                    const collectionID = this.dataset.collection;
-                    if (collectionID) {
-                        const url =
-                            `{{ route('search-product') }}?collectionID=${encodeURIComponent(collectionID)}`;
-                        window.location.href = url;
-                    }
-                });
-            });
-
-            // Add click event listeners for tag filters
-            document.querySelectorAll('.tag-filter').forEach(function(element) {
-                element.addEventListener('click', function() {
-                    const tagName = this.dataset.tag; // Tag name
+        // Tag click handler
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.tag-click').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    const tagName = this.dataset.tag;
                     if (tagName) {
-                        const url =
-                            `{{ route('search-product') }}?tag=${encodeURIComponent(tagName)}`;
-                        window.location.href = url;
+                        window.location.href = '{{ route("search-product") }}?tag=' + encodeURIComponent(tagName);
                     }
                 });
             });

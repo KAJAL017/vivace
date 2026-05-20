@@ -143,6 +143,15 @@
             <li class="menu-title">WEBSITE MANAGEMENT</li>
 
             <li class="nav-item">
+                <a class="nav-link" href="{{ route('reels.index') }}">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:video-frame-play-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text">Reels</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link" href="{{ route('admin.contact') }}">
                     <span class="nav-icon">
                         <iconify-icon icon="solar:chat-round-call-bold-duotone"></iconify-icon>
