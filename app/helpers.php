@@ -219,34 +219,39 @@ function path(){
 
 /**
  * Get correct URL for uploaded files.
- * Handles both:
- *   - Local (APP_URL has /public): url('uploads/path') = domain/public/uploads/path
- *   - Production (APP_URL = domain): url('public/uploads/path') = domain/public/uploads/path
+ * Production: APP_URL = https://vivacecollections.com
+ *   → files at: domain/public/uploads/path
+ *   → url('public/uploads/path') = domain/public/uploads/path ✓
  *
- * DB mein path formats:
- *   - 'uploads/product_images/file.jpg'  → strip 'uploads/' prefix
- *   - 'product_images/file.jpg'          → use as-is
- *   - 'banners/file.jpg'                 → use as-is
+ * Local: APP_URL = http://localhost/.../public
+ *   → files at: domain/public/uploads/path
+ *   → url('uploads/path') = domain/public/uploads/path ✓
+ *
+ * DB stores paths like:
+ *   'uploads/product_images/file.jpg'  → strip 'uploads/' → 'product_images/file.jpg'
+ *   'product_images/file.jpg'          → use as-is
+ *   'banners/file.jpg'                 → use as-is
  */
 function upload_url($path = '') {
-    if (empty($path)) return url('public/5.png');
+    if (empty($path)) return asset('5.png');
 
     $path = ltrim($path, '/');
 
-    // Agar path 'uploads/' se start hota hai toh strip karo (DB mein already hai)
+    // Strip 'uploads/' prefix if already present in DB path
     if (str_starts_with($path, 'uploads/')) {
         $path = substr($path, strlen('uploads/'));
     }
 
-    // APP_URL check — production pe /public nahi hota
-    $appUrl = config('app.url');
-    if (str_ends_with(rtrim($appUrl, '/'), '/public')) {
-        // Local: APP_URL has /public — url('uploads/path') = domain/public/uploads/path
+    // Always use public/uploads/ — works on both local and production
+    // Local:      APP_URL=.../public  → url('public/uploads/x') = .../public/public/uploads/x ✗
+    // So detect:
+    $appUrl = rtrim(config('app.url'), '/');
+    if (str_ends_with($appUrl, '/public')) {
+        // Local — APP_URL already has /public, so just use url('uploads/path')
         return url('uploads/' . $path);
-    } else {
-        // Production: APP_URL = domain — url('public/uploads/path') = domain/public/uploads/path
-        return url('public/uploads/' . $path);
     }
+    // Production — APP_URL = domain, files served from /public/uploads/
+    return $appUrl . '/public/uploads/' . $path;
 }
 function website_assets(){
     $path = url('public/website_assets');
