@@ -1245,7 +1245,7 @@
                     <div class="form-section">
                         <!-- Brand Logo -->
                         <div class="brand-logo">
-                            <img src='{{ path() }}/vivaceLogo (1).png' alt="Company Logo" />
+                            <img src='{{ path() }}/admin-logo.png' alt="Company Logo" />
                         </div>
 
                         <!-- Welcome Text -->

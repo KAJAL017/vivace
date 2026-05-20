@@ -641,56 +641,64 @@ document.querySelector('.whatsapp-btn').addEventListener('click', function(e) {
             <div class="swiper special-offer-slide-2">
                 <div class="swiper-wrapper ratio1_3">
                     @foreach ($related_products as $product)
+                        @php
+                            $rp1 = product_responsive_image($product->id);
+                            $rp2 = product_second_image($product->id);
+                        @endphp
                         <div class="swiper-slide">
                             <div class="product-box-3">
                                 <div class="img-wrapper">
-                                    {{-- <div class="label-block"><span class="lable-1">NEW</span><a
-                                            class="label-2 wishlist-icon" href="javascript:void(0)" tabindex="0"><i
-                                                class="iconsax" data-icon="heart" aria-hidden="true"
-                                                data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i></a></div> --}}
-                                    <div class="product-image">
-                                        <a class="pro-first" href="{{ route('view.product', [$product->slug]) }}">
-                                            <img loading="lazy" class="bg-img" src="{{ Product_first_image($product->id) }}" alt="product">
+                                    <div class="product-image" style="position:relative; overflow:hidden; aspect-ratio:3/4; background:#f5f5f5;">
+                                        <a class="pro-first" href="{{ route('view.product', [$product->slug]) }}"
+                                           style="display:block; width:100%; height:100%; position:absolute; top:0; left:0; transition:opacity 0.3s;">
+                                            @if($rp1['has_ik'])
+                                                <picture>
+                                                    <source media="(max-width: 575px)"  srcset="{{ $rp1['mobile'] }}"  type="image/webp">
+                                                    <source media="(max-width: 991px)"  srcset="{{ $rp1['tablet'] }}"  type="image/webp">
+                                                    <source                              srcset="{{ $rp1['desktop'] }}" type="image/webp">
+                                                    <img loading="lazy" class="bg-img" src="{{ $rp1['desktop'] }}" alt="{{ $product->name }}"
+                                                         style="width:100%; height:100%; object-fit:cover; object-position:top center; display:block;">
+                                                </picture>
+                                            @else
+                                                <img loading="lazy" class="bg-img" src="{{ $rp1['src'] }}" alt="{{ $product->name }}"
+                                                     style="width:100%; height:100%; object-fit:cover; object-position:top center; display:block;">
+                                            @endif
                                         </a>
-                                        <a class="pro-sec" href="{{ route('view.product', [$product->slug]) }}">
-                                            <img loading="lazy" class="bg-img" src="{{ get_second_image($product->id) }}" alt="product">
+                                        <a class="pro-sec" href="{{ route('view.product', [$product->slug]) }}"
+                                           style="display:block; width:100%; height:100%; position:absolute; top:0; left:0; opacity:0; transition:opacity 0.3s;">
+                                            @if($rp2['has_ik'])
+                                                <picture>
+                                                    <source media="(max-width: 575px)"  srcset="{{ $rp2['mobile'] }}"  type="image/webp">
+                                                    <source media="(max-width: 991px)"  srcset="{{ $rp2['tablet'] }}"  type="image/webp">
+                                                    <source                              srcset="{{ $rp2['desktop'] }}" type="image/webp">
+                                                    <img loading="lazy" class="bg-img" src="{{ $rp2['desktop'] }}" alt="{{ $product->name }}"
+                                                         style="width:100%; height:100%; object-fit:cover; object-position:top center; display:block;">
+                                                </picture>
+                                            @else
+                                                <img loading="lazy" class="bg-img" src="{{ $rp2['src'] }}" alt="{{ $product->name }}"
+                                                     style="width:100%; height:100%; object-fit:cover; object-position:top center; display:block;">
+                                            @endif
                                         </a>
                                     </div>
-                                    {{-- <div class="cart-info-icon"> <a href="#" data-bs-toggle="modal"
-                                            data-bs-target="#addtocart" tabindex="0"><i class="iconsax"
-                                                data-icon="basket-2" aria-hidden="true" data-bs-toggle="tooltip"
-                                                data-bs-title="Add to cart"> </i></a><a href="compare.html"
-                                            tabindex="0"><i class="iconsax" data-icon="arrow-up-down"
-                                                aria-hidden="true" data-bs-toggle="tooltip"
-                                                data-bs-title="Compare"></i></a><a href="#" data-bs-toggle="modal"
-                                            data-bs-target="#quick-view" tabindex="0"><i class="iconsax"
-                                                data-icon="eye" aria-hidden="true" data-bs-toggle="tooltip"
-                                                data-bs-title="Quick View"></i></a></div> --}}
                                 </div>
-                                <div class="product-detail">
-                                    {{-- <ul class="rating">
-                                        <li><i class="fa-solid fa-star"></i></li>
-                                        <li><i class="fa-solid fa-star"></i></li>
-                                        <li><i class="fa-solid fa-star"></i></li>
-                                        <li><i class="fa-solid fa-star"></i></li>
-                                        <li><i class="fa-solid fa-star"></i></li>
-                                        <li>4.3</li>
-                                    </ul> --}}
+                                <div class="product-detail" style="padding:8px 4px 4px;">
                                     <a href="{{ route('view.product', [$product->slug]) }}">
-                                        <h6>{{ $product->name }}</h6>
+                                        <h6 style="font-size:0.85rem; font-weight:600; color:#1a1a1a; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                            {{ $product->name }}
+                                        </h6>
                                     </a>
                                     @php
                                         $price = $product->price ?? 0;
-                                        $mrp = $product->mrp ?? 0;
-                                        $discountPercentage = $mrp > 0 ? round((($mrp - $price) / $mrp) * 100) : 0;
+                                        $mrp   = $product->mrp   ?? 0;
+                                        $disc  = $mrp > 0 ? round((($mrp - $price) / $mrp) * 100) : 0;
                                     @endphp
-
-                                    <p>
-                                        ₹{{ number_format($price, 2) }}
-                                        <del>₹{{ number_format($mrp, 2) }}</del>
-                                        <span>-{{ $discountPercentage }}%</span>
-                                    </p>
-
+                                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                        <span style="font-size:0.9rem; font-weight:700; color:#1a1a1a;">₹{{ number_format($price) }}</span>
+                                        @if($mrp > $price)
+                                            <span style="font-size:0.78rem; color:#aaa; text-decoration:line-through;">₹{{ number_format($mrp) }}</span>
+                                            <span style="font-size:0.72rem; color:#e74c3c; font-weight:600;">-{{ $disc }}%</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>

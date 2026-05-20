@@ -201,9 +201,9 @@
                     <!-- mobile Logo -->
                     <div class="main-menu"> <a class="brand-logo" href="{{ route('website.home') }}"
                             style="width: 340px"> <img class="img-fluid for-light" width="340px"
-                                src="{{ url('public') }}/vivaceLogo (1).png" alt="logo"><img
+                                src="{{ url('public') }}/front-logo.png" alt="logo"><img
                                 class="img-fluid for-dark"
-                                src="{{ website_assets() }}/assets/images/logo/logo-white-4.png" alt="logo"></a>
+                                src="{{ url('public') }}/front-logo.png" alt="logo"></a>
 
                         @php
                             $homecategories = DB::table('categories')
@@ -352,9 +352,9 @@
                         <div class="footer-content">
                             <div class="footer-logo">
                                 <a class="brand-logo" href="{{ route('website.home') }}" style="width: 340px">
-                                    <img class="img-fluid for-light" src="{{ url('public') }}/vivaceLogo (1).png"
+                                    <img class="img-fluid for-light" src="{{ url('public') }}/front-logo.png"
                                         alt="logo" width="340px">
-                                    <img class="img-fluid for-dark" src="{{ url('public') }}/vivaceLogo (1).png"
+                                    <img class="img-fluid for-dark" src="{{ url('public') }}/front-logo.png"
                                         alt="logo"></a>
                             </div>
                             <ul>

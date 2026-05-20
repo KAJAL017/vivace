@@ -64,51 +64,7 @@
 
             <div class="row gy-4" id="search-results">
                 @forelse($products as $product)
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="product-box-3">
-                            <div class="img-wrapper">
-                                <div class="label-block">
-                                    <a class="label-2 wishlist-icon" href="javascript:void(0)" tabindex="0">
-                                        <i class="iconsax" data-icon="heart" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="Add to Wishlist"></i>
-                                    </a>
-                                </div>
-                                <div class="product-image">
-                                    <a class="pro-first" href="{{ route('view.product', $product->slug) }}">
-                                        <img class="bg-img" src="{{ Product_first_image($product->id) }}" alt="{{ $product->name }}">
-                                    </a>
-                                </div>
-                                <div class="cart-info-icon">
-                                    <a href="javascript:void(0)" onclick="addToCart({{ $product->id }})" data-bs-toggle="tooltip" data-bs-title="Add to cart">
-                                        <i class="iconsax" data-icon="basket-2"></i>
-                                    </a>
-                                    <a href="{{ route('view.product', $product->slug) }}" data-bs-toggle="tooltip" data-bs-title="Quick View">
-                                        <i class="iconsax" data-icon="eye"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="product-detail">
-                                <a href="{{ route('view.product', $product->slug) }}">
-                                    <h6>{{ $product->name }}</h6>
-                                </a>
-                                @php
-                                    $minPrice = $product->price ?? 0;
-                                    $minMrp = $product->mrp ?? 0;
-                                    $discount = 0;
-                                    if($minMrp > 0 && $minPrice > 0) {
-                                        $discount = round((($minMrp - $minPrice) / $minMrp) * 100);
-                                    }
-                                @endphp
-                                <p>₹{{ number_format($minPrice, 2) }}
-                                    @if($minMrp > $minPrice)
-                                    <del>₹{{ number_format($minMrp, 2) }}</del>
-                                    @if($discount > 0)
-                                    <span>-{{ $discount }}%</span>
-                                    @endif
-                                    @endif
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    @include('website.pages.product.partials.product', ['product' => $product])
                 @empty
                     @if(!isset($search_term) || !$search_term)
                     <div class="col-12 text-center py-5">

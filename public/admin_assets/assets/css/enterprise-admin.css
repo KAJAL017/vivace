@@ -1,7 +1,45 @@
 /* ============================================
-   ENTERPRISE ADMIN DESIGN - VIVACE
-   Corporate Level Sidebar & Topbar Design
-   E-Commerce Fashion Theme
+   VIVACE ADMIN — LAYOUT OFFSET
+   Sidebar 240px fixed, topbar 60px fixed
+   ============================================ */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #f4f6f9;
+}
+
+.wrapper {
+    display: block;
+}
+
+/* Hide theme's original sidebar — we use vv-sidebar */
+.main-nav {
+    display: none !important;
+}
+
+/* Hide theme's original topbar — we use vv-topbar */
+.topbar {
+    display: none !important;
+}
+
+/* Page content pushed right of sidebar and below topbar */
+.page-content,
+.wrapper .page-content {
+    margin-left: 240px !important;
+    padding-top: 60px !important;
+    min-height: 100vh;
+    background: #f4f6f9;
+    transition: margin-left 0.25s ease;
+}
+
+@media (max-width: 991px) {
+    .page-content,
+    .wrapper .page-content { margin-left: 0 !important; }
+}
+
+/* ============================================
+   ENTERPRISE ADMIN DESIGN - VIVACE (legacy vars)
    ============================================ */
 
 :root {

@@ -3,6 +3,7 @@
     $p2 = product_second_image($product->id);
 @endphp
 
+<div class="col-xxl-3 col-lg-3 col-md-4 col-6">
 <div class="product-box-3 mb-3">
     <div class="img-wrapper">
         <div class="product-image" style="position:relative; overflow:hidden; aspect-ratio: 3/4; background:#f5f5f5;">
@@ -67,6 +68,7 @@
         </div>
     </div>
 </div>
+</div>{{-- col --}}
 
 <style>
     .product-image .pro-sec { opacity: 0; }

@@ -3,577 +3,275 @@
 @section('topbar-text', 'Product Management')
 
 @section('admin-css')
-<!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
 <style>
-    /* Corporate Product List */
-    .product-container {
-        padding: 2rem 0;
-    }
-    
-    /* Stats Cards */
-    .stats-row {
-        margin-bottom: 2rem;
-    }
-    
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        border-left: 4px solid #e74c3c;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-    }
-    
-    .stat-card.blue { border-left-color: #3498db; }
-    .stat-card.green { border-left-color: #27ae60; }
-    .stat-card.orange { border-left-color: #f39c12; }
-    .stat-card.red { border-left-color: #e74c3c; }
-    
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #2c3e50;
-        margin: 0;
-    }
-    
-    .stat-label {
-        font-size: 0.875rem;
-        color: #7f8c8d;
-        font-weight: 500;
-        text-transform: uppercase;
-        margin-top: 0.5rem;
-    }
-    
-    /* Filter Section */
-    .filter-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .btn-clear-filters {
-        background: transparent;
-        border: 2px solid #e74c3c;
-        color: #e74c3c;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.875rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-clear-filters:hover {
-        background: #e74c3c;
-        color: white;
-    }
-    
-    .filter-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-    
-    .filter-group {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .filter-label {
-        font-weight: 600;
-        color: #2c3e50;
-        font-size: 0.875rem;
-        margin-bottom: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .filter-select,
-    .filter-input {
-        padding: 0.75rem;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 0.9375rem;
-        color: #495057;
-        transition: all 0.3s ease;
-        background: white;
-    }
-    
-    .filter-select:focus,
-    .filter-input:focus {
-        outline: none;
-        border-color: #2c3e50;
-        box-shadow: 0 0 0 0.2rem rgba(44, 62, 80, 0.15);
-    }
-    
-    /* Custom Select2 Styling */
-    .select2-container--default .select2-selection--single {
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        height: auto;
-        padding: 0.75rem;
-        transition: all 0.3s ease;
-    }
-    
-    .select2-container--default .select2-selection--single:focus,
-    .select2-container--default.select2-container--open .select2-selection--single {
-        border-color: #2c3e50;
-        box-shadow: 0 0 0 0.2rem rgba(44, 62, 80, 0.15);
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: #495057;
-        line-height: 1.5;
-        padding: 0;
-        font-size: 0.9375rem;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 100%;
-        right: 10px;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: #6c757d;
-    }
-    
-    .select2-dropdown {
-        border: 2px solid #2c3e50;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    }
-    
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        color: white;
-    }
-    
-    .select2-container--default .select2-results__option[aria-selected=true] {
-        background: #f8f9fa;
-        color: #2c3e50;
-        font-weight: 600;
-    }
-    
-    .select2-container--default .select2-search--dropdown .select2-search__field {
-        border: 2px solid #e9ecef;
-        border-radius: 6px;
-        padding: 0.5rem;
-        font-size: 0.9375rem;
-    }
-    
-    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
-        border-color: #2c3e50;
-        outline: none;
-    }
-    
-    .select2-results__option {
-        padding: 0.75rem 1rem;
-        font-size: 0.9375rem;
-    }
-    
-    .select2-container {
-        width: 100% !important;
-    }
-    
-    /* Product Card */
-    .product-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-    }
-    
-    .card-header-custom {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        padding: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .card-header-custom h4 {
-        color: white;
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.125rem;
-    }
-    
-    .btn-add {
-        background: #27ae60;
-        color: white;
-        padding: 0.625rem 1.25rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.875rem;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-add:hover {
-        background: #229954;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    /* Table Styles */
-    .table-container {
-        padding: 0;
-        overflow-x: auto;
-    }
-    
-    .product-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .product-table thead {
-        background: #f8f9fa;
-        border-bottom: 2px solid #e9ecef;
-    }
-    
-    .product-table thead th {
-        padding: 1rem;
-        text-align: left;
-        font-weight: 600;
-        font-size: 0.875rem;
-        color: #2c3e50;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .product-table tbody tr {
-        border-bottom: 1px solid #f0f0f0;
-        transition: all 0.3s ease;
-    }
-    
-    .product-table tbody tr:hover {
-        background: #f8f9fa;
-    }
-    
-    .product-table tbody td {
-        padding: 1rem;
-        vertical-align: middle;
-        color: #495057;
-        font-size: 0.9375rem;
-    }
-    
-    .product-image-cell {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    
-    .product-thumb {
-        width: 60px;
-        height: 60px;
-        border-radius: 8px;
-        object-fit: cover;
-        border: 2px solid #e9ecef;
-    }
-    
-    .product-name {
-        font-weight: 600;
-        color: #2c3e50;
-        font-size: 0.9375rem;
-    }
-    
-    .badge-custom {
-        padding: 0.375rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.8125rem;
-        font-weight: 600;
-        display: inline-block;
-    }
-    
-    .badge-category { background: #e3f2fd; color: #1976d2; }
-    .badge-subcategory { background: #f3e5f5; color: #7b1fa2; }
-    .badge-brand { background: #fff3e0; color: #f57c00; }
-    .badge-collection { background: #e8f5e9; color: #388e3c; }
-    
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    .btn-action {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 6px;
-        font-size: 0.8125rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-    
-    .btn-edit {
-        background: #3498db;
-        color: white;
-    }
-    
-    .btn-edit:hover {
-        background: #2980b9;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    .btn-delete {
-        background: #e74c3c;
-        color: white;
-    }
-    
-    .btn-delete:hover {
-        background: #c0392b;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    /* Pagination */
-    .pagination-container {
-        padding: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-top: 2px solid #f0f0f0;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    
-    .pagination-info {
-        color: #7f8c8d;
-        font-size: 0.9375rem;
-        font-weight: 500;
-    }
-    
-    .pagination {
-        display: flex;
-        gap: 0.5rem;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-    
-    .pagination li {
-        margin: 0;
-    }
-    
-    .pagination a,
-    .pagination span {
-        padding: 0.625rem 1rem;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        color: #2c3e50;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9375rem;
-        transition: all 0.3s ease;
-        display: inline-block;
-        min-width: 45px;
-        text-align: center;
-    }
-    
-    .pagination a:hover {
-        background: #f8f9fa;
-        border-color: #2c3e50;
-        transform: translateY(-2px);
-    }
-    
-    .pagination .active span {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        border-color: #2c3e50;
-        color: white;
-    }
-    
-    .pagination .disabled span,
-    .pagination .disabled a {
-        opacity: 0.4;
-        cursor: not-allowed;
-        border-color: #e9ecef;
-        color: #adb5bd;
-        pointer-events: none;
-    }
-    
-    .pagination .dots {
-        border: none;
-        padding: 0.625rem 0.5rem;
-        color: #7f8c8d;
-        font-weight: 700;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-        .pagination-container {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .pagination-info {
-            font-size: 0.8125rem;
-        }
-        
-        .pagination a,
-        .pagination span {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.8125rem;
-            min-width: 40px;
-        }
-        
-        .pagination {
-            gap: 0.375rem;
-        }
-        
-        .product-table {
-            font-size: 0.875rem;
-        }
-        
-        .product-table thead th,
-        .product-table tbody td {
-            padding: 0.75rem 0.5rem;
-        }
-        
-        .product-thumb {
-            width: 50px;
-            height: 50px;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-        }
-    }
+/* ===== PRODUCT LIST ===== */
+.pl-wrap { padding: 24px; }
+
+/* Stat cards */
+.pl-stats {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+@media(max-width:991px){ .pl-stats{ grid-template-columns: repeat(2,1fr); } }
+@media(max-width:575px){ .pl-stats{ grid-template-columns: 1fr; } }
+
+.pl-stat {
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+}
+.pl-stat:hover { transform: translateY(-3px); }
+.pl-stat.s1 { background: linear-gradient(135deg,#6366f1,#818cf8); }
+.pl-stat.s2 { background: linear-gradient(135deg,#10b981,#34d399); }
+.pl-stat.s3 { background: linear-gradient(135deg,#f59e0b,#fbbf24); }
+.pl-stat.s4 { background: linear-gradient(135deg,#ef4444,#f87171); }
+
+.pl-stat-icon {
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.pl-stat-val { font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1; }
+.pl-stat-lbl { font-size: 0.72rem; color: rgba(255,255,255,0.85); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+
+/* Main card */
+.pl-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; }
+
+/* Card header */
+.pl-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+    background: #0f1117;
+    border-bottom: 1px solid #1e2130;
+}
+.pl-card-title { color: #f1f5f9; font-size: 0.9rem; font-weight: 700; }
+.pl-card-title span { color: #818cf8; }
+.pl-btn-add {
+    background: #6366f1; color: #fff;
+    padding: 7px 16px; border-radius: 8px;
+    text-decoration: none; font-size: 0.82rem; font-weight: 700;
+    transition: background 0.2s;
+}
+.pl-btn-add:hover { background: #4f46e5; color: #fff; }
+
+/* Filter bar */
+.pl-filter {
+    padding: 14px 24px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e8ecf0;
+    display: grid;
+    grid-template-columns: 150px 1fr 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+}
+@media(max-width:1199px){ .pl-filter{ grid-template-columns: repeat(3,1fr); } }
+@media(max-width:767px) { .pl-filter{ grid-template-columns: 1fr 1fr; } }
+@media(max-width:575px) { .pl-filter{ grid-template-columns: 1fr; } }
+
+.pl-filter label { display: block; font-size: 0.68rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.pl-filter select, .pl-filter input {
+    width: 100%; padding: 7px 10px;
+    border: 1.5px solid #e2e8f0; border-radius: 7px;
+    font-size: 0.83rem; color: #374151; background: #fff;
+    transition: border-color 0.2s; outline: none;
+}
+.pl-filter select:focus, .pl-filter input:focus { border-color: #6366f1; }
+.pl-btn-clear {
+    padding: 7px 14px; background: none;
+    border: 1.5px solid #e2e8f0; border-radius: 7px;
+    font-size: 0.8rem; font-weight: 600; color: #64748b;
+    cursor: pointer; white-space: nowrap; transition: all 0.2s; height: 36px;
+}
+.pl-btn-clear:hover { border-color: #ef4444; color: #ef4444; }
+
+/* Table */
+.product-table { width: 100%; border-collapse: collapse; }
+.product-table thead th {
+    background: #f8fafc; color: #64748b;
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 10px 14px; border-bottom: 1px solid #e8ecf0;
+    text-align: left; white-space: nowrap;
+}
+.product-table tbody td {
+    padding: 11px 14px; font-size: 0.84rem; color: #374151;
+    border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+}
+.product-table tbody tr:hover td { background: #fafbfc; }
+.product-table tbody tr:last-child td { border-bottom: none; }
+
+.product-image-cell { display: flex; align-items: center; gap: 10px; }
+.product-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 1.5px solid #e2e8f0; flex-shrink: 0; }
+.product-name { font-weight: 600; color: #1e293b; font-size: 0.84rem; }
+
+.badge-custom { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 0.7rem; font-weight: 700; }
+.badge-category    { background: #ede9fe; color: #6d28d9; }
+.badge-subcategory { background: #fce7f3; color: #be185d; }
+.badge-brand       { background: #fef3c7; color: #b45309; }
+.badge-collection  { background: #d1fae5; color: #065f46; }
+
+.action-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
+.btn-action {
+    padding: 5px 11px; border: none; border-radius: 6px;
+    font-size: 0.76rem; font-weight: 700; cursor: pointer;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+    transition: all 0.2s;
+}
+.btn-edit   { background: #dbeafe; color: #1d4ed8; }
+.btn-edit:hover   { background: #1d4ed8; color: #fff; }
+.btn-delete { background: #fee2e2; color: #dc2626; }
+.btn-delete:hover { background: #dc2626; color: #fff; }
+
+/* Pagination */
+.pagination-container {
+    padding: 12px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid #f1f5f9; flex-wrap: wrap; gap: 8px;
+}
+.pagination-info { font-size: 0.78rem; color: #94a3b8; font-weight: 500; }
+.pagination { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.pagination a, .pagination span {
+    padding: 5px 10px; border: 1.5px solid #e2e8f0; border-radius: 6px;
+    color: #374151; text-decoration: none; font-size: 0.8rem; font-weight: 600;
+    display: inline-block; min-width: 34px; text-align: center; transition: all 0.2s;
+}
+.pagination a:hover { background: #6366f1; border-color: #6366f1; color: #fff; }
+.pagination .active span { background: #6366f1; border-color: #6366f1; color: #fff; }
+.pagination .disabled span, .pagination .disabled a { opacity: 0.4; pointer-events: none; }
+
+/* Stock modal */
+.stock-input { width: 90px; padding: 5px 8px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 0.85rem; }
+.stock-input:focus { border-color: #6366f1; outline: none; }
 </style>
 @endsection
 
 @section('admin-content')
-<div class="container-fluid product-container">
-    
-    <!-- Stats Cards -->
-    <div class="row stats-row g-3">
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card blue">
-                <h3 class="stat-value">{{ $total_products }}</h3>
-                <p class="stat-label">Total Products</p>
+<div class="pl-wrap">
+
+    {{-- Stat Cards --}}
+    <div class="pl-stats">
+        <div class="pl-stat s1">
+            <div class="pl-stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             </div>
+            <div><div class="pl-stat-val">{{ $total_products }}</div><div class="pl-stat-lbl">Total Products</div></div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card green">
-                <h3 class="stat-value">{{ $active_products }}</h3>
-                <p class="stat-label">Active Products</p>
+        <div class="pl-stat s2">
+            <div class="pl-stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
+            <div><div class="pl-stat-val">{{ $active_products }}</div><div class="pl-stat-lbl">Active</div></div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card orange">
-                <h3 class="stat-value">{{ $out_of_stock }}</h3>
-                <p class="stat-label">Out of Stock</p>
+        <div class="pl-stat s3">
+            <div class="pl-stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </div>
+            <div><div class="pl-stat-val">{{ $out_of_stock }}</div><div class="pl-stat-lbl">Out of Stock</div></div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card red">
-                <h3 class="stat-value">{{ $categories_count }}</h3>
-                <p class="stat-label">Categories</p>
+        <div class="pl-stat s4">
+            <div class="pl-stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 6h16M4 12h8m-8 6h16"/></svg>
             </div>
+            <div><div class="pl-stat-val">{{ $categories_count }}</div><div class="pl-stat-lbl">Categories</div></div>
         </div>
     </div>
-    
-    <!-- Product Table Card with Filters -->
-    <div class="product-card">
-        <div class="card-header-custom">
-            <h4>All Products (<span id="totalCount">{{ $products->total() }}</span> items)</h4>
-            <a href="{{ route('product.create') }}" class="btn-add">+ Add Product</a>
-        </div>
-        
-        <!-- Filter Section Inside Card -->
-        <div style="padding: 1.5rem; background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
-            <div class="filter-header" style="margin-bottom: 1rem;">
-                <h5 style="color: #2c3e50; font-weight: 600; font-size: 1rem; margin: 0;">🔍 Filter Products</h5>
-                <button type="button" class="btn-clear-filters" id="clearFilters">Clear All</button>
+
+    {{-- Main Card --}}
+    <div class="pl-card">
+
+        {{-- Header --}}
+        <div class="pl-card-head">
+            <div class="pl-card-title">
+                All Products &nbsp;<span>(<span id="totalCount">{{ $products->total() }}</span>)</span>
             </div>
-            <form id="filterForm">
-                <div class="filter-row">
-                    <div class="filter-group">
-                        <label class="filter-label">Search By</label>
-                        <select name="search_type" class="filter-select" id="searchType">
-                            <option value="name">Product Name</option>
-                            <option value="sku">SKU</option>
-                            <option value="category">Category</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Search</label>
-                        <input type="text" name="search" class="filter-input" placeholder="Search products..." id="searchInput">
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Category</label>
-                        <select name="category" class="filter-select" id="categoryFilter">
-                            <option value="">All Categories</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Brand</label>
-                        <select name="brand" class="filter-select" id="brandFilter">
-                            <option value="">All Brands</option>
-                            @foreach($brands as $brand)
-                                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Collection</label>
-                        <select name="collection" class="filter-select" id="collectionFilter">
-                            <option value="">All Collections</option>
-                            @foreach($collections as $collection)
-                                <option value="{{ $collection->id }}">{{ $collection->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-            </form>
+            <div style="display:flex; gap:8px;">
+                <a href="{{ route('product.bulk.form') }}" class="pl-btn-add" style="background:#10b981;">↑ Bulk Upload</a>
+                <a href="{{ route('product.create') }}" class="pl-btn-add">+ Add Product</a>
+            </div>
         </div>
-        
-        <!-- Table Container -->
-        <div id="productTableContainer">
+
+        {{-- Filters --}}
+        <form id="filterForm">
+        <div class="pl-filter">
+            <div>
+                <label>Search By</label>
+                <select name="search_type" id="searchType">
+                    <option value="name">Product Name</option>
+                    <option value="sku">SKU</option>
+                    <option value="category">Category</option>
+                </select>
+            </div>
+            <div>
+                <label>Search</label>
+                <input type="text" name="search" id="searchInput" placeholder="Search products...">
+            </div>
+            <div>
+                <label>Category</label>
+                <select name="category" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label>Brand</label>
+                <select name="brand" id="brandFilter">
+                    <option value="">All Brands</option>
+                    @foreach($brands as $brand)
+                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label>Collection</label>
+                <select name="collection" id="collectionFilter">
+                    <option value="">All Collections</option>
+                    @foreach($collections as $col)
+                        <option value="{{ $col->id }}">{{ $col->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label>&nbsp;</label>
+                <button type="button" class="pl-btn-clear" id="clearFilters">✕ Clear</button>
+            </div>
+        </div>
+        </form>
+
+        {{-- Table --}}
+        <div id="productTableContainer" style="overflow-x:auto;">
             @include('admin.pages.product.partials.product-table')
         </div>
-        
-        <!-- Pagination Container -->
+
+        {{-- Pagination --}}
         <div id="paginationContainer">
             @include('admin.pages.product.partials.pagination')
         </div>
+
     </div>
 </div>
 
-<!-- Stock Update Modal -->
-<div class="modal fade" id="stockModal" tabindex="-1" aria-labelledby="stockModalLabel" aria-hidden="true">
+{{-- Stock Modal --}}
+<div class="modal fade" id="stockModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius: 12px; border: none;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 12px 12px 0 0;">
-                <h5 class="modal-title" id="stockModalLabel">
-                    <iconify-icon icon="solar:box-bold"></iconify-icon>
-                    Update Stock Quantity
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: brightness(0) invert(1);"></button>
+        <div class="modal-content" style="border-radius:14px; border:none; overflow:hidden;">
+            <div class="modal-header" style="background:#0f1117; border-bottom:1px solid #1e2130;">
+                <h5 class="modal-title" style="color:#f1f5f9; font-size:0.9rem; font-weight:700;">Update Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:brightness(0) invert(1);"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body" style="padding:20px;">
                 <div id="stockModalContent"></div>
             </div>
-            <div class="modal-footer" style="border-top: 2px solid #f0f0f0; padding: 1rem 1.5rem;">
-                <button type="button" class="btn" style="background: #95a5a6; color: white; padding: 0.625rem 1.5rem; border-radius: 8px; font-weight: 600;" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; padding: 0.625rem 1.5rem; border-radius: 8px; font-weight: 600;" onclick="updateAllStock()">
-                    <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
-                    Update Stock
-                </button>
+            <div class="modal-footer" style="border-top:1px solid #f1f5f9; padding:12px 20px;">
+                <button type="button" class="btn" style="background:#f1f5f9;color:#374151;border-radius:8px;font-weight:600;padding:7px 18px;" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn" style="background:#6366f1;color:#fff;border-radius:8px;font-weight:600;padding:7px 18px;" onclick="updateAllStock()">Update Stock</button>
             </div>
         </div>
     </div>
@@ -581,469 +279,155 @@
 @endsection
 
 @section('admin-js')
-<!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
 <script>
-    // Initialize Select2
-    $(document).ready(function() {
-        // Initialize Select2 on filter dropdowns
-        $('#searchType').select2({
-            placeholder: 'Select search type',
-            minimumResultsForSearch: -1, // Hide search box
-            width: '100%'
-        });
-        
-        $('#categoryFilter').select2({
-            placeholder: 'All Categories',
-            allowClear: true,
-            width: '100%'
-        });
-        
-        $('#brandFilter').select2({
-            placeholder: 'All Brands',
-            allowClear: true,
-            width: '100%'
-        });
-        
-        $('#collectionFilter').select2({
-            placeholder: 'All Collections',
-            allowClear: true,
-            width: '100%'
-        });
-        
-        // Update search input placeholder based on search type
-        $('#searchType').on('change', function() {
-            const searchType = $(this).val();
-            let placeholder = 'Search products...';
-            
-            if (searchType === 'name') {
-                placeholder = 'Search by product name...';
-            } else if (searchType === 'sku') {
-                placeholder = 'Search by SKU...';
-            } else if (searchType === 'category') {
-                placeholder = 'Search by category name...';
-            }
-            
-            $('#searchInput').attr('placeholder', placeholder);
-        });
-    });
-    
     // AJAX Filter Function
     function applyFilters(url = null) {
         const formData = $('#filterForm').serialize();
         const requestUrl = url || "{{ route('product.index') }}";
-        
         $.ajax({
-            url: requestUrl,
-            method: 'GET',
-            data: formData,
+            url: requestUrl, method: 'GET', data: formData,
             beforeSend: function() {
-                $('#productTableContainer').html('<div style="padding: 3rem; text-align: center;"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Loading products...</p></div>');
+                $('#productTableContainer').html('<div style="padding:3rem;text-align:center;"><div class="spinner-border" style="color:#6366f1;" role="status"></div><p class="mt-2" style="color:#94a3b8;">Loading...</p></div>');
             },
             success: function(response) {
                 if (response.success) {
                     $('#productTableContainer').html(response.html);
                     $('#paginationContainer').html(response.pagination);
-                    
-                    // Update total count
                     const match = response.pagination.match(/of (\d+) results/);
-                    if (match) {
-                        $('#totalCount').text(match[1]);
-                    }
+                    if (match) $('#totalCount').text(match[1]);
                 }
             },
-            error: function() {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to load products',
-                    icon: 'error',
-                    confirmButtonColor: '#e74c3c'
-                });
-            }
+            error: function() { Swal.fire({ title:'Error!', text:'Failed to load products', icon:'error', confirmButtonColor:'#6366f1' }); }
         });
     }
-    
-    // Filter Form Submit
-    $('#filterForm').on('submit', function(e) {
-        e.preventDefault();
-        applyFilters();
-    });
-    
-    // Real-time Search (with debounce)
+
+    $('#filterForm').on('submit', function(e) { e.preventDefault(); applyFilters(); });
+
     let searchTimeout;
     $('#searchInput').on('keyup', function() {
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function() {
-            applyFilters();
-        }, 500);
+        searchTimeout = setTimeout(function() { applyFilters(); }, 500);
     });
-    
-    // Filter Change Events
-    $('#categoryFilter, #brandFilter, #collectionFilter').on('change', function() {
-        applyFilters();
-    });
-    
-    // Clear Filters
-    $('#clearFilters').on('click', function() {
-        $('#filterForm')[0].reset();
-        applyFilters();
-    });
-    
-    // Pagination Click Handler
+
+    $('#categoryFilter, #brandFilter, #collectionFilter, #searchType').on('change', function() { applyFilters(); });
+
+    $('#clearFilters').on('click', function() { $('#filterForm')[0].reset(); applyFilters(); });
+
     $(document).on('click', '.pagination-link', function(e) {
         e.preventDefault();
-        const url = $(this).attr('href');
-        applyFilters(url);
-        
-        // Scroll to top of table
-        $('html, body').animate({
-            scrollTop: $('.product-card').offset().top - 100
-        }, 500);
+        applyFilters($(this).attr('href'));
+        $('html,body').animate({ scrollTop: $('.pl-card').offset().top - 80 }, 400);
     });
-    
-    // Delete Product
+
+    // Delete
     var deleteUrl = "{{ route('product.destroy', ['id' => ':id']) }}";
-    
     $(document).on('click', '.delete-btn', function() {
         var row = $(this).closest('tr');
-        var id = row.data('id');
+        var id  = row.data('id');
         var url = deleteUrl.replace(':id', id);
-
-        Swal.fire({
-            title: "Delete Product?",
-            text: "This action cannot be undone!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: '#e74c3c',
-            cancelButtonColor: '#95a5a6',
-            confirmButtonText: 'Yes, Delete',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    method: 'DELETE',
-                    success: function(response) {
-                        Swal.fire({
-                            title: "Deleted!",
-                            text: "Product deleted successfully",
-                            icon: "success",
-                            confirmButtonColor: '#27ae60',
-                            timer: 2000
-                        }).then(() => {
-                            applyFilters(); // Reload with current filters
-                        });
-                    },
-                    error: function() {
-                        Swal.fire({
-                            title: "Error!",
-                            text: "Failed to delete product",
-                            icon: "error",
-                            confirmButtonColor: '#e74c3c'
-                        });
-                    }
+        Swal.fire({ title:"Delete Product?", text:"This cannot be undone!", icon:"warning", showCancelButton:true, confirmButtonColor:'#ef4444', cancelButtonColor:'#94a3b8', confirmButtonText:'Yes, Delete' })
+        .then((r) => {
+            if (r.isConfirmed) {
+                $.ajax({ url:url, method:'DELETE',
+                    success: function() { Swal.fire({ title:"Deleted!", icon:"success", timer:1500, showConfirmButton:false }).then(() => applyFilters()); },
+                    error:   function() { Swal.fire({ title:"Error!", text:"Failed to delete", icon:"error" }); }
                 });
             }
         });
     });
-    
-    // Bulk Delete Functionality
+
+    // Bulk
     let selectedProducts = [];
-    
-    // Select All Checkbox
+
     $(document).on('change', '#selectAll', function() {
-        const isChecked = $(this).is(':checked');
-        $('.product-checkbox').prop('checked', isChecked);
+        $('.product-checkbox').prop('checked', $(this).is(':checked'));
         updateSelectedProducts();
     });
-    
-    // Individual Checkbox
     $(document).on('change', '.product-checkbox', function() {
         updateSelectedProducts();
-        
-        // Update "Select All" checkbox state
-        const totalCheckboxes = $('.product-checkbox').length;
-        const checkedCheckboxes = $('.product-checkbox:checked').length;
-        $('#selectAll').prop('checked', totalCheckboxes === checkedCheckboxes);
+        var total = $('.product-checkbox').length, checked = $('.product-checkbox:checked').length;
+        $('#selectAll').prop('checked', total === checked);
     });
-    
-    // Update Selected Products Array
     function updateSelectedProducts() {
         selectedProducts = [];
-        $('.product-checkbox:checked').each(function() {
-            selectedProducts.push($(this).val());
-        });
-        
-        // Show/Hide bulk actions bar
-        if (selectedProducts.length > 0) {
-            $('#bulkActionsBar').css('display', 'flex');
-            $('#selectedCount').text(selectedProducts.length);
-        } else {
-            $('#bulkActionsBar').hide();
-        }
+        $('.product-checkbox:checked').each(function() { selectedProducts.push($(this).val()); });
+        if (selectedProducts.length > 0) { $('#bulkActionsBar').css('display','flex'); $('#selectedCount').text(selectedProducts.length); }
+        else { $('#bulkActionsBar').hide(); }
     }
-    
-    // Deselect All Button
-    $(document).on('click', '#deselectAllBtn', function() {
-        $('.product-checkbox, #selectAll').prop('checked', false);
-        updateSelectedProducts();
-    });
-    
-    // Bulk Delete Button
+    $(document).on('click', '#deselectAllBtn', function() { $('.product-checkbox, #selectAll').prop('checked', false); updateSelectedProducts(); });
+
     $(document).on('click', '#bulkDeleteBtn', function() {
-        if (selectedProducts.length === 0) {
-            Swal.fire({
-                title: 'No Products Selected',
-                text: 'Please select at least one product to delete',
-                icon: 'warning',
-                confirmButtonColor: '#f39c12'
-            });
-            return;
-        }
-        
-        Swal.fire({
-            title: `Delete ${selectedProducts.length} Product(s)?`,
-            text: "This action cannot be undone!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: '#e74c3c',
-            cancelButtonColor: '#95a5a6',
-            confirmButtonText: 'Yes, Delete All',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('product.bulk.delete') }}",
-                    method: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        product_ids: selectedProducts
-                    },
-                    beforeSend: function() {
-                        Swal.fire({
-                            title: 'Deleting...',
-                            text: 'Please wait',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                title: "Deleted!",
-                                text: `${response.deleted_count} product(s) deleted successfully`,
-                                icon: "success",
-                                confirmButtonColor: '#27ae60',
-                                timer: 2000
-                            }).then(() => {
-                                selectedProducts = [];
-                                $('#selectAll').prop('checked', false);
-                                applyFilters(); // Reload with current filters
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Error!",
-                                text: response.message || "Failed to delete products",
-                                icon: "error",
-                                confirmButtonColor: '#e74c3c'
-                            });
-                        }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            title: "Error!",
-                            text: "Failed to delete products",
-                            icon: "error",
-                            confirmButtonColor: '#e74c3c'
-                        });
+        if (!selectedProducts.length) return;
+        Swal.fire({ title:`Delete ${selectedProducts.length} Product(s)?`, text:"Cannot be undone!", icon:"warning", showCancelButton:true, confirmButtonColor:'#ef4444', confirmButtonText:'Yes, Delete All' })
+        .then((r) => {
+            if (r.isConfirmed) {
+                $.ajax({ url:"{{ route('product.bulk.delete') }}", method:'POST',
+                    data: { _token:"{{ csrf_token() }}", product_ids: selectedProducts },
+                    beforeSend: function() { Swal.fire({ title:'Deleting...', allowOutsideClick:false, didOpen:()=>Swal.showLoading() }); },
+                    success: function(res) {
+                        if (res.success) { Swal.fire({ title:"Deleted!", text:`${res.deleted_count} deleted`, icon:"success", timer:1500, showConfirmButton:false }).then(() => { selectedProducts=[]; $('#selectAll').prop('checked',false); applyFilters(); }); }
+                        else { Swal.fire({ title:"Error!", text:res.message, icon:"error" }); }
                     }
                 });
             }
         });
     });
-    
-    // Bulk Out of Stock Button
+
     $(document).on('click', '#bulkOutOfStockBtn', function() {
-        if (selectedProducts.length === 0) {
-            Swal.fire({
-                title: 'No Products Selected',
-                text: 'Please select at least one product',
-                icon: 'warning',
-                confirmButtonColor: '#f39c12'
-            });
-            return;
-        }
-        
-        Swal.fire({
-            title: `Move ${selectedProducts.length} Product(s) to Out of Stock?`,
-            text: "This will set all stock quantities to 0",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: '#f39c12',
-            cancelButtonColor: '#95a5a6',
-            confirmButtonText: 'Yes, Move to Out of Stock',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('product.bulk.outofstock') }}",
-                    method: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        product_ids: selectedProducts
-                    },
-                    beforeSend: function() {
-                        Swal.fire({
-                            title: 'Processing...',
-                            text: 'Please wait',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                title: "Success!",
-                                text: `${response.updated_count} product(s) moved to out of stock`,
-                                icon: "success",
-                                confirmButtonColor: '#27ae60',
-                                timer: 2000
-                            }).then(() => {
-                                selectedProducts = [];
-                                $('#selectAll').prop('checked', false);
-                                applyFilters(); // Reload with current filters
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Error!",
-                                text: response.message || "Failed to update products",
-                                icon: "error",
-                                confirmButtonColor: '#e74c3c'
-                            });
-                        }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            title: "Error!",
-                            text: "Failed to update products",
-                            icon: "error",
-                            confirmButtonColor: '#e74c3c'
-                        });
+        if (!selectedProducts.length) return;
+        Swal.fire({ title:`Move ${selectedProducts.length} to Out of Stock?`, text:"Sets qty to 0", icon:"warning", showCancelButton:true, confirmButtonColor:'#f59e0b', confirmButtonText:'Yes, Move' })
+        .then((r) => {
+            if (r.isConfirmed) {
+                $.ajax({ url:"{{ route('product.bulk.outofstock') }}", method:'POST',
+                    data: { _token:"{{ csrf_token() }}", product_ids: selectedProducts },
+                    beforeSend: function() { Swal.fire({ title:'Processing...', allowOutsideClick:false, didOpen:()=>Swal.showLoading() }); },
+                    success: function(res) {
+                        if (res.success) { Swal.fire({ title:"Done!", text:`${res.updated_count} updated`, icon:"success", timer:1500, showConfirmButton:false }).then(() => { selectedProducts=[]; $('#selectAll').prop('checked',false); applyFilters(); }); }
+                        else { Swal.fire({ title:"Error!", text:res.message, icon:"error" }); }
                     }
                 });
             }
         });
     });
-    
-    // Stock Modal Functions
+
+    // Stock Modal
     let currentProductId = null;
-    
     function showStockModal(productId, productName, attributes) {
         currentProductId = productId;
-        
-        let html = `
-            <h6 style="color: #2c3e50; font-weight: 600; margin-bottom: 1rem;">Product: ${productName}</h6>
-            <div style="max-height: 400px; overflow-y: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="background: #f8f9fa; position: sticky; top: 0;">
-                        <tr>
-                            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #2c3e50; border-bottom: 2px solid #e9ecef;">Size</th>
-                            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #2c3e50; border-bottom: 2px solid #e9ecef;">Color</th>
-                            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #2c3e50; border-bottom: 2px solid #e9ecef;">Current Qty</th>
-                            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #2c3e50; border-bottom: 2px solid #e9ecef;">New Qty</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        
+        let html = `<p style="font-weight:700;color:#1e293b;margin-bottom:12px;">${productName}</p>
+            <div style="max-height:380px;overflow-y:auto;">
+            <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#f8fafc;">
+                <th style="padding:8px 12px;font-size:0.72rem;color:#64748b;text-transform:uppercase;border-bottom:1px solid #e8ecf0;">Size</th>
+                <th style="padding:8px 12px;font-size:0.72rem;color:#64748b;text-transform:uppercase;border-bottom:1px solid #e8ecf0;">Color</th>
+                <th style="padding:8px 12px;font-size:0.72rem;color:#64748b;text-transform:uppercase;border-bottom:1px solid #e8ecf0;">Current</th>
+                <th style="padding:8px 12px;font-size:0.72rem;color:#64748b;text-transform:uppercase;border-bottom:1px solid #e8ecf0;">New Qty</th>
+            </tr></thead><tbody>`;
         attributes.forEach(attr => {
-            html += `
-                <tr style="border-bottom: 1px solid #f0f0f0;">
-                    <td style="padding: 0.75rem; font-size: 0.9375rem;">${attr.size_name || 'N/A'}</td>
-                    <td style="padding: 0.75rem; font-size: 0.9375rem;">${attr.color_name || 'N/A'}</td>
-                    <td style="padding: 0.75rem; font-size: 0.9375rem; font-weight: 600; color: ${attr.qty <= 0 ? '#e74c3c' : (attr.qty <= 10 ? '#f39c12' : '#27ae60')}">${attr.qty}</td>
-                    <td style="padding: 0.75rem;">
-                        <input type="number" 
-                               class="form-control stock-input" 
-                               data-attr-id="${attr.id}" 
-                               value="${attr.qty}" 
-                               min="0"
-                               style="width: 100px; padding: 0.5rem; border: 2px solid #e9ecef; border-radius: 6px; font-size: 0.9375rem;">
-                    </td>
-                </tr>
-            `;
+            const color = attr.qty <= 0 ? '#ef4444' : (attr.qty <= 10 ? '#f59e0b' : '#10b981');
+            html += `<tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:9px 12px;font-size:0.84rem;">${attr.size_name||'N/A'}</td>
+                <td style="padding:9px 12px;font-size:0.84rem;">${attr.color_name||'N/A'}</td>
+                <td style="padding:9px 12px;font-size:0.84rem;font-weight:700;color:${color};">${attr.qty}</td>
+                <td style="padding:9px 12px;"><input type="number" class="stock-input" data-attr-id="${attr.id}" value="${attr.qty}" min="0"></td>
+            </tr>`;
         });
-        
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
-        
+        html += `</tbody></table></div>`;
         $('#stockModalContent').html(html);
         $('#stockModal').modal('show');
     }
-    
+
     function updateAllStock() {
         const updates = [];
-        $('.stock-input').each(function() {
-            updates.push({
-                id: $(this).data('attr-id'),
-                qty: $(this).val()
-            });
-        });
-        
-        $.ajax({
-            url: "{{ route('product.update.stock') }}",
-            method: 'POST',
-            data: {
-                _token: "{{ csrf_token() }}",
-                updates: updates
+        $('.stock-input').each(function() { updates.push({ id:$(this).data('attr-id'), qty:$(this).val() }); });
+        $.ajax({ url:"{{ route('product.update.stock') }}", method:'POST',
+            data: { _token:"{{ csrf_token() }}", updates:updates },
+            beforeSend: function() { Swal.fire({ title:'Updating...', allowOutsideClick:false, didOpen:()=>Swal.showLoading() }); },
+            success: function(res) {
+                if (res.success) { Swal.fire({ title:'Updated!', icon:'success', timer:1500, showConfirmButton:false }).then(() => { $('#stockModal').modal('hide'); applyFilters(); }); }
+                else { Swal.fire({ title:'Error!', text:res.message||'Failed', icon:'error' }); }
             },
-            beforeSend: function() {
-                Swal.fire({
-                    title: 'Updating...',
-                    text: 'Please wait while we update the stock',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-            },
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Stock updated successfully',
-                        icon: 'success',
-                        confirmButtonColor: '#27ae60',
-                        timer: 2000
-                    }).then(() => {
-                        $('#stockModal').modal('hide');
-                        applyFilters(); // Reload table
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: response.message || 'Failed to update stock',
-                        icon: 'error',
-                        confirmButtonColor: '#e74c3c'
-                    });
-                }
-            },
-            error: function() {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to update stock',
-                    icon: 'error',
-                    confirmButtonColor: '#e74c3c'
-                });
-            }
+            error: function() { Swal.fire({ title:'Error!', text:'Failed to update stock', icon:'error' }); }
         });
     }
 </script>

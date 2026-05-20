@@ -271,7 +271,7 @@
         <div class="cat-grid-wrap custom-container container">
             <div class="cat-grid">
                 @foreach($homeCategories as $cat)
-                    <a class="cat-card" href="{{ route('filter.product.category', $cat->id) }}">
+                    <a class="cat-card" href="{{ url('category/'.$cat->id) }}">
                         @php
                             $hasCatIK   = !empty($cat->imagekit_url_desktop);
                             $catDesktop = $cat->imagekit_url_desktop ?? null;
@@ -535,11 +535,7 @@
                                     <div class="row g-4" id="featured-products-container">
                                         @if ($featured_products->isNotEmpty())
                                             @foreach ($featured_products as $product)
-                                                <div class="col-xxl-3 col-md-4 col-6" style="border-radius: 10px">
-                                                    @include('website.pages.product.partials.product', [
-                                                        'loadmore_product' => $product,
-                                                    ])
-                                                </div>
+                                                @include('website.pages.product.partials.product', ['product' => $product])
                                             @endforeach
                                             <div class="col-12 d-flex justify-content-center mt-4 mb-4">
                                                 <button id="see-more-featured-products" class="btn btn-dark btn-lg "
@@ -556,11 +552,7 @@
                                     <div class="row g-4" id="latest-products-container">
                                         @if ($newarrival_products->isNotEmpty())
                                             @foreach ($newarrival_products as $product)
-                                            <div class="col-xxl-3 col-md-4 col-6" style="border-radius: 10px">
-                                                @include('website.pages.product.partials.product', [
-                                                    'loadmore_product' => $product,
-                                                ])
-                                            </div>
+                                                @include('website.pages.product.partials.product', ['product' => $product])
                                             @endforeach
                                             <div class="col-12 d-flex justify-content-center mt-4 mb-4">
                                                 <button id="see-more-latest-products" class="btn btn-dark btn-lg "
@@ -576,11 +568,7 @@
                                     <div class="row g-4" id="bestseller-products-container">
                                         @if ($BestSeller_products->isNotEmpty())
                                             @foreach ($BestSeller_products as $product)
-                                            <div class="col-xxl-3 col-md-4 col-6" style="border-radius: 10px">
-                                                @include('website.pages.product.partials.product', [
-                                                    'loadmore_product' => $product,
-                                                ])
-                                            </div>
+                                                @include('website.pages.product.partials.product', ['product' => $product])
                                             @endforeach
                                             <div class="col-12 d-flex justify-content-center mt-4 mb-4">
                                                 <button id="see-more-bestseller-products" class="btn btn-dark btn-lg "
@@ -926,23 +914,24 @@
 
 
         function loadMoreFeautredProducts() {
+            var $btn = $('#see-more-featured-products');
+            $btn.text('Loading...').prop('disabled', true);
             $.ajax({
                 url: "{{ route('load.more.featured.products') }}",
                 method: "GET",
-                data: {
-                    page: ++featuredPage
-                },
+                data: { page: ++featuredPage },
                 success: function(response) {
                     if (response.html) {
-                        $('#featured-products-container').append(response.html);
-                        $('#featured-products-container').append($('#see-more-featured-products').parent());
+                        // Button ke parent (col-12) se pehle naye products insert karo
+                        $btn.closest('.col-12').before(response.html);
                         if (response.hasMore === false) {
-                            $('#see-more-featured-products').parent().addClass('d-none');
+                            $btn.closest('.col-12').addClass('d-none');
                         }
                     }
+                    $btn.text('See More').prop('disabled', false);
                 },
                 error: function() {
-                    alert('Something went wrong while loading more products.');
+                    $btn.text('See More').prop('disabled', false);
                 }
             });
         }
