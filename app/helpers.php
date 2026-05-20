@@ -219,39 +219,32 @@ function path(){
 
 /**
  * Get correct URL for uploaded files.
- * Production: APP_URL = https://vivacecollections.com
- *   → files at: domain/public/uploads/path
- *   → url('public/uploads/path') = domain/public/uploads/path ✓
  *
- * Local: APP_URL = http://localhost/.../public
- *   → files at: domain/public/uploads/path
- *   → url('uploads/path') = domain/public/uploads/path ✓
+ * Production server: document root = /public
+ *   Files at: /public/uploads/path
+ *   asset('uploads/path') = https://domain/uploads/path ✓
  *
- * DB stores paths like:
- *   'uploads/product_images/file.jpg'  → strip 'uploads/' → 'product_images/file.jpg'
- *   'product_images/file.jpg'          → use as-is
- *   'banners/file.jpg'                 → use as-is
+ * Local XAMPP: APP_URL = http://localhost/.../public
+ *   Files at: /public/uploads/path
+ *   asset('uploads/path') = http://localhost/.../public/uploads/path ✓
+ *
+ * DB path formats:
+ *   'uploads/product_images/file.jpg' → strip 'uploads/' → asset('uploads/file.jpg')
+ *   'product_images/file.jpg'         → asset('uploads/product_images/file.jpg')
+ *   'banners/file.jpg'                → asset('uploads/banners/file.jpg')
  */
 function upload_url($path = '') {
     if (empty($path)) return asset('5.png');
 
     $path = ltrim($path, '/');
 
-    // Strip 'uploads/' prefix if already present in DB path
+    // Strip 'uploads/' prefix if already present in stored path
     if (str_starts_with($path, 'uploads/')) {
         $path = substr($path, strlen('uploads/'));
     }
 
-    // Always use public/uploads/ — works on both local and production
-    // Local:      APP_URL=.../public  → url('public/uploads/x') = .../public/public/uploads/x ✗
-    // So detect:
-    $appUrl = rtrim(config('app.url'), '/');
-    if (str_ends_with($appUrl, '/public')) {
-        // Local — APP_URL already has /public, so just use url('uploads/path')
-        return url('uploads/' . $path);
-    }
-    // Production — APP_URL = domain, files served from /public/uploads/
-    return $appUrl . '/public/uploads/' . $path;
+    // asset() uses APP_URL as base — works correctly on both local and production
+    return asset('uploads/' . $path);
 }
 function website_assets(){
     $path = url('public/website_assets');
