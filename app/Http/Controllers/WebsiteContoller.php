@@ -787,7 +787,7 @@ public function addToCart(Request $request)
         $cartItems = $cartData->map(function ($item) {
             $imageUrl = !empty($item->image_ik)
                 ? $item->image_ik
-                : (!empty($item->file_path) ? url('uploads/' . $item->file_path) : url('public/5.png'));
+                : (!empty($item->file_path) ? upload_url($item->file_path) : url('public/5.png'));
             return [
                 'id' => $item->cart_item_id,
                 'product_id' => $item->product_id,

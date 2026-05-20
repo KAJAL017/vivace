@@ -106,7 +106,7 @@ function CartProductData()
     return $cartItems->map(function ($item) {
         $imageUrl = !empty($item->image_ik)
             ? $item->image_ik
-            : (!empty($item->image) ? url('uploads/' . $item->image) : url('public/5.png'));
+            : (!empty($item->image) ? upload_url($item->image) : url('public/5.png'));
         return [
             'cart_item' => [
                 'id' => $item->cart_item_id,
@@ -175,7 +175,7 @@ function WishlistProductData() {
         if ($product) {
             $imageUrl = !empty($product->image_ik)
                 ? $product->image_ik
-                : (!empty($product->image_path) ? url('uploads/' . $product->image_path) : url('public/5.png'));
+                : (!empty($product->image_path) ? upload_url($product->image_path) : url('public/5.png'));
 
             $productData[] = [
                 'wishlist_item' => [
@@ -219,12 +219,34 @@ function path(){
 
 /**
  * Get correct URL for uploaded files.
- * Works correctly regardless of APP_URL having /public or not.
- * Usage: upload_url('banners/file.jpg') or upload_url('collection/file.jpg')
+ * Handles both:
+ *   - Local (APP_URL has /public): url('uploads/path') = domain/public/uploads/path
+ *   - Production (APP_URL = domain): url('public/uploads/path') = domain/public/uploads/path
+ *
+ * DB mein path formats:
+ *   - 'uploads/product_images/file.jpg'  → strip 'uploads/' prefix
+ *   - 'product_images/file.jpg'          → use as-is
+ *   - 'banners/file.jpg'                 → use as-is
  */
 function upload_url($path = '') {
-    // APP_URL already has /public — so just use url() directly
-    return url('uploads/' . ltrim($path, '/'));
+    if (empty($path)) return url('public/5.png');
+
+    $path = ltrim($path, '/');
+
+    // Agar path 'uploads/' se start hota hai toh strip karo (DB mein already hai)
+    if (str_starts_with($path, 'uploads/')) {
+        $path = substr($path, strlen('uploads/'));
+    }
+
+    // APP_URL check — production pe /public nahi hota
+    $appUrl = config('app.url');
+    if (str_ends_with(rtrim($appUrl, '/'), '/public')) {
+        // Local: APP_URL has /public — url('uploads/path') = domain/public/uploads/path
+        return url('uploads/' . $path);
+    } else {
+        // Production: APP_URL = domain — url('public/uploads/path') = domain/public/uploads/path
+        return url('public/uploads/' . $path);
+    }
 }
 function website_assets(){
     $path = url('public/website_assets');
