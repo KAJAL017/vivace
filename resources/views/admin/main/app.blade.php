@@ -86,6 +86,7 @@
 
     </style>
     @yield('admin-css')
+    @stack('styles')
 </head>
 
 <body>
